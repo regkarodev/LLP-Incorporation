@@ -1,3 +1,0 @@
-"""
-MCA Automation Package
-""" 
