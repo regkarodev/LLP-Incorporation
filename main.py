@@ -108,7 +108,7 @@ def perform_login(driver=None, close_after_login=False):
     own_driver = driver is None
     try:
         # Load profile path from config.json
-        with open("config.json", "r") as f:
+        with open("config_data.json", "r") as f:
             config = json.load(f)
         
         # Initialize browser if needed

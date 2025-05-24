@@ -26,7 +26,7 @@
             "Fax": "1101234567",
             "Email ID": "shagun@registerkaro.in",
             "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
-            "Individuals Having valid DIN/DPIN": "1",
+            "Individuals Having valid DIN/DPIN": "2",
             "Individuals Not having valid DIN/DPIN": "1",
             "Body corporates and their nominees Having valid DIN/DPIN": "0",
             "Body corporates and their nominee not having valid DIN/DPIN": "0",
@@ -95,33 +95,52 @@
             "Enter Name": "ghj",
             "Enter Father's Name": "XYZ",
             "partnership and my membership number": "228798"
-
+        },
+        "designated_partners": [
+            {
+              "Designated partner identification number (DIN/DPIN)": "10290759",
+              "Whether resident of India": "Yes",
+              "Form of contribution": "Cash",
+              "Monetary value of contribution (in INR) (in figures)": "1000000",
+              "Number of LLP(s) in which he/ she is a partner": "2",
+              "Number of company(s) in which he/ she is a director": "1"
+            },
+            {
+              "Designated partner identification number (DIN/DPIN)": "00000001",
+              "Whether resident of India": "Yes",
+              "Number of shares held": "200",
+              "Paid up value of shares held (in INR)": "100000",
+              "Form of contribution": "Other than cash",
+              "If 'Other than cash' selected, please specify": "Land",
+              "Monetary value of contribution (in INR) (in figures)": "2000000",
+              "Number of LLP(s) in which he/ she is a partner": "1",
+              "Number of company(s) in which he/ she is a director": "2"
+            }
+          ]
+    },
+    "options": {
+        "already_approved": {
+            "yes": "True",
+            "no": "False"
+        },
+        "type_of_incorporation": {
+            "Type of incorporation": "True",
+            "Conversion of firm into LLP": "False",
+            "Conversion of private company/unlisted public company into LLP": "False"
         },
 
-        "options": {
-            "already_approved": {
-                "yes": "True",
-                "no": "False"
-            },
-            "type_of_incorporation": {
-                "Type of incorporation": "True",
-                "Conversion of firm into LLP": "False",
-                "Conversion of private company/unlisted public company into LLP": "False"
-            },
-
-            "Resident_of_India": {
-                "Yes": "True",
-                "No": "False"
-            },
-            
-            "Income-tax PAN/Passport number": {
-                "PAN": "True",
-                "Passport number": "False"
-            },
-            "Citizenship": {
-                "Yes": "True",
-                "No": "False"
-            }
+        "Resident_of_India": {
+            "Yes": "True",
+            "No": "False"
+        },
+        
+        "Income-tax PAN/Passport number": {
+            "PAN": "True",
+            "Passport number": "False"
+        },
+        "Citizenship": {
+            "Yes": "True",
+            "No": "False"
         }
     }
 }

@@ -1,4 +1,51 @@
 {
-    "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles",
-    "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html"
+  "Basic details": {
+    "form1": [
+      {
+        "Designated partner identification number (DIN/DPIN)": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel-guidetextbox_copy_co___widget",
+        "resident_india": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel-guideradiobutton_cop__-1_widget",
+        "form_of_contribution": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379531518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidedropdownlist___widget",
+        "monetary_value_of_contribution": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy___widget",
+        "number_of_llp": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy_16___widget",
+        "number_of_company": "#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy_70___widget"
+      },
+      {
+        "_comment": "For partners 2-5, use XPath in the code like: (//input[@aria-label='Field Name'])[2]",
+        "Designated partner identification number (DIN/DPIN)": "[aria-label='Designated partner identification number (DIN/DPIN)']:nth-of-type(2)",
+        "resident_india": "[aria-label*='resident of India']:nth-of-type(2)",
+        "form_of_contribution": "[aria-label='Form of contribution']:nth-of-type(2)",
+        "monetary_value_of_contribution": "[aria-label='Monetary value of contribution (in INR) (in figures)']:nth-of-type(2)",
+        "number_of_llp": "[aria-label='Number of LLP(s) in which he/ she is a partner']:nth-of-type(2)",
+        "number_of_company": "[aria-label='Number of company(s) in which he/ she is a director']:nth-of-type(2)"
+      },
+      {
+        "_comment": "XPath examples: (//input[@aria-label='Designated partner identification number (DIN/DPIN)'])[3]",
+        "Designated partner identification number (DIN/DPIN)": "[aria-label='Designated partner identification number (DIN/DPIN)']:nth-of-type(3)",
+        "resident_india": "[aria-label*='resident of India']:nth-of-type(3)",
+        "form_of_contribution": "[aria-label='Form of contribution']:nth-of-type(3)",
+        "If 'Other than cash' selected, please specify": "[aria-label*='please specify']:nth-of-type(3)",
+        "monetary_value_of_contribution": "[aria-label='Monetary value of contribution (in INR) (in figures)']:nth-of-type(3)",
+        "number_of_llp": "[aria-label='Number of LLP(s) in which he/ she is a partner']:nth-of-type(3)",
+        "number_of_company": "[aria-label='Number of company(s) in which he/ she is a director']:nth-of-type(3)"
+      },
+      {
+        "Designated partner identification number (DIN/DPIN)": "[aria-label='Designated partner identification number (DIN/DPIN)']:nth-of-type(4)",
+        "resident_india": "[aria-label*='resident of India']:nth-of-type(4)",
+        "form_of_contribution": "[aria-label='Form of contribution']:nth-of-type(4)",
+        "monetary_value_of_contribution": "[aria-label='Monetary value of contribution (in INR) (in figures)']:nth-of-type(4)",
+        "number_of_llp": "[aria-label='Number of LLP(s) in which he/ she is a partner']:nth-of-type(4)",
+        "number_of_company": "[aria-label='Number of company(s) in which he/ she is a director']:nth-of-type(4)"
+      },
+      {
+        "Designated partner identification number (DIN/DPIN)": "[aria-label='Designated partner identification number (DIN/DPIN)']:nth-of-type(5)",
+        "resident_india": "[aria-label*='resident of India']:nth-of-type(5)",
+        "form_of_contribution": "[aria-label='Form of contribution']:nth-of-type(5)",
+        "If 'Other than cash' selected, please specify": "[aria-label*='please specify']:nth-of-type(5)",
+        "monetary_value_of_contribution": "[aria-label='Monetary value of contribution (in INR) (in figures)']:nth-of-type(5)",
+        "number_of_llp": "[aria-label='Number of LLP(s) in which he/ she is a partner']:nth-of-type(5)",
+        "number_of_company": "[aria-label='Number of company(s) in which he/ she is a director']:nth-of-type(5)"
+      }
+    ]
+  },
+  "xpath_selectors_note": "For position-based selection, use XPath instead of CSS :nth-of-type(). Example: driver.find_element(By.XPATH, '(//input[@aria-label=\"Form of contribution\"])[2]')"
 }

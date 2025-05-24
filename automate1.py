@@ -241,6 +241,9 @@ def run_llp_form_sequence(webdriver_instance=None):
         with open("config_data.json", "r") as f:
             config_data = json.load(f)
 
+        with open('config.json', 'r') as f:
+            config_selectors = json.load(f)
+
         # Begin the form sequence
         print("[AUTOMATE1] Starting LLP form sequence...")
         
@@ -350,30 +353,275 @@ def run_llp_form_sequence(webdriver_instance=None):
         # *Body corporates and their nominee not having valid DIN/DPIN
         send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356041275-tableItem1629356041278___widget', config_data['form_data']['fields']['Body corporates and their nominee not having valid DIN/DPIN1'])
 
+
+
         # (A) Particulars of individual designated partners having DIN/DPIN
-        # (i)  Basic details of Designated partner
+        # Support for multiple partners from config_data and config selectors
+        
+        # Get the number of partners to fill
+        num_partners = int(config_data['form_data']['fields'].get('Individuals Having valid DIN/DPIN', 0))
+        
+        if num_partners < 1:
+            print('No designated partners with DIN/DPIN to fill.')
+        else:
+            if num_partners > 5:
+                print('Reached the limit of 5 designated partners. Only filling 5.')
+                num_partners = 5
+            
+            # Load selectors from config.json
+            try:
+                with open('config.json', 'r') as f:
+                    config_selectors = json.load(f)
+                selectors_list = config_selectors['Basic details']['form1']
+            except:
+                print("Error loading config.json for selectors")
+                selectors_list = []
+            
+            # Get partner data (check multiple locations)
+            designated_partners = config_data['form_data'].get('designated_partners', None)
+            if not designated_partners:
+                # Check under options
+                designated_partners = config_data['form_data'].get('options', {}).get('designated_partners', None)
+            
+            if not designated_partners:
+                # Fallback: use the same data for all
+                designated_partners = [config_data['form_data']['fields']] * num_partners
+            
+            # Fill each partner's subform
+            for idx in range(num_partners):
+                print(f'Filling subform for designated partner {idx+1}')
+                
+                # Get partner data and selectors for this index
+                partner = designated_partners[idx] if idx < len(designated_partners) else designated_partners[0]
+                filled_successfully = False
+                
+                # First try: Use selectors from config.json (only for partner 1)
+                if selectors_list and idx == 0:
+                    selectors = selectors_list[idx]
+                    
+                    # Check if this is a dynamic GUID selector that might not work
+                    first_selector = list(selectors.values())[0] if selectors else ""
+                    if idx > 0 and "GUID" in first_selector:
+                        print(f"Note: Partner {idx+1} uses dynamic GUID selectors which may not match the page")
+                    
+                    fields_filled = 0
+                    for field, selector in selectors.items():
+                        # Map field names...
+                        field_mapping = {
+                            'Designated partner identification number (DIN/DPIN)': 'Designated partner identification number (DIN/DPIN)',
+                            'resident_india': 'Whether resident of India',
+                            'form_of_contribution': 'Form of contribution',
+                            'monetary_value_of_contribution': 'Monetary value of contribution (in INR) (in figures)',
+                            'number_of_llp': 'Number of LLP(s) in which he/ she is a partner',
+                            'number_of_company': 'Number of company(s) in which he/ she is a director',
+                            'value': None,
+                            "If 'Other than cash' selected, please specify": "If 'Other than cash' selected, please specify"
+                        }
+                        actual_field = field_mapping.get(field, field)
+                        if actual_field is None:
+                            continue
+                        value = partner.get(actual_field)
+                        if value is not None:
+                            try:
+                                if field == 'resident_india':
+                                    if str(value).lower() == 'yes':
+                                        element = driver.find_element(By.CSS_SELECTOR, selector)
+                                        click_element(selector)
+                                    time.sleep(0.5)
+                                elif field == 'form_of_contribution':
+                                    # Always use XPath fallback for dropdown with debugging
+                                    position = idx + 1
+                                    try:
+                                        # Debug: Check what elements exist
+                                        all_contribution_elements = driver.find_elements(By.XPATH, "//*[@aria-label='Form of contribution']")
+                                        print(f"Debug: Found {len(all_contribution_elements)} elements with aria-label='Form of contribution'")
+                                        for i, el in enumerate(all_contribution_elements):
+                                            print(f"  Element {i+1}: tag={el.tag_name}, type={el.get_attribute('type')}, displayed={el.is_displayed()}")
+                                        
+                                        contribution_element = None
+                                        
+                                        # Try different XPath patterns
+                                        xpath_patterns = [
+                                            f"(//input[@aria-label='Form of contribution'])[{position}]",
+                                            f"(//select[@aria-label='Form of contribution'])[{position}]", 
+                                            f"(//*[@aria-label='Form of contribution'])[{position}]"
+                                        ]
+                                        
+                                        for xpath in xpath_patterns:
+                                            try:
+                                                contribution_element = driver.find_element(By.XPATH, xpath)
+                                                print(f"Found contribution element using: {xpath}")
+                                                break
+                                            except:
+                                                continue
+                                        
+                                        if not contribution_element:
+                                            raise Exception("Could not find Form of contribution element with any pattern")
+                                        
+                                        # Handle different element types
+                                        if contribution_element.tag_name.lower() == 'select':
+                                            # Use Selenium's Select for native dropdowns
+                                            from selenium.webdriver.support.ui import Select
+                                            select = Select(contribution_element)
+                                            select.select_by_visible_text(value)
+                                            print(f"Selected contribution type using Select: {value}")
+                                        else:
+                                            # Handle input or custom dropdown
+                                            contribution_element.click()
+                                            time.sleep(0.5)
+                                            try:
+                                                option_xpath = f"//li[contains(text(), '{value}') or contains(., '{value}')]"
+                                                option = driver.find_element(By.XPATH, option_xpath)
+                                                option.click()
+                                                print(f"Selected contribution type for partner {position}: {value}")
+                                            except Exception as e:
+                                                contribution_element.send_keys(value)
+                                                print(f"Fallback: sent keys for contribution type for partner {position}: {value}")
+                                        
+                                        if str(value).lower() == 'other than cash':
+                                            spec_value = partner.get("If 'Other than cash' selected, please specify", '')
+                                            if spec_value:
+                                                try:
+                                                    spec_element = driver.find_element(By.XPATH, f"(//*[contains(@aria-label, 'please specify')])[{position}]")
+                                                    spec_element.clear()
+                                                    spec_element.send_keys(spec_value)
+                                                    print(f"Filled 'Other than cash' specification for partner {position}")
+                                                except Exception as e:
+                                                    print(f"Warning: Could not fill 'Other than cash' specification: {str(e)}")
+                                    except Exception as e:
+                                        print(f"Could not fill 'Form of contribution' for partner {position}: {str(e)}")
+                                else:
+                                    element = driver.find_element(By.CSS_SELECTOR, selector)
+                                    send_text(selector, str(value))
+                                fields_filled += 1
+                            except Exception as e:
+                                print(f"Warning: Could not fill field '{field}' with selector '{selector}': {str(e)}")
+                                continue
+                    
+                    if fields_filled > 0:
+                        filled_successfully = True
+                        print(f"Successfully filled {fields_filled} fields for partner {idx+1}")
+                
+                # Always use XPath fallback for all partners (including partner 1 if config selectors fail)
+                if not filled_successfully:
+                    print(f"Using XPath fallback for partner {idx+1}")
+                    try:
+                        position = idx + 1
+                        # DIN/DPIN
+                        try:
+                            din_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Designated partner identification number (DIN/DPIN)'])[{position}]")
+                            din_element.clear()
+                            din_element.send_keys(partner.get('Designated partner identification number (DIN/DPIN)', ''))
+                            print(f"Filled DIN for partner {position}")
+                        except Exception as e:
+                            print(f"Warning: Could not fill DIN for partner {position}: {str(e)}")
+                        # Click resident radio if available
+                        if partner.get('Whether resident of India', '').lower() == 'yes':
+                            try:
+                                resident_radio = driver.find_element(By.XPATH, f"(//input[@aria-label='Whether resident of India'])[{position}]")
+                                resident_radio.click()
+                                print(f"Selected resident of India for partner {position}")
+                            except:
+                                try:
+                                    resident_radio = driver.find_element(By.XPATH, f"(//*[contains(@aria-label, 'resident of India')])[{position}]")
+                                    resident_radio.click()
+                                    print(f"Selected resident of India for partner {position}")
+                                except Exception as e:
+                                    print(f"Warning: Could not select resident radio for partner {position}: {str(e)}")
+                        # Form of contribution
+                        try:
+                            # Debug: Check what elements exist
+                            all_contribution_elements = driver.find_elements(By.XPATH, "//*[@aria-label='Form of contribution']")
+                            print(f"Debug: Found {len(all_contribution_elements)} elements with aria-label='Form of contribution'")
+                            for i, el in enumerate(all_contribution_elements):
+                                print(f"  Element {i+1}: tag={el.tag_name}, type={el.get_attribute('type')}, displayed={el.is_displayed()}")
+                            
+                            contribution_value = partner.get('Form of contribution', '')
+                            contribution_element = None
+                            
+                            # Try different XPath patterns
+                            xpath_patterns = [
+                                f"(//input[@aria-label='Form of contribution'])[{position}]",
+                                f"(//select[@aria-label='Form of contribution'])[{position}]", 
+                                f"(//*[@aria-label='Form of contribution'])[{position}]"
+                            ]
+                            
+                            for xpath in xpath_patterns:
+                                try:
+                                    contribution_element = driver.find_element(By.XPATH, xpath)
+                                    print(f"Found contribution element using: {xpath}")
+                                    break
+                                except:
+                                    continue
+                            
+                            if not contribution_element:
+                                raise Exception("Could not find Form of contribution element with any pattern")
+                            
+                            # Handle different element types
+                            if contribution_element.tag_name.lower() == 'select':
+                                # Use Selenium's Select for native dropdowns
+                                from selenium.webdriver.support.ui import Select
+                                select = Select(contribution_element)
+                                select.select_by_visible_text(contribution_value)
+                                print(f"Selected contribution type using Select: {contribution_value}")
+                            else:
+                                # Handle input or custom dropdown
+                                contribution_element.click()
+                                time.sleep(0.5)
+                                try:
+                                    # Try to find and click option
+                                    option_xpath = f"//li[contains(text(), '{contribution_value}') or contains(., '{contribution_value}')]"
+                                    option = driver.find_element(By.XPATH, option_xpath)
+                                    option.click()
+                                    print(f"Selected contribution type for partner {position}: {contribution_value}")
+                                except Exception as e:
+                                    # Fallback to send_keys
+                                    contribution_element.send_keys(contribution_value)
+                                    print(f"Fallback: sent keys for contribution type for partner {position}: {contribution_value}")
+                            
+                            # Handle "Other than cash" specification
+                            if contribution_value.lower() == 'other than cash':
+                                try:
+                                    spec_element = driver.find_element(By.XPATH, f"(//*[contains(@aria-label, 'please specify')])[{position}]")
+                                    spec_element.clear()
+                                    spec_element.send_keys(partner.get("If 'Other than cash' selected, please specify", ''))
+                                    print(f"Filled 'Other than cash' specification for partner {position}")
+                                except Exception as e:
+                                    print(f"Warning: Could not fill 'Other than cash' specification: {str(e)}")
+                        except Exception as e:
+                            print(f"Warning: Could not fill contribution for partner {position}: {str(e)}")
+                        # Monetary value
+                        try:
+                            monetary_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Monetary value of contribution (in INR) (in figures)'])[{position}]")
+                            monetary_element.clear()
+                            monetary_element.send_keys(partner.get('Monetary value of contribution (in INR) (in figures)', ''))
+                            print(f"Filled monetary value for partner {position}")
+                        except Exception as e:
+                            print(f"Warning: Could not fill monetary value for partner {position}: {str(e)}")
+                        # Number of LLPs
+                        try:
+                            llp_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Number of LLP(s) in which he/ she is a partner'])[{position}]")
+                            llp_element.clear()
+                            llp_element.send_keys(partner.get('Number of LLP(s) in which he/ she is a partner', ''))
+                            print(f"Filled LLP count for partner {position}")
+                        except Exception as e:
+                            print(f"Warning: Could not fill LLP count for partner {position}: {str(e)}")
+                        # Number of companies
+                        try:
+                            company_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Number of company(s) in which he/ she is a director'])[{position}]")
+                            company_element.clear()
+                            company_element.send_keys(partner.get('Number of company(s) in which he/ she is a director', ''))
+                            print(f"Filled company count for partner {position}")
+                        except Exception as e:
+                            print(f"Warning: Could not fill company count for partner {position}: {str(e)}")
+                    except Exception as e:
+                        print(f"Error with XPath fallback for partner {idx+1}: {str(e)}")
+                        print(f"This usually means the form structure is different than expected.")
+                        print(f"Please check that {num_partners} subforms are actually visible on the page.")
+                
+                time.sleep(1)  # Wait between partners
 
-        # Designated partner identification number (DIN/DPIN)
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel-guidetextbox_copy_co___widget', config_data['form_data']['fields']['Designated partner identification number (DIN/DPIN)'])
 
-        # Whether resident of India
-        time.sleep(2)
-        click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel-guideradiobutton_cop__-1_widget')
-
-        # Form of contribution
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidedropdownlist___widget', config_data['form_data']['fields']['Form of contribution'])
-
-        # Monetary value of contribution (in INR) (in figures)
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy___widget', config_data['form_data']['fields']['Monetary value of contribution (in INR) (in figures)'])
-
-        # Monetary value of contribution (in words)
-        # send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy_1389782663___widget', 'Ten crore')
-
-        #Number of LLP(s) in which he/ she is a partner
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy_16___widget', config_data['form_data']['fields']['Number of LLP(s) in which he/ she is a partner'])
-
-        # Number of company(s) in which he/ she is a director
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel_1068208772-panel_1190620866-guidetextbox_copy_70___widget', config_data['form_data']['fields']['Number of company(s) in which he/ she is a director'])
 
         # (B) Particulars of individual designated partners not having DIN/DPIN
         # (i) Basic details of Designated partner
@@ -455,7 +703,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         # Educational qualification
         time.sleep(2)
         click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_406391466-guidetextbox_copy_11_164495912___widget')
-        time.sleep(2)
         click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_406391466-guidetextbox_copy_11_164495912___widget > option:nth-child(5)')
 
         send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_406391466-guidetelephone_copy___widget', config_data['form_data']['fields']['Mobile No'])
@@ -536,7 +783,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
 
         # NEXT BUTTON
-        time.sleep(2)
         click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
 
         # *Area code
@@ -584,7 +830,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
 
         # NEXT BUTTON
-        time.sleep(2)
         click_element('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button___widget')
 
         # Upload files using the loaded config

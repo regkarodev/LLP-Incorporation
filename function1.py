@@ -243,6 +243,3 @@ def click_true_option(driver, parent_key, options_dict):
         print(f"Error in click_true_option: {e}")
         return False
 
-
-
-
