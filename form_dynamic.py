@@ -80,41 +80,70 @@ def fill_designated_partners_form(driver):
 
 def fill_partner_by_xpath(driver, partner_data, position):
     """Fill partner fields using XPath with position indexing"""
-    print(f"Using XPath approach for partner {position}")
+    print(f"Filling partner {position} using XPath")
     
     # Fill DIN/DPIN
     try:
         din_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Designated partner identification number (DIN/DPIN)'])[{position}]")
         din_element.clear()
         din_element.send_keys(partner_data.get('Designated partner identification number (DIN/DPIN)', ''))
-        print(f"  ✓ Filled DIN for partner {position}")
+        print(f"  ✓ Filled DIN")
     except Exception as e:
-        print(f"  ✗ Could not fill DIN for partner {position}: {str(e)}")
+        print(f"  ✗ Could not fill DIN: {str(e)}")
     
     # Click resident radio if applicable
     if partner_data.get('Whether resident of India', '').lower() == 'yes':
         try:
-            # Try exact match first
             resident_radio = driver.find_element(By.XPATH, f"(//input[@aria-label='Whether resident of India'])[{position}]")
             resident_radio.click()
-            print(f"  ✓ Selected resident of India for partner {position}")
+            print(f"  ✓ Selected resident of India")
         except:
-            # Try partial match
             try:
                 resident_radio = driver.find_element(By.XPATH, f"(//*[contains(@aria-label, 'resident of India')])[{position}]")
                 resident_radio.click()
-                print(f"  ✓ Selected resident of India for partner {position}")
+                print(f"  ✓ Selected resident of India")
             except Exception as e:
-                print(f"  ✗ Could not select resident radio for partner {position}: {str(e)}")
+                print(f"  ✗ Could not select resident radio: {str(e)}")
     
     # Fill Form of contribution
     try:
-        contribution_element = driver.find_element(By.XPATH, f"(//input[@aria-label='Form of contribution'])[{position}]")
+        contribution_element = None
         contribution_value = partner_data.get('Form of contribution', '')
-        contribution_element.click()
-        time.sleep(0.5)
-        contribution_element.send_keys(contribution_value)
-        print(f"  ✓ Filled contribution type: {contribution_value}")
+        
+        # Try different XPath patterns
+        xpath_patterns = [
+            f"(//input[@aria-label='Form of contribution'])[{position}]",
+            f"(//select[@aria-label='Form of contribution'])[{position}]", 
+            f"(//*[@aria-label='Form of contribution'])[{position}]"
+        ]
+        
+        for xpath in xpath_patterns:
+            try:
+                contribution_element = driver.find_element(By.XPATH, xpath)
+                break
+            except:
+                continue
+        
+        if not contribution_element:
+            raise Exception("Could not find Form of contribution element")
+        
+        # Handle different element types
+        if contribution_element.tag_name.lower() == 'select':
+            from selenium.webdriver.support.ui import Select
+            select = Select(contribution_element)
+            select.select_by_visible_text(contribution_value)
+            print(f"  ✓ Selected contribution: {contribution_value}")
+        else:
+            contribution_element.click()
+            time.sleep(0.5)
+            try:
+                option_xpath = f"//li[contains(text(), '{contribution_value}') or contains(., '{contribution_value}')]"
+                option = driver.find_element(By.XPATH, option_xpath)
+                option.click()
+                print(f"  ✓ Selected contribution: {contribution_value}")
+            except Exception as e:
+                contribution_element.send_keys(contribution_value)
+                print(f"  ✓ Sent keys for contribution: {contribution_value}")
         
         # Handle "Other than cash" specification
         if contribution_value.lower() == 'other than cash':

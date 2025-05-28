@@ -183,39 +183,64 @@ def set_date_field(driver, date_field_id, your_date):
     else:
         print(f"[-] Date verification failed. Expected: {your_date}, Got: {actual_value}")
 
-def click_true_option(driver, parent_key, options_dict):
+def click_true_option(driver, parent_key, options_dict, section_heading=None):
     """
     Click the option that is marked as true in the options dictionary
-    
     Args:
         driver: Selenium WebDriver instance
         parent_key: The parent key in the JSON structure
         options_dict: Dictionary containing options with boolean values
-        Example:
-        {
-            "parent_key": {
-                "option1": true,
-                "option2": false,
-                "option3": false
-            }
-        }
+        section_heading: Optional. If provided, scope the search to this section.
     """
     try:
-        # Get the options for the parent key
         options = options_dict.get(parent_key, {})
-        
-        # Find the option that is true
         true_option = None
         for option, value in options.items():
             if value is True:
                 true_option = option
                 break
-        
         if true_option is None:
             print(f"No true option found for parent key: {parent_key}")
             return False
-            
-        # Try different selectors to find and click the element
+        # Print all label texts for debugging
+        labels = driver.find_elements(By.XPATH, "//label")
+        for lbl in labels:
+            print(f"[DEBUG] Label text: '{lbl.text}'")
+        # If section_heading is provided, scope the search to that section
+        if section_heading:
+            try:
+                section_xpath = f"//*[contains(text(), '{section_heading}')]/ancestor::div[contains(@class, 'panel') or contains(@class, 'section') or contains(@class, 'guidePanel')]"
+                print(f"[DEBUG] Searching for section with XPath: {section_xpath}")
+                section = driver.find_element(By.XPATH, section_xpath)
+                print(f"[DEBUG] Found section HTML: {section.get_attribute('outerHTML')[:1000]}")
+                group_label_xpath = f".//label[contains(normalize-space(text()), '{parent_key}') or normalize-space(text())='{parent_key}']"
+                print(f"[DEBUG] Searching for group label within section with XPath: {group_label_xpath}")
+                group_label = section.find_element(By.XPATH, group_label_xpath)
+                print(f"[DEBUG] Found group label text: '{group_label.text}'")
+                group_container = group_label.find_element(By.XPATH, "./ancestor::div[contains(@class, 'guideradiobutton') or contains(@class, 'guideFieldNode')]")
+                print(f"[DEBUG] Found group container HTML: {group_container.get_attribute('outerHTML')[:1000]}")
+                radio_input = group_container.find_element(By.XPATH, f".//input[@type='radio' and @aria-label='{true_option}']")
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_input)
+                driver.execute_script("arguments[0].removeAttribute('readonly'); arguments[0].removeAttribute('disabled');", radio_input)
+                driver.execute_script("arguments[0].click();", radio_input)
+                print(f"Successfully clicked radio input with aria-label: {true_option} in group: {parent_key} in section: {section_heading}")
+                return True
+            except Exception as e:
+                print(f"[DEBUG] Could not click radio input by aria-label in section {section_heading}, group {parent_key}: {str(e)}")
+        # Fallback to global search as before
+        try:
+            group_label_xpath = f"//label[contains(normalize-space(text()), '{parent_key}') or normalize-space(text())='{parent_key}']"
+            print(f"[DEBUG] Searching for group label with XPath: {group_label_xpath}")
+            group_label = driver.find_element(By.XPATH, group_label_xpath)
+            group_container = group_label.find_element(By.XPATH, "./ancestor::div[contains(@class, 'guideradiobutton') or contains(@class, 'guideFieldNode')]")
+            radio_input = group_container.find_element(By.XPATH, f".//input[@type='radio' and @aria-label='{true_option}']")
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_input)
+            driver.execute_script("arguments[0].removeAttribute('readonly'); arguments[0].removeAttribute('disabled');", radio_input)
+            driver.execute_script("arguments[0].click();", radio_input)
+            print(f"Successfully clicked radio input with aria-label: {true_option} in group: {parent_key}")
+            return True
+        except Exception as e:
+            print(f"[DEBUG] Could not click radio input by aria-label in group {parent_key}: {str(e)}")
         selectors = [
             f"//label[contains(text(), '{true_option}')]",
             f"//div[contains(text(), '{true_option}')]",
@@ -223,7 +248,6 @@ def click_true_option(driver, parent_key, options_dict):
             f"//input[@value='{true_option}']",
             f"//button[contains(text(), '{true_option}')]"
         ]
-        
         for selector in selectors:
             try:
                 element = WebDriverWait(driver, 10).until(
@@ -235,10 +259,8 @@ def click_true_option(driver, parent_key, options_dict):
                 return True
             except:
                 continue
-                
         print(f"Could not find clickable element for option: {true_option}")
         return False
-        
     except Exception as e:
         print(f"Error in click_true_option: {e}")
         return False
