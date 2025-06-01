@@ -1,143 +1,12 @@
+import time
+import os
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
-import time
-import json
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.common.keys import Keys
 import function1
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
-
-def handle_partners_without_din(driver, config_data, config_selectors):
-    """
-    Handle filling details for partners without DIN/DPIN
-    """
-    try:
-        # Validate config_data
-        if not isinstance(config_data, dict):
-            print("[ERROR] Invalid config_data format")
-            return
-            
-        # Get form data from config_data
-        form_data = config_data.get('form_data', {})
-        if not form_data:
-            print("[ERROR] No form_data found in config_data")
-            return
-            
-        fields = form_data.get('fields', {})
-        if not fields:
-            print("[ERROR] No fields found in form_data")
-            return
-
-        # Get the number of partners to fill
-        try:
-            num_partners_no_din = int(fields.get('Individuals Not having valid DIN/DPIN', 0))
-        except (ValueError, TypeError):
-            print("[ERROR] Invalid number of partners without DIN/DPIN")
-            return
-        
-        if num_partners_no_din < 1:
-            print('[LOG] No designated partners without DIN/DPIN to fill.')
-            return
-        
-        # Set maximum limit to 8
-        if num_partners_no_din > 8:
-            print('[WARNING] Reached the limit of 8 designated partners. Only filling 8.')
-            num_partners_no_din = 8
-        
-        print(f'[LOG] Starting to fill details for {num_partners_no_din} partners without DIN/DPIN')
-        
-        # Get partner data from config_data
-        partners_no_din = config_data.get('partners_without_din', [])
-        
-        if not partners_no_din:
-            print("[WARNING] No partners_without_din data found in config_data")
-            return
-
-        # Initialize counters for overall success/failure tracking
-        total_fields_filled = 0
-        total_fields_failed = 0
-
-        # Ensure we iterate at least num_partners_no_din times
-        iterations = max(num_partners_no_din, len(partners_no_din))
-        
-        # Fill each partner's subform
-        for idx in range(iterations):
-            print(f'\n[LOG] ========== Filling Partner {idx+1} without DIN/DPIN ==========')
-            
-            # Get partner data for this index, use empty dict if index exceeds available data
-            partner = partners_no_din[idx] if idx < len(partners_no_din) else {}
-            position = idx + 1
-            fields_filled_count = 0
-            fields_failed_count = 0
-
-            try:
-                # Find the form by text
-                section_title = "Particulars of individual designated partners not having DIN/DPIN"
-                
-                # Wait for the section title to be present and find the first occurrence
-                section_element = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, f"//*[contains(text(), '{section_title}')]"))
-                )
-                
-                # Get the parent div containing the form
-                parent_div = section_element.find_element(By.XPATH, "./ancestor::div[contains(@class, 'panel')]")
-                
-                if parent_div:
-                    print(f"[LOG] Found parent div for partner {position}")
-                    
-                    # Find all input elements within the parent div
-                    input_elements = parent_div.find_elements(By.TAG_NAME, "input")
-                    
-                    if input_elements:
-                        # Get the first input element
-                        first_input = input_elements[0]
-                        
-                        # Scroll to the first input element
-                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", first_input)
-                    
-                    # (i) Personal Information
-                    print("\n[LOG] Filling Personal Information...")
-                    fields_filled_count, fields_failed_count = fill_personal_information(driver, partner, fields_filled_count, fields_failed_count, parent_div)
-                    
-                    # (ii) Permanent Address
-                    print("\n[LOG] Filling Permanent Address...")
-                    fields_filled_count, fields_failed_count = fill_permanent_address(driver, partner, fields_filled_count, fields_failed_count, parent_div)
-                    
-                    # (iii) Present Address
-                    print("\n[LOG] Filling Present Address...")
-                    fields_filled_count, fields_failed_count = fill_present_address(driver, partner, fields_filled_count, fields_failed_count)
-                    
-                    # (iv) Identity and Residential Proof
-                    print("\n[LOG] Filling Identity and Residential Proof...")
-                    fields_filled_count, fields_failed_count = fill_identity_proof(driver, partner, fields_filled_count, fields_failed_count, parent_div)
-
-                    if fields_filled_count > 0:
-                        print(f"\n[SUCCESS] ✓ Partner {position} form filled: {fields_filled_count} fields filled, {fields_failed_count} failed")
-                        total_fields_filled += fields_filled_count
-                        total_fields_failed += fields_failed_count
-                    else:
-                        print(f"\n[WARNING] ⚠️ Partner {position} form not filled: No fields were successfully filled")
-                        total_fields_failed += 1
-                else:
-                    print(f"[ERROR] No input elements found in the parent div for partner {position}")
-                    total_fields_failed += 1
-
-                time.sleep(1)  # Wait between partners
-
-            except Exception as e:
-                print(f"[ERROR] Failed to process partner {position}: {str(e)}")
-                total_fields_failed += 1
-
-        print(f"\n[LOG] ========== Completed all {iterations} partners without DIN/DPIN ==========")
-        print(f"Total fields filled: {total_fields_filled}")
-        print(f"Total fields failed: {total_fields_failed}")
-        
-    except Exception as e:
-        print(f"[ERROR] An error occurred in handle_partners_without_din: {str(e)}")
-        import traceback
-        traceback.print_exc()
 
 def normalize_options_dict(options_dict):
     """Convert string 'True'/'False' to boolean True/False in options_dict."""
@@ -149,1209 +18,1247 @@ def normalize_options_dict(options_dict):
             normalized[k] = v
     return normalized
 
-def fill_personal_information(driver, partner, fields_filled_count, fields_failed_count, parent=None):
-    """Fill personal information section"""
-    try:
-        # Name fields
-        name_fields = {
-            "First Name": "First Name",
-            "Middle Name": "Middle Name",
-            "Surname": "Surname",
-            "Father's First Name": "Father Name",
-            "Father's Middle Name": "Father Middle Name",
-            "Father's Surname": "Father Surname"
-        }
-        
-        for aria_label, field_key in name_fields.items():
-            if set_text_field_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                fields_filled_count += 1
-            else:
-                # Fallback: try dropdown if not an input field
-                print(f"[DEBUG] Trying dropdown fallback for {aria_label}")
-                if set_dropdown_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                    fields_filled_count += 1
-                else:
-                    fields_failed_count += 1
 
-        # Gender
-        if set_dropdown_by_aria_label(driver, "Gender", partner.get("Gender", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
+def upload_proof_of_identity_dynamic(driver, config_data):
+    """
+    Uploads 'Proof of identity' for each partner without DIN based on their subform position.
 
-        # Date of Birth
-        if set_date_field(driver, "Date of Birth", partner.get("Date of Birth", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
+    Args:
+        driver: Selenium WebDriver instance.
+        config_data (dict): Parsed JSON config with 'partners_without_din' list.
 
-        # Nationality
-        if set_dropdown_by_aria_label(driver, "Nationality", partner.get("Nationality", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
+    Returns:
+        None. Prints status logs.
+    """
+    partners = config_data.get('partners_without_din', [])
 
-        # Whether resident of India
-        if 'options' in partner and 'Whether resident of India' in partner['options']:
-            normalized_options = normalize_options_dict(partner['options'])
-            try:
-                # Find the specific container using the exact XPath
-                container = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_406391466-guidecheckbox_copy_c_1044176976___guide-item"]'))
-                )
-                
-                # Make sure the container is visible
-                driver.execute_script("""
-                    var container = arguments[0];
-                    container.style.display = 'block';
-                    container.style.visibility = 'visible';
-                    container.style.opacity = '1';
-                    container.style.height = 'auto';
-                    container.style.overflow = 'visible';
-                """, container)
-                
-                # Scroll into view
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", container)
-                time.sleep(0.5)
-                
-                # Find the true option from normalized options
-                true_option = None
-                for option, value in normalized_options.get("Whether resident of India", {}).items():
-                    if value is True:
-                        true_option = option
-                        break
-                
-                if true_option:
-                    # Find and click the radio input with the matching aria-label
-                    radio_input = container.find_element(By.XPATH, f".//input[@type='radio' and @aria-label='{true_option}']")
-                    
-                    # Remove readonly and disabled attributes
-                    driver.execute_script("""
-                        var input = arguments[0];
-                        input.removeAttribute('readonly');
-                        input.removeAttribute('disabled');
-                        input.removeAttribute('aria-readonly');
-                        input.style.display = 'block';
-                        input.style.visibility = 'visible';
-                        input.style.opacity = '1';
-                    """, radio_input)
-                    
-                    # Click the radio input
-                    driver.execute_script("arguments[0].click();", radio_input)
-                    time.sleep(0.5)
-                    
-                    # Verify the selection
-                    if radio_input.get_attribute('aria-checked') == 'true' or radio_input.is_selected():
-                        print(f"[SUCCESS] Filled: Whether resident of India = {true_option}")
-                        fields_filled_count += 1
-                    else:
-                        print(f"[FAIL] Could not fill: Whether resident of India = {true_option}")
-                        fields_failed_count += 1
-                else:
-                    print("[FAIL] No true option found for Whether resident of India")
-                    fields_failed_count += 1
-                    
-            except Exception as e:
-                print(f"[FAIL] Error handling Whether resident of India: {str(e)}")
-                fields_failed_count += 1
-        else:
-            fields_failed_count += 1
+    for idx, partner in enumerate(partners):
+        partner_position = idx + 1  # XPath is 1-based
+        file_path = partner.get("Proof of identity", "").strip()
 
-        # Income-tax PAN/Passport number
-        if 'options' in partner and 'Income-tax PAN/Passport number' in partner['options']:
-            normalized_options = normalize_options_dict(partner['options'])
-            if function1.click_true_option(
-                driver,
-                "Income-tax PAN/Passport number",
-                normalized_options,
-                section_heading="Particulars of individual designated partners not having DIN/DPIN"
-            ):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-        else:
-            if set_radio_button(driver, "Income-tax PAN/Passport number", partner.get("Income-tax PAN/Passport number", ""), parent):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
+        print(f"\n=== Partner #{partner_position}: Uploading Proof of Identity ===")
 
-        # Income-tax PAN/Passport number details
-        if set_text_field_by_aria_label(driver, "Income-tax PAN/Passport number details", partner.get("Income-tax PAN/Passport number details", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
+        if not file_path:
+            print(f"[SKIP] No file path provided for partner #{partner_position}.")
+            continue
 
-        # Place of Birth
-        if set_dropdown_by_aria_label(driver, "Place of Birth (State)", partner.get("Place of Birth (State)", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-        # Wait for dependent dropdown to populate if needed
-        time.sleep(0.5)
-        if set_dropdown_by_aria_label(driver, "Place of Birth (District)", partner.get("Place of Birth (District)", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
+        file_path = os.path.abspath(file_path)
+        if not os.path.exists(file_path):
+            print(f"[ERROR] File does not exist: {file_path}")
+            continue
 
-        # Whether citizen of India
-        if 'options' in partner and 'Whether citizen of India' in partner['options']:
-            normalized_options = normalize_options_dict(partner['options'])
-            if function1.click_true_option(
-                driver,
-                "Whether citizen of India",
-                normalized_options,
-                section_heading="Particulars of individual designated partners not having DIN/DPIN"
-            ):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Occupation type
-        if set_dropdown_by_aria_label(driver, "Occupation type", partner.get("Occupation type", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Area of Occupation
-        if set_dropdown_by_aria_label(driver, "Area of Occupation", partner.get("Area of Occupation", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Description of others
-        if partner.get("Occupation type", "").lower() == "others":
-            if set_text_field_by_aria_label(driver, "Description of others", partner.get("Description of others", ""), parent):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-
-        # Educational qualification
-        if set_dropdown_by_aria_label(driver, "Educational qualification", partner.get("Educational qualification", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # If 'Others' selected, please specify
-        if partner.get("Educational qualification", "").lower() == "others":
-            if set_text_field_by_aria_label(driver, "If 'Others' selected, please specify", partner.get("If 'Others' selected, please specify", ""), parent):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-
-        # Contact Information
-        time.sleep(1)
-        if fill_mobile_no(driver, partner.get("Mobile No", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Email ID
-        if set_text_field_by_aria_label(driver, "Email ID", partner.get("Email ID", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-    except Exception as e:
-        print(f"[ERROR] Error in fill_personal_information: {str(e)}")
-        fields_failed_count += 1
-
-    return fields_filled_count, fields_failed_count
-
-def fill_permanent_address(driver, partner, fields_filled_count, fields_failed_count, parent=None):
-    """Fill permanent address section"""
-    try:
-        # First find the permanent address section
-        if not parent:
-            section_title = "Permanent Address"
-            try:
-                section_element = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, f"//*[contains(text(), '{section_title}')]"))
-                )
-                parent = section_element.find_element(By.XPATH, "./ancestor::div[contains(@class, 'panel')]")
-            except Exception as e:
-                print(f"[ERROR] Could not find permanent address section: {str(e)}")
-                return fields_filled_count, fields_failed_count
-
-        # Fill address fields in correct order to handle dependencies
-        address_fields = {
-            "Address Line I": "Permanent Address Line I",
-            "Country": "Permanent Country",
-            "Pin code / Zip Code": "Pin code / Zip Code",
-            "Area/ Locality": "Permanent Area/ Locality"
-        }
-
-        # First fill the basic fields, always scoped to parent
-        for aria_label, field_key in address_fields.items():
-            if set_text_field_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                fields_filled_count += 1
-            else:
-                print(f"[DEBUG] Trying dropdown fallback for {aria_label} in Permanent Address section")
-                if set_dropdown_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                    fields_filled_count += 1
-                else:
-                    fields_failed_count += 1
-            time.sleep(0.5)  # Wait for dynamic updates
-
-        # Permanent Address Line II - Using specific XPath
         try:
-            # Find the container using exact XPath
-            container = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1161909677-guidetextbox_copy___guide-item"]'))
+            label_xpath = f"(//label[normalize-space(text())='Proof of identity'])[{partner_position}]"
+            print(f"[DEBUG] Searching label with XPath: {label_xpath}")
+
+            identity_label = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, label_xpath))
             )
-            
-            # Make sure the container is visible
-            driver.execute_script("""
-                var container = arguments[0];
-                container.style.display = 'block';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-                container.style.height = 'auto';
-                container.style.overflow = 'visible';
-            """, container)
-            
-            # Scroll into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", container)
-            time.sleep(0.5)
-            
-            # Find the input field within the container
-            input_field = container.find_element(By.XPATH, ".//input")
-            
-            # Remove readonly and disabled attributes
-            driver.execute_script("""
-                var input = arguments[0];
-                input.removeAttribute('readonly');
-                input.removeAttribute('disabled');
-                input.removeAttribute('aria-readonly');
-                input.style.display = 'block';
-                input.style.visibility = 'visible';
-                input.style.opacity = '1';
-            """, input_field)
-            
-            # Set the value using JavaScript
-            value = partner.get("Permanent Address Line II", "")
-            driver.execute_script("""
-                var input = arguments[0];
-                var value = arguments[1];
-                input.value = value;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                input.dispatchEvent(new Event('blur', { bubbles: true }));
-            """, input_field, value)
-            
-            time.sleep(0.5)
-            
-            # Verify the value was set
-            if input_field.get_attribute('value') == value:
-                print(f"[SUCCESS] Filled: Permanent Address Line II = {value}")
-                fields_filled_count += 1
-            else:
-                print(f"[FAIL] Could not fill: Permanent Address Line II = {value}")
-                fields_failed_count += 1
-                
-        except Exception as e:
-            print(f"[FAIL] Error handling Permanent Address Line II: {str(e)}")
-            fields_failed_count += 1
 
-        # City, District, State are auto-populated based on pincode
-        # Just verify they are filled
-        auto_fields = ["City", "District", "State / UT"]
-        for field in auto_fields:
-            try:
-                if parent:
-                    input_elem = parent.find_element(By.XPATH, f'.//input[@aria-label="{field}"]')
-                else:
-                    input_elem = driver.find_element(By.XPATH, f'//input[@aria-label="{field}"]')
-                if input_elem.get_attribute('value'):
-                    print(f"[SUCCESS] Auto-filled: {field}")
-                    fields_filled_count += 1
-                else:
-                    print(f"[FAIL] Could not auto-fill: {field}")
-                    fields_failed_count += 1
-            except Exception as e:
-                print(f"[FAIL] Could not verify auto-fill for {field}: {str(e)}")
-                fields_failed_count += 1
-
-        # Fill remaining fields
-        remaining_fields = {
-            "Jurisdiction of Police Station": "Permanent Jurisdiction of Police Station"
-        }
-
-        for aria_label, field_key in remaining_fields.items():
-            if set_text_field_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                fields_filled_count += 1
-            else:
-                print(f"[DEBUG] Trying dropdown fallback for {aria_label}")
-                if set_dropdown_by_aria_label(driver, aria_label, partner.get(field_key, ''), parent):
-                    fields_filled_count += 1
-                else:
-                    fields_failed_count += 1
-            time.sleep(0.5)  # Wait between fields
-
-        # Phone (with STD/ISD code) - Using specific XPath
-        try:
-            # Find the container using exact XPath
-            phone_container = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1161909677-guidetextbox_copy_165380706___guide-item"]'))
+            field_container = identity_label.find_element(
+                By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
             )
-            
-            # Make sure the container is visible
-            driver.execute_script("""
-                var container = arguments[0];
-                container.style.display = 'block';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-                container.style.height = 'auto';
-                container.style.overflow = 'visible';
-            """, phone_container)
-            
-            # Scroll into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_container)
-            time.sleep(0.5)
-            
-            # Find the input field within the container
-            phone_input = phone_container.find_element(By.XPATH, ".//input")
-            
-            # Remove readonly and disabled attributes
-            driver.execute_script("""
-                var input = arguments[0];
-                input.removeAttribute('readonly');
-                input.removeAttribute('disabled');
-                input.removeAttribute('aria-readonly');
-                input.style.display = 'block';
-                input.style.visibility = 'visible';
-                input.style.opacity = '1';
-            """, phone_input)
-            
-            # Set the value using JavaScript
-            phone_value = partner.get("Phone (with STD/ISD code)", "")
-            driver.execute_script("""
-                var input = arguments[0];
-                var value = arguments[1];
-                input.value = value;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                input.dispatchEvent(new Event('blur', { bubbles: true }));
-            """, phone_input, phone_value)
-            
-            time.sleep(0.5)
-            
-            # Verify the value was set
-            if phone_input.get_attribute('value') == phone_value:
-                print(f"[SUCCESS] Filled: Phone (with STD/ISD code) = {phone_value}")
-                fields_filled_count += 1
-            else:
-                print(f"[FAIL] Could not fill: Phone (with STD/ISD code) = {phone_value}")
-                fields_failed_count += 1
-                
-        except Exception as e:
-            print(f"[FAIL] Error handling Phone (with STD/ISD code): {str(e)}")
-            fields_failed_count += 1
+            print(f"[SUCCESS] Located upload container for partner #{partner_position}")
 
-    except Exception as e:
-        print(f"[ERROR] Error in fill_permanent_address: {str(e)}")
-        fields_failed_count += 1
+            file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
 
-    return fields_filled_count, fields_failed_count
+            # Make it visible using JavaScript
+            driver.execute_script("""
+                arguments[0].style.display = 'block';
+                arguments[0].style.visibility = 'visible';
+                arguments[0].style.opacity = '1';
+                arguments[0].removeAttribute('disabled');
+                arguments[0].removeAttribute('hidden');
+            """, file_input)
+            time.sleep(1)
 
-def fill_present_address(driver, partner, fields_filled_count, fields_failed_count):
-    """Fill present address section"""
-    try:
-        # Whether present residential address same as permanent residential address
-        if 'options' in partner and 'Same address' in partner['options']:
-            normalized_options = normalize_options_dict(partner['options'])
+            file_input.send_keys(file_path)
+            print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
+
+            # Optional: wait for filename to appear in UI
+            time.sleep(2)
             try:
-                # Find the container using exact XPath
-                container = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1161909677-guideradiobutton___guide-item"]'))
+                attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
+                WebDriverWait(attached_files_list, 5).until(
+                    EC.text_to_be_present_in_element((By.XPATH, ".//li"), os.path.basename(file_path))
                 )
-                
-                # Make sure the container is visible
-                driver.execute_script("""
-                    var container = arguments[0];
-                    container.style.display = 'block';
-                    container.style.visibility = 'visible';
-                    container.style.opacity = '1';
-                    container.style.height = 'auto';
-                    container.style.overflow = 'visible';
-                """, container)
-                
-                # Scroll into view
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", container)
-                time.sleep(0.5)
-                
-                # Find the true option from normalized options
-                true_option = None
-                for option, value in normalized_options.get("Same address", {}).items():
-                    if value is True:
-                        true_option = option
-                        break
-                
-                if true_option:
-                    # Find and click the radio input with the matching aria-label
-                    radio_input = container.find_element(By.XPATH, f".//input[@type='radio' and @aria-label='{true_option}']")
-                    
-                    # Remove readonly and disabled attributes
-                    driver.execute_script("""
-                        var input = arguments[0];
-                        input.removeAttribute('readonly');
-                        input.removeAttribute('disabled');
-                        input.removeAttribute('aria-readonly');
-                        input.style.display = 'block';
-                        input.style.visibility = 'visible';
-                        input.style.opacity = '1';
-                    """, radio_input)
-                    
-                    # Click the radio input
-                    driver.execute_script("arguments[0].click();", radio_input)
-                    time.sleep(0.5)
-                    
-                    # Verify the selection
-                    if radio_input.get_attribute('aria-checked') == 'true' or radio_input.is_selected():
-                        print(f"[SUCCESS] Filled: Whether present residential address same as permanent residential address = {true_option}")
-                        fields_filled_count += 1
-                    else:
-                        print(f"[FAIL] Could not fill: Whether present residential address same as permanent residential address = {true_option}")
-                        fields_failed_count += 1
-                else:
-                    print("[FAIL] No true option found for Same_address")
-                    fields_failed_count += 1
-                    
-            except Exception as e:
-                print(f"[FAIL] Error handling Same_address: {str(e)}")
-                fields_failed_count += 1
-        else:
-            fields_failed_count += 1
-
-        # If not same as permanent address, fill present address fields
-        if 'options' in partner and 'Same address' in partner['options'] and normalized_options.get("Same address", {}).get("No", False):
-            # Present Address Line II - Using specific XPath
-            try:
-                # Find the container using exact XPath
-                container = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1161909677-guidetextbox_copy___guide-item"]'))
-                )
-                
-                # Make sure the container is visible
-                driver.execute_script("""
-                    var container = arguments[0];
-                    container.style.display = 'block';
-                    container.style.visibility = 'visible';
-                    container.style.opacity = '1';
-                    container.style.height = 'auto';
-                    container.style.overflow = 'visible';
-                """, container)
-                
-                # Scroll into view
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", container)
-                time.sleep(0.5)
-                
-                # Find the input field within the container
-                input_field = container.find_element(By.XPATH, ".//input")
-                
-                # Remove readonly and disabled attributes
-                driver.execute_script("""
-                    var input = arguments[0];
-                    input.removeAttribute('readonly');
-                    input.removeAttribute('disabled');
-                    input.removeAttribute('aria-readonly');
-                    input.style.display = 'block';
-                    input.style.visibility = 'visible';
-                    input.style.opacity = '1';
-                """, input_field)
-                
-                # Set the value using JavaScript
-                value = partner.get("Present Address Line II", "")
-                driver.execute_script("""
-                    var input = arguments[0];
-                    var value = arguments[1];
-                    input.value = value;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                    input.dispatchEvent(new Event('blur', { bubbles: true }));
-                """, input_field, value)
-                
-                time.sleep(0.5)
-                
-                # Verify the value was set
-                if input_field.get_attribute('value') == value:
-                    print(f"[SUCCESS] Filled: Present Address Line II = {value}")
-                    fields_filled_count += 1
-                else:
-                    print(f"[FAIL] Could not fill: Present Address Line II = {value}")
-                    fields_failed_count += 1
-                    
-            except Exception as e:
-                print(f"[FAIL] Error handling Present Address Line II: {str(e)}")
-                fields_failed_count += 1
-
-            # Fill remaining address fields
-            address_fields = {
-                "Address Line I": "Present Address Line I",
-                "Country": "Present Country",
-                "Pin code / Zip Code": "Present Pin code",
-                "Area/ Locality": "Present Area/ Locality",
-                "City": "Present City",
-                "District": "Present District",
-                "State / UT": "Present State / UT",
-                "Jurisdiction of Police Station": "Present Jurisdiction of Police Station"
-            }
-
-            for aria_label, field_key in address_fields.items():
-                if set_text_field_by_aria_label(driver, aria_label, partner.get(field_key, '')):
-                    fields_filled_count += 1
-                else:
-                    fields_failed_count += 1
-
-            # Phone (with STD/ISD code) - Using specific XPath
-            try:
-                # Find the container using exact XPath
-                phone_container = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1161909677-guidetextbox_copy_165380706___guide-item"]'))
-                )
-                
-                # Make sure the container is visible
-                driver.execute_script("""
-                    var container = arguments[0];
-                    container.style.display = 'block';
-                    container.style.visibility = 'visible';
-                    container.style.opacity = '1';
-                    container.style.height = 'auto';
-                    container.style.overflow = 'visible';
-                """, phone_container)
-                
-                # Scroll into view
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_container)
-                time.sleep(0.5)
-                
-                # Find the input field within the container
-                phone_input = phone_container.find_element(By.XPATH, ".//input")
-                
-                # Remove readonly and disabled attributes
-                driver.execute_script("""
-                    var input = arguments[0];
-                    input.removeAttribute('readonly');
-                    input.removeAttribute('disabled');
-                    input.removeAttribute('aria-readonly');
-                    input.style.display = 'block';
-                    input.style.visibility = 'visible';
-                    input.style.opacity = '1';
-                """, phone_input)
-                
-                # Set the value using JavaScript
-                phone_value = partner.get("Present Phone", "")
-                driver.execute_script("""
-                    var input = arguments[0];
-                    var value = arguments[1];
-                    input.value = value;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                    input.dispatchEvent(new Event('blur', { bubbles: true }));
-                """, phone_input, phone_value)
-                
-                time.sleep(0.5)
-                
-                # Verify the value was set
-                if phone_input.get_attribute('value') == phone_value:
-                    print(f"[SUCCESS] Filled: Phone (with STD/ISD code) = {phone_value}")
-                    fields_filled_count += 1
-                else:
-                    print(f"[FAIL] Could not fill: Phone (with STD/ISD code) = {phone_value}")
-                    fields_failed_count += 1
-                    
-            except Exception as e:
-                print(f"[FAIL] Error handling Phone (with STD/ISD code): {str(e)}")
-                fields_failed_count += 1
-
-            # Duration of stay
-            if set_text_field_by_aria_label(driver, "Years", partner.get("Duration Years", "")):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-
-            if set_text_field_by_aria_label(driver, "Months", partner.get("Duration Months", "")):
-                fields_filled_count += 1
-            else:
-                fields_failed_count += 1
-
-    except Exception as e:
-        print(f"[ERROR] Error in fill_present_address: {str(e)}")
-        fields_failed_count += 1
-
-    return fields_filled_count, fields_failed_count
-
-def fill_identity_proof(driver, partner, fields_filled_count, fields_failed_count, parent=None):
-    """Fill identity and residential proof section"""
-    try:
-        # Wait for dynamic dependencies
-        time.sleep(1)
-        
-        # Identity Proof - Using specific XPath
-        try:
-            # Find the container using exact XPath
-            container = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_1688891306-guidedropdownlist___guide-item"]'))
-            )
-            
-            # Make sure the container is visible
-            driver.execute_script("""
-                var container = arguments[0];
-                container.style.display = 'block';
-                container.style.visibility = 'visible';
-                container.style.opacity = '1';
-                container.style.height = 'auto';
-                container.style.overflow = 'visible';
-            """, container)
-            
-            # Scroll into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", container)
-            time.sleep(0.5)
-            
-            # Find the select element within the container
-            select_elem = container.find_element(By.XPATH, ".//select")
-            
-            # Remove readonly and disabled attributes
-            driver.execute_script("""
-                var select = arguments[0];
-                select.removeAttribute('readonly');
-                select.removeAttribute('disabled');
-                select.removeAttribute('aria-readonly');
-                select.style.display = 'block';
-                select.style.visibility = 'visible';
-                select.style.opacity = '1';
-            """, select_elem)
-            
-            # Get the value from partner data
-            identity_proof = partner.get("Identity Proof", "")
-            if identity_proof:
-                # Create Select object
-                select = Select(select_elem)
-                
-                # Try to select by visible text
-                try:
-                    select.select_by_visible_text(identity_proof)
-                    time.sleep(0.5)
-                    
-                    # Verify the selection
-                    if select.first_selected_option.text == identity_proof:
-                        print(f"[SUCCESS] Filled: Identity Proof = {identity_proof}")
-                        fields_filled_count += 1
-                    else:
-                        print(f"[FAIL] Could not fill: Identity Proof = {identity_proof}")
-                        fields_failed_count += 1
-                except Exception as e:
-                    print(f"[FAIL] Error selecting Identity Proof: {str(e)}")
-                    fields_failed_count += 1
-            else:
-                print("[FAIL] No Identity Proof value provided")
-                fields_failed_count += 1
-                
-        except Exception as e:
-            print(f"[FAIL] Error handling Identity Proof: {str(e)}")
-            fields_failed_count += 1
-
-        # Residential Proof
-        if set_dropdown_by_aria_label(driver, "Residential Proof", partner.get("Residential Proof", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Identity Proof No.
-        time.sleep(1)
-        if set_text_field_by_aria_label(driver, "Identity Proof No.", partner.get("Identity Proof No.", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # Residential Proof No.
-        if set_text_field_by_aria_label(driver, "Residential Proof No.", partner.get("Residential Proof No.", ""), parent):
-            fields_filled_count += 1
-        else:
-            fields_failed_count += 1
-
-        # File uploads would be handled separately
-        # Proof of identity
-        # Residential proof
-
-    except Exception as e:
-        print(f"[ERROR] Error in fill_identity_proof: {str(e)}")
-        fields_failed_count += 1
-
-    return fields_filled_count, fields_failed_count
-
-def set_readonly_input(driver, element, value):
-    driver.execute_script("arguments[0].removeAttribute('readonly');", element)
-    element.clear()
-    element.send_keys(value)
-
-def set_pan_details_and_verify(driver, value, parent=None):
-    """Set PAN/Passport number details and click Verify PAN button robustly."""
-    try:
-        # 1. Find the input by aria-label (with trailing space)
-        input_elem = WebDriverWait(driver, 5).until(
-            EC.element_to_be_clickable((By.XPATH, '//input[@aria-label="Income-tax PAN/Passport number details "]'))
-        )
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_elem)
-
-        # 2. Set value using advanced JS
-        driver.execute_script('''
-            const input = arguments[0];
-            const val = arguments[1];
-            input.removeAttribute('readonly');
-            input.focus();
-            var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-            nativeInputValueSetter.call(input, val);
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            input.dispatchEvent(new Event('blur', { bubbles: true }));
-        ''', input_elem, value)
-        time.sleep(0.5)
-
-        # 3. Find the Verify PAN button by aria-label or text
-        try:
-            fd_row = input_elem.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fd-row')]")
-            verify_btn = fd_row.find_element(By.XPATH, ".//button[@aria-label='Verify PAN' or contains(., 'Verify PAN')]")
-            if verify_btn.is_displayed() and verify_btn.is_enabled():
-                verify_btn.click()
-                print("[LOG] Clicked Verify PAN button.")
-                time.sleep(1)
-            else:
-                print("[LOG] Verify PAN button not clickable.")
-        except Exception as e:
-            print(f"[LOG] Could not click Verify PAN button: {str(e)}")
-
-        # 4. Optionally, check if the value stuck
-        actual_value = input_elem.get_attribute('value')
-        if actual_value == value:
-            print("[SUCCESS] PAN/Passport number details set and verified.")
-            return True
-        else:
-            print("[FAIL] PAN/Passport number details did not stick.")
-            return False
-    except Exception as e:
-        print(f"[ERROR] PAN/Passport number details automation failed: {str(e)}")
-        return False
-
-def set_text_field_by_aria_label(driver, label, value, parent=None):
-    """Set text field value by aria-label, with fallback to id if aria-label fails (handles trailing spaces)."""
-    try:
-        if value:
-            if label.strip().lower().startswith("income-tax pan/passport number details"):
-                return set_pan_details_and_verify(driver, value, parent)
-            input_elem = None
-            try:
-                if parent:
-                    input_elem = WebDriverWait(parent, 3).until(
-                        EC.element_to_be_clickable((By.XPATH, f'.//input[@aria-label="{label}"]'))
-                    )
-                else:
-                    input_elem = WebDriverWait(driver, 3).until(
-                        EC.element_to_be_clickable((By.XPATH, f'//input[@aria-label="{label}"]'))
-                    )
+                print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
             except Exception:
-                try:
-                    if parent:
-                        input_elem = WebDriverWait(parent, 2).until(
-                            EC.element_to_be_clickable((By.XPATH, f'.//input[@aria-label="{label.strip()}"]'))
-                        )
-                    else:
-                        input_elem = WebDriverWait(driver, 2).until(
-                            EC.element_to_be_clickable((By.XPATH, f'//input[@aria-label="{label.strip()}"]'))
-                        )
-                except Exception:
-                    try:
-                        if parent:
-                            label_elem = parent.find_element(By.XPATH, f'.//label[normalize-space(text())="{label.strip()}"]')
-                        else:
-                            label_elem = driver.find_element(By.XPATH, f'//label[normalize-space(text())="{label.strip()}"]')
-                        input_id = label_elem.get_attribute('for')
-                        if parent:
-                            input_elem = parent.find_element(By.ID, input_id)
-                        else:
-                            input_elem = driver.find_element(By.ID, input_id)
-                    except Exception:
-                        print(f"[FAIL] Could not fill: {label} = {value} | Reason: Input not found")
-                        return False
+                print(f"[WARNING] UI verification failed for partner #{partner_position}. File may still be uploaded.")
 
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_elem)
+        except TimeoutException as e:
+            print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
+        except NoSuchElementException as e:
+            print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
+        except Exception as e:
+            print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
 
-            tag = input_elem.tag_name.lower()
-            if tag != "input":
-                print(f"[FAIL] {label} is not an input field, skipping JS injection.")
-                return False
 
-            # Special handling for Phone (with STD/ISD code)
-            if label.strip() == "Phone (with STD/ISD code)":
-                try:
-                    # Force the field to be visible and enabled
-                    driver.execute_script("""
-                        var input = arguments[0];
-                        var container = input.closest('.guideFieldNode');
-                        var parentContainer = container.closest('.fd-col-lg-4');
-                        
-                        // Make all parent containers visible
-                        parentContainer.style.display = 'block';
-                        parentContainer.style.visibility = 'visible';
-                        parentContainer.style.opacity = '1';
-                        
-                        // Make the field container visible
-                        container.style.display = 'block';
-                        container.style.visibility = 'visible';
-                        container.style.opacity = '1';
-                        
-                        // Make the input visible and enabled
-                        input.style.display = 'block';
-                        input.style.visibility = 'visible';
-                        input.style.opacity = '1';
-                        input.removeAttribute('disabled');
-                        input.removeAttribute('readonly');
-                        input.removeAttribute('aria-readonly');
-                    """, input_elem)
-                    
-                    # Clear existing value
-                    driver.execute_script("arguments[0].value = '';", input_elem)
-                    time.sleep(0.2)
-                    
-                    # Set new value using multiple methods
-                    try:
-                        # Method 1: Direct value setting
-                        driver.execute_script("""
-                            var input = arguments[0];
-                            var value = arguments[1];
-                            input.value = value;
-                            input.dispatchEvent(new Event('input', { bubbles: true }));
-                            input.dispatchEvent(new Event('change', { bubbles: true }));
-                            input.dispatchEvent(new Event('blur', { bubbles: true }));
-                        """, input_elem, value)
-                        time.sleep(0.2)
-                        
-                        # Method 2: Native value setter
-                        driver.execute_script("""
-                            var input = arguments[0];
-                            var value = arguments[1];
-                            var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                            nativeInputValueSetter.call(input, value);
-                            input.dispatchEvent(new Event('input', { bubbles: true }));
-                            input.dispatchEvent(new Event('change', { bubbles: true }));
-                            input.dispatchEvent(new Event('blur', { bubbles: true }));
-                        """, input_elem, value)
-                        time.sleep(0.2)
-                        
-                        # Method 3: Send keys as fallback
-                        if not input_elem.get_attribute('value'):
-                            input_elem.clear()
-                            input_elem.send_keys(value)
-                            time.sleep(0.2)
-                    except Exception as e:
-                        print(f"[WARNING] Error setting phone value: {str(e)}")
-                    
-                    # Verify the value was set
-                    actual_value = input_elem.get_attribute('value')
-                    if actual_value == value:
-                        print(f"[SUCCESS] Filled: {label} = {value}")
-                        return True
-                    else:
-                        print(f"[FAIL] Could not fill: {label} = {value} | Reason: Value mismatch after setting")
-                        return False
-                        
-                except Exception as e:
-                    print(f"[FAIL] Could not fill: {label} = {value} | Reason: {str(e)}")
-                    return False
+def upload_residential_proof_dynamic(driver, config_data):
+    """
+    Uploads 'Residential proof' for each partner without DIN based on their subform position.
 
-            # For all other fields, use the existing logic
+    Args:
+        driver: Selenium WebDriver instance.
+        config_data (dict): Parsed JSON config with 'partners_without_din' list.
+
+    Returns:
+        None. Prints status logs.
+    """
+
+    partners = config_data.get('partners_without_din', [])
+
+    for idx, partner in enumerate(partners):
+        partner_position = idx + 1  # XPath is 1-based
+        file_path = partner.get("Residential proof", "").strip()
+
+        print(f"\n=== Partner #{partner_position}: Uploading Residential Proof ===")
+
+        if not file_path:
+            print(f"[SKIP] No file path provided for partner #{partner_position}.")
+            continue
+
+        file_path = os.path.abspath(file_path)
+        if not os.path.exists(file_path):
+            print(f"[ERROR] File does not exist: {file_path}")
+            continue
+
+        try:
+            label_xpath = f"(//label[normalize-space(text())='Residential proof'])[{partner_position}]"
+            print(f"[DEBUG] Searching label with XPath: {label_xpath}")
+
+            identity_label = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, label_xpath))
+            )
+
+            field_container = identity_label.find_element(
+                By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
+            )
+            print(f"[SUCCESS] Located upload container for partner #{partner_position}")
+
+            file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
+
+            # Make it visible using JavaScript
+            driver.execute_script("""
+                arguments[0].style.display = 'block';
+                arguments[0].style.visibility = 'visible';
+                arguments[0].style.opacity = '1';
+                arguments[0].removeAttribute('disabled');
+                arguments[0].removeAttribute('hidden');
+            """, file_input)
+            time.sleep(1)
+
+            file_input.send_keys(file_path)
+            print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
+
+            # Optional: wait for filename to appear in UI
+            time.sleep(2)
             try:
-                input_elem.clear()
+                attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
+                WebDriverWait(attached_files_list, 5).until(
+                    EC.text_to_be_present_in_element((By.XPATH, ".//li"), os.path.basename(file_path))
+                )
+                print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
             except Exception:
-                pass
-            input_id = input_elem.get_attribute('id')
-            safe_value = value.replace("\\", "\\\\").replace("'", "\\'")
-            js_script = f"""
-                var input = document.getElementById('{input_id}');
-                if (input) {{
-                    input.removeAttribute('readonly');
-                    input.removeAttribute('disabled');
-                    var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                    nativeInputValueSetter.call(input, '{safe_value}');
-                    input.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                    input.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                    input.dispatchEvent(new Event('blur', {{ bubbles: true }}));
-                    setTimeout(function() {{
-                        input.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        input.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                        input.dispatchEvent(new Event('blur', {{ bubbles: true }}));
-                    }}, 100);
-                    return input.value;
-                }}
-                return null;
-            """
-            driver.execute_script(js_script)
-            time.sleep(0.5)
-            actual_value = input_elem.get_attribute('value')
-            if actual_value == value:
-                print(f"[SUCCESS] Filled: {label} = {value}")
-                return True
-            else:
-                try:
-                    set_readonly_input(driver, input_elem, value)
-                    time.sleep(0.5)
-                    actual_value = input_elem.get_attribute('value')
-                    if actual_value == value:
-                        print(f"[SUCCESS] Filled: {label} = {value}")
-                        return True
-                    else:
-                        print(f"[FAIL] Could not fill: {label} = {value} | Reason: set_readonly_input did not work")
-                        return False
-                except Exception as e:
-                    print(f"[FAIL] Could not fill: {label} = {value} | Reason: set_readonly_input error: {str(e)}")
-                    return False
-    except Exception as e:
-        print(f"[FAIL] Could not fill: {label} = {value} | Reason: {str(e)}")
-        return False
+                print(f"[WARNING] UI verification failed for partner #{partner_position}. File may still be uploaded.")
 
-def set_dropdown_by_aria_label(driver, label, value, parent=None, timeout=15):
-    """Set dropdown value by aria-label, robust for guideDropDownList structure with clear success/fail logs and debug info for failures."""
+        except TimeoutException as e:
+            print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
+        except NoSuchElementException as e:
+            print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
+        except Exception as e:
+            print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
+
+
+def handle_partners_without_din(driver, config_data, config_selectors):
+    """
+    Handle the section for partners without DIN/DPIN in the MCA LLP form.
+    
+    Args:
+        driver: Selenium WebDriver instance
+        config_data: Dictionary containing form data
+        config_selectors: Dictionary containing CSS selectors
+    """
     try:
-        if value:
-            value_clean = value.strip()
-            xpath = f'.//select[@aria-label="{label}"]' if parent else f'//select[@aria-label="{label}"]'
-            # Step 1: Wait for presence
+        # Get the number of partners without DIN from config
+        num_partners = int(config_data['form_data']['fields'].get('Individuals Not having valid DIN/DPIN', 0))
+        if num_partners == 0:
+            print("[INFO] No partners without DIN/DPIN to process")
+            return
+
+        # Validate maximum limit of 8 partners
+        if num_partners > 8:
+            print("[WARNING] Maximum limit is 8 partners. Truncating to 8.")
+            num_partners = 8
+
+        print(f"[INFO] Processing {num_partners} partners without DIN/DPIN")
+        
+        # Get partners data from config
+        partners_data = config_data.get('partners_without_din', [])
+        if not partners_data:
+            print("[WARNING] No partner data found in config")
+            return
+
+        # Process each partner sequentially
+        for idx in range(num_partners):
+            position = idx + 1  # XPath is 1-based
+            if idx < len(partners_data):
+                partner = partners_data[idx]
+            else:
+                print(f"[WARNING] No data found for partner {position}")
+                continue
+
+            print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
+            fields_filled_count = 0
+            fields_failed_count = 0
+
             try:
-                if parent:
-                    select_elem = WebDriverWait(parent, timeout).until(
-                        EC.presence_of_element_located((By.XPATH, xpath))
-                    )
-                else:
-                    select_elem = WebDriverWait(driver, timeout).until(
-                        EC.presence_of_element_located((By.XPATH, xpath))
-                    )
-            except TimeoutException as e:
-                print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: Dropdown not present in DOM after {timeout}s. Possible causes: dynamic dependency, wrong field type, or slow load.")
-                # Print all selects for debugging
-                selects = parent.find_elements(By.TAG_NAME, "select") if parent else driver.find_elements(By.TAG_NAME, "select")
-                print(f"[DEBUG] Selects found: {[s.get_attribute('aria-label') for s in selects]}")
-                # Try to check if it's an input instead
+                # Wait for the subform to be visible
+                WebDriverWait(driver, 10).until(
+                    lambda d: len(d.find_elements(By.XPATH, f"(//input[@aria-label='First Name'])[{position}]")) > 0
+                )
+
+                # Personal Details Section
+                # First Name
+                first_name_xpath = f"(//input[@aria-label='First Name'])[{position}]"
+                driver.find_element(By.XPATH, first_name_xpath).send_keys(partner.get('First Name', ''))
+
+                # Middle Name
+                middle_name_xpath = f"(//input[@aria-label='Middle Name'])[{position}]"
                 try:
-                    input_elem = driver.find_element(By.XPATH, f'//input[@aria-label="{label}"]')
-                    print(f"[FAIL] Field '{label}' is an <input>, not a <select>. Use set_text_field_by_aria_label instead.")
-                except Exception:
+                    driver.find_element(By.XPATH, middle_name_xpath).send_keys(partner.get('Middle Name', ''))
+                except NoSuchElementException:
                     pass
-                return False
-            # Step 2: Wait for clickable
-            try:
-                if parent:
-                    select_elem = WebDriverWait(parent, timeout).until(
-                        EC.element_to_be_clickable((By.XPATH, xpath))
-                    )
-                else:
-                    select_elem = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.XPATH, xpath))
-                    )
-            except TimeoutException as e:
-                print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: Dropdown not clickable after {timeout}s. Possible causes: dynamic dependency, disabled field, or slow load.")
-                return False
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", select_elem)
-            select = Select(select_elem)
-            # Do NOT call .clear() on <select> elements!
-            # Try to select by value attribute (case-insensitive)
-            for option in select.options:
-                if option.get_attribute('value') and option.get_attribute('value').strip().lower() == value_clean.lower():
-                    select.select_by_value(option.get_attribute('value'))
-                    print(f"[SUCCESS] Filled: {label} = {option.text}")
-                    time.sleep(0.5)
-                    return True
-            # Try to select by visible text (case-insensitive)
-            for option in select.options:
-                if option.text.strip().lower() == value_clean.lower():
-                    select.select_by_visible_text(option.text)
-                    print(f"[SUCCESS] Filled: {label} = {option.text}")
-                    time.sleep(0.5)
-                    return True
-            # Try partial match (case-insensitive)
-            for option in select.options:
-                if value_clean.lower() in option.text.strip().lower() or option.text.strip().lower() in value_clean.lower():
-                    select.select_by_visible_text(option.text)
-                    print(f"[SUCCESS] Filled: {label} = {option.text}")
-                    time.sleep(0.5)
-                    return True
-            print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: No matching option found. Available options:")
-            for option in select.options:
-                print(f"    Option: '{option.text}' (value: '{option.get_attribute('value')}')")
-            return False
-    except StaleElementReferenceException:
-        print(f"[FAIL] Could not fill: {label} = {value if value else ''} | Reason: StaleElementReferenceException, retrying...")
-        return set_dropdown_by_aria_label(driver, label, value, parent, timeout)
-    except Exception as e:
-        print(f"[FAIL] Could not fill: {label} = {value if value else ''} | Reason: {str(e)}")
-        return False
 
-def set_radio_button(driver, label, value, parent=None):
-    """Set radio button value by label and value, robust for guideFieldNode structure with clear success/fail logs."""
-    try:
-        if value:
-            value_clean = value.strip().capitalize()
-            try:
-                # First try to find the radio group within the parent if provided
-                if parent:
-                    radio_group = parent.find_element(By.XPATH, f".//div[contains(@class, 'guideFieldNode') and contains(@class, 'guideCheckBox')]//label[contains(text(), '{label}')]/ancestor::div[contains(@class, 'guideFieldNode')]")
-                else:
-                    radio_group = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH, f"//div[contains(@class, 'guideFieldNode') and contains(@class, 'guideCheckBox')]//label[contains(text(), '{label}')]/ancestor::div[contains(@class, 'guideFieldNode')]"))
-                    )
-            except Exception as e:
-                print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: Radio group not found")
-                return False
+                # Surname
+                surname_xpath = f"(//input[@aria-label='Surname'])[{position}]"
+                driver.find_element(By.XPATH, surname_xpath).send_keys(partner.get('Surname', ''))
 
-            try:
-                # Find the radio input with the matching value
-                radio_input = radio_group.find_element(By.XPATH, f".//input[@type='radio' and @aria-label='{value_clean}']")
-                
-                # Scroll the radio group into view
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_group)
-                
-                # Make sure the radio group and its container are visible
-                driver.execute_script("""
-                    var radioGroup = arguments[0];
-                    var container = radioGroup.closest('.fd-col-lg-12');
-                    
-                    // Make container visible
-                    container.style.display = 'block';
-                    container.style.visibility = 'visible';
-                    container.style.opacity = '1';
-                    
-                    // Make radio group visible
-                    radioGroup.style.display = 'block';
-                    radioGroup.style.visibility = 'visible';
-                    radioGroup.style.opacity = '1';
-                """, radio_group)
-                
-                # Remove readonly and disabled attributes
-                driver.execute_script("""
-                    var input = arguments[0];
-                    input.removeAttribute('readonly');
-                    input.removeAttribute('disabled');
-                    input.removeAttribute('aria-readonly');
-                """, radio_input)
-                
-                # Try clicking the radio input directly first
+                # Father's Name Details
+                father_first_name_xpath = f"(//input[@aria-label=\"Father's First Name\"])[{position}]"
+                driver.find_element(By.XPATH, father_first_name_xpath).send_keys(partner.get("Father's First Name", ''))
+
+                father_middle_name_xpath = f"(//input[@aria-label=\"Father's Middle Name\"])[{position}]"
                 try:
-                    driver.execute_script("arguments[0].click();", radio_input)
-                except Exception:
-                    # If direct click fails, try clicking the label
-                    input_id = radio_input.get_attribute('id')
-                    label_elem = radio_group.find_element(By.XPATH, f".//label[@for='{input_id}']")
-                    driver.execute_script("arguments[0].click();", label_elem)
-                
-                time.sleep(0.2)
-                
-                # Verify the selection
-                if radio_input.get_attribute('aria-checked') == 'true' or radio_input.is_selected():
-                    print(f"[SUCCESS] Filled: {label} = {value_clean}")
-                    return True
-                else:
-                    # If still not selected, try one more time with a different approach
-                    driver.execute_script("""
-                        var input = arguments[0];
-                        input.checked = true;
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-                        input.dispatchEvent(new Event('click', { bubbles: true }));
-                    """, radio_input)
-                    
-                    time.sleep(0.2)
-                    
-                    if radio_input.get_attribute('aria-checked') == 'true' or radio_input.is_selected():
-                        print(f"[SUCCESS] Filled: {label} = {value_clean} (after retry)")
-                        return True
-                    else:
-                        print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: Not selected after click")
-                        return False
-                        
+                    driver.find_element(By.XPATH, father_middle_name_xpath).send_keys(partner.get("Father's Middle Name", ''))
+                except NoSuchElementException:
+                    pass
+
+                father_surname_xpath = f"(//input[@aria-label=\"Father's Surname\"])[{position}]"
+                driver.find_element(By.XPATH, father_surname_xpath).send_keys(partner.get("Father's Surname", ''))
             except Exception as e:
-                print(f"[FAIL] Could not fill: {label} = {value_clean} | Reason: Radio input not found or not clickable: {str(e)}")
-                return False
-    except Exception as e:
-        print(f"[FAIL] Could not fill: {label} = {value if value else ''} | Reason: {str(e)}")
-        return False
+                print(f"[ERROR] Failed to fill basic details for partner {position}: {str(e)}")
+                fields_failed_count += 1
+                continue
 
-def set_date_field(driver, label, value, parent=None):
-    """Set date field value by label"""
-    try:
-        if value:
-            # Wait for date input
-            date_input = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, f"//label[text()='{label}']/ancestor::div[contains(@class, 'guidedatepicker')]//input"))
-            )
-            
-            # Scroll into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", date_input)
-            
-            # Get the input element's ID
-            date_id = date_input.get_attribute('id')
-            
-            # Set the date using JavaScript
-            js_script = f"""
-                const input = document.getElementById('{date_id}');
-                if (input) {{
-                    input.removeAttribute('readonly');
-                    input.focus();
-                    input.value = '{value}';
-                    input.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                    input.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                    input.dispatchEvent(new Event('blur', {{ bubbles: true }}));
-                    return input.value;
-                }}
-                return null;
-            """
-            
-            result = driver.execute_script(js_script)
-            if result == value:
-                print(f"[+] {label} set to: {value}")
-                return True
-            else:
-                print(f"[-] Could not set {label} to: {value}")
-                return False
-    except Exception as e:
-        print(f"[ERROR] Could not fill {label}: {str(e)}")
-        return False 
+            # Gender
+            time.sleep(0.5)
+            gender = partner.get('Gender', '').capitalize()
+            if gender in ['Male', 'Female', 'Transgender']:
+                gender_xpath = f"(//select[@aria-label='Gender'])[{position}]"
+                gender_dropdown = driver.find_element(By.XPATH, gender_xpath)
 
-def fill_mobile_no(driver, value, parent=None):
-    try:
-        input_elem = None
-        # Try with dot (correct for your HTML)
-        try:
-            if parent:
-                input_elem = parent.find_element(By.XPATH, './/input[@aria-label="Mobile No."]')
+                # Use Select to choose the gender option
+                select = Select(gender_dropdown)
+                select.select_by_visible_text(gender)
+                print(f"[✓] Selected gender: {gender}")
             else:
-                input_elem = driver.find_element(By.XPATH, '//input[@aria-label="Mobile No."]')
-        except Exception:
-            # Print all aria-labels for debugging
-            inputs = parent.find_elements(By.TAG_NAME, "input") if parent else driver.find_elements(By.TAG_NAME, "input")
-            print(f"[DEBUG] Inputs found: {[i.get_attribute('aria-label') for i in inputs]}")
-            print(f"[FAIL] Could not find Mobile No. input")
-            return False
-        # 2. Scroll into view
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", input_elem)
-        # 3. Remove readonly/disabled if present and set value using JS
-        js = '''
-            var input = arguments[0];
-            input.removeAttribute('readonly');
-            input.removeAttribute('disabled');
-            input.value = '';
-            input.value = arguments[1];
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            input.dispatchEvent(new Event('blur', { bubbles: true }));
-        '''
-        driver.execute_script(js, input_elem, value)
-        # 4. Wait and verify
-        time.sleep(0.2)
-        actual_value = input_elem.get_attribute('value')
-        if actual_value == value:
-            print(f"[SUCCESS] Filled: Mobile No. = {value}")
-            return True
-        else:
-            print(f"[FAIL] Could not fill: Mobile No. = {value} | Reason: Value mismatch after JS injection")
-            return False
+                print(f"[!] Gender '{gender}' not valid or missing.")
+
+            # Date of Birth - Using robust approach
+            try:
+                # Try multiple strategies to find the date input field
+                dob_input = None
+                try:
+                    # Strategy 1: Exact aria-label match
+                    dob_input = driver.find_element(By.XPATH, f"(//input[@aria-label='Date of Birth   Please Enter date in DD/MM/YYYY format only'])[{position}]")
+                except:
+                    try:
+                        # Strategy 2: Partial aria-label match
+                        dob_input = driver.find_element(By.XPATH, f"(//input[contains(@aria-label, 'Date of Birth')])[{position}]")
+                    except:
+                        try:
+                            # Strategy 3: Find by label text
+                            label = driver.find_element(By.XPATH, f"(//label[contains(text(), 'Date of Birth')])[{position}]")
+                            dob_input = label.find_element(By.XPATH, './following::input[1]')
+                        except:
+                            try:
+                                # Strategy 4: Find by class and type
+                                dob_input = driver.find_element(By.XPATH, f"(//input[@type='text' and contains(@class, 'guidedatepicker')])[{position}]")
+                            except:
+                                print("[DEBUG] Could not find Date of Birth input using any strategy")
+                                raise Exception("Date of Birth input field not found")
+
+                if dob_input:
+                    dob = partner.get("Date of Birth", "").strip()
+                    if dob:
+                        # Get the input element's ID
+                        dob_id = dob_input.get_attribute('id')
+                        if not dob_id:
+                            # If no ID exists, generate a unique one
+                            dob_id = f"dob_input_{int(time.time())}"
+                            driver.execute_script(f"arguments[0].id = '{dob_id}';", dob_input)
+                        
+                        # Use the set_date_field function from function1
+                        if function1.set_date_field(driver, dob_id, dob):
+                            print(f"[SUCCESS] Filled: Date of Birth = {dob}")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[FAIL] Could not fill: Date of Birth = {dob}")
+                            fields_failed_count += 1
+                    else:
+                        print(f"[INFO] No value provided for Date of Birth")
+                else:
+                    print("[FAIL] Could not find Date of Birth input field")
+                    fields_failed_count += 1
+            except Exception as e:
+                print(f"[FAIL] Error handling Date of Birth: {str(e)}")
+                fields_failed_count += 1
+            
+            # Nationality
+            i = 3  # Initialize 'i' based on the pattern you observed
+
+            for idx, partner in enumerate(partners_data):
+                    position = idx + 1
+                    i += 1  # Increment 'i' for each partner
+
+                    print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
+
+                    # --- Nationality using dynamic 'i' in XPath ---
+                    time.sleep(0.5)
+                    try:
+                        nationality = partner.get('Nationality', '').strip()  # Get the nationality value
+
+                        if nationality:
+                            # Construct XPath to target the Nationality dropdown
+                            nationality_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[10]/div/div/div[2]/select"
+
+                            # Wait for the dropdown to be present
+                            nationality_dropdown = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, nationality_xpath))
+                            )
+
+                            # Use Select class to choose the nationality
+                            select = Select(nationality_dropdown)
+                            select.select_by_visible_text(nationality)
+
+                            print(f"[✓] Partner {position}: Nationality '{nationality}' selected using dynamic 'i' (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[!] Partner {position}: Nationality value not provided.")
+
+                    except Exception as e:
+                        print(f"[✗] Failed to select nationality using dynamic 'i' (i={i}): {e}")
+                        fields_failed_count += 1
+
+                    # --- Whether resident of India using dynamic 'i' and clicking radio (dynamic IDs handled) ---
+                    time.sleep(0.5)
+                    try:
+                        is_resident_data = partner.get('Whether resident of India', {})
+                        is_resident = is_resident_data.get('Yes', 'false').lower() == 'true'
+
+                        # Construct XPath to the radio button container for the current partner
+                        radio_container_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[11]/div/div/div[2]"
+                        radio_container = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, radio_container_xpath))
+                        )
+
+                        if is_resident:
+                            try:
+                                yes_radio = radio_container.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='Yes']")
+                                driver.execute_script("arguments[0].click();", yes_radio)
+                                print(f"[✓] Partner {position}: Clicked 'Yes' for Whether resident of India (i={i}).")
+                                fields_filled_count += 1
+                            except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find 'Yes' radio button.")
+                            except Exception as e:
+                                print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether resident of India (i={i}): {e}")
+                        else:
+                            try:
+                                no_radio = radio_container.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='No']")
+                                driver.execute_script("arguments[0].click();", no_radio)
+                                print(f"[✓] Partner {position}: Clicked 'No' for Whether resident of India (i={i}).")
+                                fields_filled_count += 1
+                            except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find 'No' radio button.")
+                            except Exception as e:
+                                print(f"[✗] Partner {position}: Error clicking 'No' for Whether resident of India (i={i}): {e}")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' container.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find 'Whether resident of India' label/container.")
+                    except Exception as e:
+                        print(f"[FAIL] Partner {position}: Error handling 'Whether resident of India' (i={i}): {e}")
+                        fields_failed_count += 1
+
+                    # --- Income-tax PAN/Passport number type ---
+                    time.sleep(0.5)
+                    try:
+                        id_type_data = partner.get('Income-tax PAN/Passport number', {})
+                        radio_container_xpath_id = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[12]/div/div/div[2]"
+                        radio_container_id = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, radio_container_xpath_id))
+                        )
+
+                        if isinstance(id_type_data, dict):
+                            if id_type_data.get('PAN') == 'true':
+                                try:
+                                    pan_radio = radio_container_id.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='PAN']")
+                                    driver.execute_script("arguments[0].click();", pan_radio)
+                                    print(f"[✓] Partner {position}: Selected PAN radio button (i={i}).")
+                                    fields_filled_count += 1
+                                except NoSuchElementException:
+                                    print(f"[✗] Partner {position}: Could not find PAN radio button.")
+                                except Exception as e:
+                                    print(f"[✗] Partner {position}: Error clicking PAN radio button (i={i}): {e}")
+                            elif id_type_data.get('Passport number') == 'true':
+                                try:
+                                    passport_radio = radio_container_id.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='Passport number']")
+                                    driver.execute_script("arguments[0].click();", passport_radio)
+                                    print(f"[✓] Partner {position}: Selected Passport Number radio button (i={i}).")
+                                    fields_filled_count += 1
+                                except NoSuchElementException:
+                                    print(f"[✗] Partner {position}: Could not find Passport Number radio button.")
+                                except Exception as e:
+                                    print(f"[✗] Partner {position}: Error clicking Passport Number radio button (i={i}): {e}")
+                            else:
+                                print(f"[!] Partner {position}: No valid ID type specified in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding PAN/Passport radio button container.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find PAN/Passport radio button container.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to select PAN/Passport radio button (i={i}): {e}")
+                        fields_failed_count += 1
+
+
+
+                    # --- Income-tax PAN/Passport number details ---
+                    time.sleep(0.5)
+                    try:
+                        pan_passport_details = partner.get('Income-tax PAN/Passport number details', '').strip()
+                        if pan_passport_details:
+                            details_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[1]/div/div/div[2]"
+                            details_xpath = f"{details_xpath_base}//input[@aria-label='Income-tax PAN/Passport number details ']"
+                            details_input = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, details_xpath))
+                            )
+                            details_input.clear()
+                            details_input.send_keys(pan_passport_details)
+                            print(f"[✓] Partner {position}: Entered Income-tax PAN/Passport number details: {pan_passport_details} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Income-tax PAN/Passport number details provided in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Income-tax PAN/Passport number details input.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Income-tax PAN/Passport number details input.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to enter Income-tax PAN/Passport number details: {e}")
+                        fields_failed_count += 1
+
+
+
+                    # --- Verify PAN Button ---
+                    time.sleep(0.5)
+                    try:
+                        verify_pan_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[3]/div/div/div[1]"
+                        verify_pan_xpath = f"{verify_pan_xpath_base}/button[@aria-label='Verify PAN']"
+
+                        verify_pan_button = WebDriverWait(driver, 10).until(
+                            EC.element_to_be_clickable((By.XPATH, verify_pan_xpath))
+                        )
+                        driver.execute_script("arguments[0].click();", verify_pan_button)
+                        print(f"[SUCCESS] Partner {position}: Clicked Verify PAN button (i={i}).")
+                        fields_filled_count += 1
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Verify PAN button.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Verify PAN button.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to click Verify PAN button: {e}")
+                        fields_failed_count += 1
+
+
+
+                    # --- Place of Birth (State) ---
+                    try:
+                        birth_state = partner.get('Place of Birth (State)', '').strip()
+                        if birth_state:
+                            dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[15]/div/div/div[2]/select"  # your full XPath here
+
+                            birth_state_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, dropdown_xpath))
+                            )
+
+                            # Use Select class to choose the option
+                            time
+                            select = Select(birth_state_element)
+                            select.select_by_visible_text(birth_state)
+
+                            print(f"[✓] Partner {position}: Selected Place of Birth (State) - {birth_state}")
+                        else:
+                            print(f"[INFO] Partner {position}: Place of Birth (State) not provided.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Place of Birth (State) dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Place of Birth (State) dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error selecting Place of Birth (State) (i={i}): {e}")
+
+
+
+                    # --- Place of Birth (District) ---
+                    time.sleep(5)
+                    try:
+                        district_value = partner.get('Place of Birth (District)', '').strip()
+                        if district_value:
+                            dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[16]/div/div/div[2]/select"
+
+                            birth_district_dropdown = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, dropdown_xpath))
+                            )
+                
+                            # Click to open the dropdown (if necessary)
+                            birth_district_dropdown.click()
+                            time.sleep(2)
+
+                            # Send keys to filter and select (behavior depends on the dropdown)
+                            birth_district_dropdown.send_keys(district_value)
+                            time.sleep(0.5)
+
+                            # Press Enter to select (if necessary)
+                            birth_district_dropdown.send_keys(Keys.ENTER)
+                            print(f"[✓] Partner {position}: Selected Place of Birth (District) '{district_value}' (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: Place of Birth (District) not provided.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Place of Birth (District) dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Place of Birth (District) dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error selecting Place of Birth (District) (i={i}): {e}")
+                        fields_filled_count += 1
+
+                
+
+                    # --- Whether citizen of India ---
+                    time.sleep(0.5)
+                    try:
+                            citizen_data = partner.get('Whether citizen of India', {})
+                            label = next((k for k, v in citizen_data.items() if v.lower() == 'true'), None) if isinstance(citizen_data, dict) else None
+
+                            if label:
+                                radio_container_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[17]/div/div/div[2]"
+                                radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='{label}']"
+
+                                for attempt in range(3):
+                                    try:
+                                        # Wait for the radio input to be clickable
+                                        radio_input = WebDriverWait(driver, 5).until(
+                                            EC.element_to_be_clickable((By.XPATH, radio_xpath))
+                                        )
+
+                                        # Ensure it is interactable
+                                        driver.execute_script("""
+                                            arguments[0].style.display = 'block';
+                                            arguments[0].style.visibility = 'visible';
+                                            arguments[0].style.opacity = '1';
+                                            arguments[0].removeAttribute('readonly');
+                                            arguments[0].removeAttribute('disabled');
+                                        """, radio_input)
+
+                                        # Scroll into view and click
+                                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_input)
+                                        time.sleep(0.3)
+                                        radio_input.click()
+                                        time.sleep(0.3)
+
+                                        # Confirm if selected
+                                        if radio_input.get_attribute('aria-checked') == 'true' or radio_input.is_selected():
+                                            print(f"[✓] Partner {position}: Selected: Whether citizen of India = {label} (i={i}).")
+                                            fields_filled_count += 1
+                                            break
+                                        else:
+                                            print(f"[RETRY {attempt+1}] Not selected, retrying...")
+                                    except Exception as e:
+                                        print(f"[RETRY {attempt+1}] Error clicking radio: {e}")
+                                        time.sleep(1)
+                                else:
+                                    print("[FAIL] Could not select 'Whether citizen of India' after all retries")
+                                    fields_failed_count += 1
+                            else:
+                                print("[INFO] No valid option marked as True for 'Whether citizen of India'")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding 'Whether citizen of India' container.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find 'Whether citizen of India' label/container.")
+                    except Exception as e:
+                            print(f"[ERROR] Exception in 'Whether citizen of India': {e}")
+                            fields_failed_count += 1
+
+
+
+
+
+                    # --- Occupation type ---
+                    time.sleep(0.5)
+                    try:
+                            occupation_type = partner.get('Occupation type', '').strip()
+                            if occupation_type:
+                                dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[18]/div/div/div[2]"
+                                occupation_xpath = f"{dropdown_xpath_base}//select[@aria-label='Occupation type']"
+
+                                occupation_dropdown = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, occupation_xpath))
+                                )
+                                select = Select(occupation_dropdown)
+                                select.select_by_visible_text(occupation_type)
+                                print(f"[✓] Partner {position}: Selected Occupation type '{occupation_type}' (i={i}).")
+                                fields_filled_count += 1
+
+                                # If 'Others' selected for occupation, fill description
+                                if occupation_type.lower() == 'others':
+                                    others_description = partner.get('Description of others', '').strip()
+                                    if others_description:
+                                        others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[19]/div/div/div[2]"
+                                        others_xpath = f"{others_xpath_base}//input[@aria-label='Description of others']"
+                                        others_input = WebDriverWait(driver, 10).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_xpath))
+                                        )
+                                        others_input.send_keys(others_description)
+                                        print(f"[✓] Partner {position}: Filled 'Description of others': '{others_description}' (i={i}).")
+                                        fields_filled_count += 1
+                                    else:
+                                        print(f"[INFO] Partner {position}: 'Description of others' not provided.")
+
+                            else:
+                                print(f"[INFO] Partner {position}: Occupation type not provided.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Occupation type dropdown.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Occupation type dropdown or 'Description of others' input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Error selecting Occupation type (i={i}): {e}")
+                            fields_filled_count += 1
+
+
+
+
+
+                        # --- Area of Occupation ---
+                    time.sleep(0.5)
+                    try:
+                            area_of_occupation = partner.get("Area of Occupation", "").strip()
+                            if area_of_occupation:
+                                dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[20]/div/div/div[2]"
+                                area_xpath = f"{dropdown_xpath_base}//select[@aria-label='Area of Occupation']"
+
+                                area_select_elem = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, area_xpath))
+                                )
+                                select = Select(area_select_elem)
+                                select.select_by_visible_text(area_of_occupation)
+                                print(f"[✓] Partner {position}: Selected Area of Occupation: {area_of_occupation} (i={i}).")
+                                fields_filled_count += 1
+
+                                # If 'Others' selected for Area of Occupation, fill description
+                                if area_of_occupation.lower() == "others":
+                                    others_description = partner.get("If Others selected, please specify", "").strip()
+                                    if others_description:
+                                        others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[21]/div/div/div[2]"
+                                        others_input_xpath = f"{others_xpath_base}//input[@aria-label='If \'Others\' selected, please specify']"
+                                        others_input = WebDriverWait(driver, 10).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_input_xpath))
+                                        )
+                                        others_input.send_keys(others_description)
+                                        print(f"[✓] Partner {position}: Filled 'If Others' selected, please specify: '{others_description}' (i={i}).")
+                                        fields_filled_count += 1
+                                    else:
+                                        print(f"[INFO] Partner {position}: No value to specify for 'Others' in Area of Occupation.")
+
+                            else:
+                                print(f"[INFO] Partner {position}: No value provided for Area of Occupation.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Area of Occupation dropdown.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Area of Occupation dropdown or 'If Others' specify input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Error filling Area of Occupation: {e}")
+                            fields_filled_count += 1
+
+
+
+                        # --- Educational qualification ---
+                    time.sleep(0.5)
+                    try:
+                            educational_qualification = partner.get('Educational qualification', '').strip()
+                            if educational_qualification:
+                                dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[22]/div/div/div[2]"
+                                education_xpath = f"{dropdown_xpath_base}//select[@aria-label='Educational qualification']"
+
+                                education_dropdown = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, education_xpath))
+                                )
+                                select = Select(education_dropdown)
+                                select.select_by_visible_text(educational_qualification)
+                                print(f"[✓] Partner {position}: Selected Educational qualification: '{educational_qualification}' (i={i}).")
+                                fields_filled_count += 1
+
+                                # If 'Others' selected for education, fill description
+                                if educational_qualification.lower() == 'others':
+                                    education_others = partner.get('Educational qualification others', '').strip()
+                                    if education_others:
+                                        others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[23]/div/div/div[2]"
+                                        others_input_xpath = f"{others_xpath_base}//input[@aria-label='If \'Others\' selected, please specify']"
+                                        others_input = WebDriverWait(driver, 10).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_input_xpath))
+                                        )
+                                        others_input.send_keys(education_others)
+                                        print(f"[✓] Partner {position}: Filled 'If Others' selected for education: '{education_others}' (i={i}).")
+                                        fields_filled_count += 1
+                                    else:
+                                        print(f"[INFO] Partner {position}: 'Educational qualification others' not provided.")
+
+                            else:
+                                print(f"[INFO] Partner {position}: Educational qualification not provided.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Educational qualification dropdown.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Educational qualification dropdown or 'If Others' specify input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Error selecting Educational qualification (i={i}): {e}")
+                            fields_filled_count += 1
+
+
+
+                    # Contact Details
+                    time.sleep(0.5)
+                    try:
+                            mobile_value = partner.get('Mobile No.', '').strip()
+                            if mobile_value:
+                                mobile_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[24]/div/div/div[2]"
+                                mobile_xpath = f"{mobile_xpath_base}//input[@aria-label='Mobile No.']"
+                                mobile_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, mobile_xpath))
+                                )
+                                mobile_input.clear()
+                                mobile_input.send_keys(mobile_value)
+                                print(f"[SUCCESS] Partner {position}: Entered Mobile No.: {mobile_value} (i={i}).")
+                                fields_filled_count += 1
+                            else:
+                                print(f"[INFO] Partner {position}: No Mobile No. provided in data.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Mobile No. input.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Mobile No. input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Failed to enter Mobile No.: {e}")
+                            fields_failed_count += 1
+
+
+
+                        # --- Email ID ---
+                    time.sleep(0.5)
+                    try:
+                            email_value = partner.get('Email ID', '').strip()
+                            if email_value:
+                                email_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[25]/div/div/div[2]"
+                                email_xpath = f"{email_xpath_base}//input[@aria-label='Email ID']"
+                                email_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, email_xpath))
+                                )
+                                email_input.clear()
+                                email_input.send_keys(email_value)
+                                print(f"[SUCCESS] Partner {position}: Entered Email ID: {email_value} (i={i}).")
+                                fields_filled_count += 1
+                            else:
+                                print(f"[INFO] Partner {position}: No Email ID provided in data.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Email ID input.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Email ID input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Failed to enter Email ID: {e}")
+                            fields_failed_count += 1
+
+
+                    # --- Permanent Address - Address Line I ---
+                    time.sleep(0.5)
+                    try:
+                            perm_address1 = partner.get('Permanent Address Line I', '').strip()
+                            if perm_address1:
+                                address1_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[1]/div/div/div[2]"
+                                address1_xpath = f"{address1_xpath_base}//input[@aria-label='Address Line I']"
+                                address1_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, address1_xpath))
+                                )
+                                address1_input.clear()
+                                address1_input.send_keys(perm_address1)
+                                print(f"[✓] Partner {position}: Entered Permanent Address Line I: {perm_address1} (i={i}).")
+                                fields_filled_count += 1
+                            else:
+                                print(f"[INFO] Partner {position}: No Permanent Address Line I provided in data.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Permanent Address Line I input.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Permanent Address Line I input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Failed to enter Permanent Address Line I: {e}")
+                            fields_failed_count += 1
+
+
+                    # --- Permanent Address - Address Line II ---
+                    time.sleep(0.5)
+                    try:
+                            perm_address2 = partner.get('Permanent Address Line II', '').strip()
+                            if perm_address2:
+                                address2_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div[2]"
+                                address2_xpath = f"{address2_xpath_base}//input[@aria-label='Address Line II']"
+                                address2_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, address2_xpath))
+                                )
+                                address2_input.clear()
+                                address2_input.send_keys(perm_address2)
+                                print(f"[✓] Partner {position}: Entered Permanent Address Line II: {perm_address2} (i={i}).")
+                                fields_filled_count += 1
+                            else:
+                                print(f"[INFO] Partner {position}: No Permanent Address Line II provided in data.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Permanent Address Line II input.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Permanent Address Line II input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Failed to enter Permanent Address Line II: {e}")
+                            fields_failed_count += 1
+
+
+
+                    # --- Permanent Country ---
+                    time.sleep(0.5)
+                    try:
+                        perm_country = partner.get('Permanent Country', '').strip()
+                        if perm_country:
+                            country_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
+
+                            country_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, country_xpath))
+                            )
+
+                            select = Select(country_element)
+                            select.select_by_visible_text(perm_country)
+
+                            print(f"[✓] Partner {position}: Selected Permanent Country: {perm_country} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Permanent Country provided in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Permanent Country dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Permanent Country dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error selecting Permanent Country: {e}")
+                        fields_failed_count += 1
+
+                    # --- Permanent Pin code ---
+                    time.sleep(0.5)
+                    try:
+                            perm_pin = partner.get('Permanent Pin code', '').strip()
+                            if perm_pin:
+                                pin_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[4]/div/div/div[2]"
+                                perm_pin_xpath = f"{pin_xpath_base}//input[@aria-label='Pin code / Zip Code']"
+                                perm_pin_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, perm_pin_xpath))
+                                )
+                                perm_pin_input.clear()
+                                perm_pin_input.send_keys(perm_pin)
+                                print(f"[✓] Partner {position}: Entered Permanent Pin code: {perm_pin} (i={i}).")
+                                fields_filled_count += 1
+                            else:
+                                print(f"[INFO] Partner {position}: No Permanent Pin code provided in data.")
+                    except TimeoutException:
+                            print(f"[✗] Partner {position}: Timeout finding Permanent Pin code input.")
+                    except NoSuchElementException:
+                            print(f"[✗] Partner {position}: Could not find Permanent Pin code input.")
+                    except Exception as e:
+                            print(f"[✗] Partner {position}: Failed to enter Permanent Pin code: {e}")
+                            fields_failed_count += 1
+
+                    # --- Area/ Locality ---
+                    time.sleep(0.5)
+                    try:
+                            area_locality = partner.get('Permanent Area/Locality', '').strip()
+                            if area_locality:
+                                dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[5]/div/div/div[2]"
+                                area_xpath = f"{dropdown_xpath_base}//select[@aria-label='Area/ Locality']"
+
+                                area_select_elem = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, area_xpath))
+                                )
+                                # Click to open the dropdown (if necessary)
+                                area_select_elem.click()
+                                time.sleep(0.5)
+
+                                # Send keys to filter and select (behavior depends on the dropdown)
+                                area_select_elem.send_keys(area_locality)
+                                time.sleep(0.5)
+
+                                # Press Enter to select (if necessary)
+                                area_select_elem.send_keys(Keys.ENTER)
+
+                                print(f"[✓] Partner {position}: Selected Area/Locality: {area_locality} (i={i}).")
+                                fields_filled_count += 1
+
+                                if area_locality.lower() == "others":
+                                        others_input_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[9]/div/div/div[2]"
+                                        others_input_xpath = f"{others_input_xpath_base}//input[@aria-label='If \\'Others\\' selected, please specify']"
+                                        others_input = WebDriverWait(driver, 10).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_input_xpath))
+                                        )
+                                        others_description = partner.get("If Others selected, please specify", "").strip()
+                                        if others_description:
+                                            others_input.send_keys(others_description)
+                                            print(f"[✓] Partner {position}: Filled 'If Others' selected for Area/Locality: '{others_description}' (i={i}).")
+                                            fields_filled_count += 1
+                                        else:
+                                            print(f"[INFO] Partner {position}: No value to specify for 'Others' in Area/Locality.")
+
+                            else:
+                                    print(f"[INFO] Partner {position}: No value provided for Area/Locality.")
+                    except TimeoutException:
+                                print(f"[✗] Partner {position}: Timeout finding Area/Locality dropdown.")
+                    except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find Area/Locality dropdown or 'If Others' specify input.")
+                    except Exception as e:
+                                print(f"[✗] Partner {position}: Error filling Area/Locality: {e}")
+                                fields_filled_count += 1
+
+
+
+                    # --- Permanent Police Station ---
+                    time.sleep(0.5)
+                    try:
+                                perm_police = partner.get('Permanent Police Station', '').strip()
+                                if perm_police:
+                                    police_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[10]/div/div/div[2]"
+                                    perm_police_xpath = f"{police_xpath_base}//input[@aria-label='Jurisdiction of Police Station']"
+                                    perm_police_input = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, perm_police_xpath))
+                                    )
+                                    perm_police_input.clear()
+                                    perm_police_input.send_keys(perm_police)
+                                    print(f"[✓] Partner {position}: Entered Permanent Police Station: {perm_police} (i={i}).")
+                                    fields_filled_count += 1
+                                else:
+                                    print(f"[INFO] Partner {position}: No Permanent Police Station provided in data.")
+                    except TimeoutException:
+                                print(f"[✗] Partner {position}: Timeout finding Permanent Police Station input.")
+                    except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find Permanent Police Station input.")
+                    except Exception as e:
+                                print(f"[✗] Partner {position}: Failed to enter Permanent Police Station: {e}")
+                                fields_failed_count += 1
+
+
+                            # --- Permanent Phone ---
+                    time.sleep(0.5)
+                    try:
+                                phone_value = partner.get('Permanent Phone', '').strip()
+
+                                if phone_value:
+                                    phone_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[11]/div/div/div[2]"
+                                    perm_phone_xpath = f"{phone_xpath_base}//input[@aria-label='Phone (with STD/ISD code)']"
+
+                                    phone_input = WebDriverWait(driver, 10).until(
+                                        EC.element_to_be_clickable((By.XPATH, perm_phone_xpath))
+                                    )
+
+                                    phone_input.clear()
+                                    phone_input.send_keys(phone_value)
+
+                                    print(f"[SUCCESS] Partner {position}: Filled Phone (STD/ISD): {phone_value} (i={i}).")
+                                    fields_filled_count += 1
+                                else:
+                                    print("[INFO] No value provided for 'Permanent Phone'")
+                    except TimeoutException:
+                                print(f"[✗] Partner {position}: Timeout finding Permanent Phone input.")
+                    except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find Permanent Phone input.")
+                    except Exception as e:
+                                print(f"[ERROR] Could not fill Phone (STD/ISD) field: {e}")
+                                fields_failed_count += 1
+
+
+                        # --- Whether present residential address same as permanent ---
+                    time.sleep(0.5)
+                    try:
+                                same_address_data = partner.get('Whether present residential address same as permanent', {})
+                                label = next((k for k, v in same_address_data.items() if v.lower() == 'true'), None) if isinstance(same_address_data, dict) else None
+
+                                if label:
+                                    radio_container_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[12]/div/div/div[2]"
+                                    radio_container = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, radio_container_xpath_base))
+                                    )
+                                    yes_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='Yes']"
+                                    no_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='No']"
+
+                                    if label.lower() == 'yes':
+                                        try:
+                                            yes_radio = WebDriverWait(driver, 5).until(
+                                                EC.element_to_be_clickable((By.XPATH, yes_radio_xpath))
+                                            )
+                                            driver.execute_script("arguments[0].click();", yes_radio)
+                                            print(f"[✓] Partner {position}: Selected 'Yes' for Whether present address same as permanent (i={i}).")
+                                            fields_filled_count += 1
+                                        except Exception as e:
+                                            print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether present address same as permanent (i={i}): {e}")
+                                    elif label.lower() == 'no':
+                                        try:
+                                            no_radio = WebDriverWait(driver, 5).until(
+                                                EC.element_to_be_clickable((By.XPATH, no_radio_xpath))
+                                            )
+                                            driver.execute_script("arguments[0].click();", no_radio)
+                                            print(f"[✓] Partner {position}: Selected 'No' for Whether present address same as permanent (i={i}).")
+                                            # fields_filled_count += 1 # Increment will happen in the subsequent address fields
+                                        except Exception as e:
+                                            print(f"[✗] Partner {position}: Error clicking 'No' for Whether present address same as permanent (i={i}): {e}")
+                                    else:
+                                        print(f"[INFO] Partner {position}: Invalid value for 'Whether present address same as permanent': {label}")
+                                else:
+                                    print(f"[INFO] Partner {position}: 'Whether present address same as permanent' not found in data.")
+                    except TimeoutException:
+                                print(f"[✗] Partner {position}: Timeout finding 'Whether present address same as permanent' container.")
+                    except NoSuchElementException:
+                                print(f"[✗] Partner {position}: Could not find 'Whether present address same as permanent' label/container.")
+                    except Exception as e:
+                                print(f"[ERROR] Exception in 'Whether present address same as permanent': {e}")
+                                fields_failed_count += 1
+                                
+
+
+
+                        # --- (iv) Identity Proof ---
+                    time.sleep(0.5)
+                    try:
+                        identity_proof_value = partner.get('Identity Proof', '').strip()
+
+                        if identity_proof_value:
+                            dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[1]/div/div/div[2]/select"
+
+                            # Wait for the dropdown to be present
+                            dropdown_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, dropdown_xpath))
+                            )
+
+                            # ✅ Use Select to choose by visible text
+                            select = Select(dropdown_element)
+                            select.select_by_visible_text(identity_proof_value)
+
+                            print(f"[✓] Partner {position}: Selected Identity Proof: {identity_proof_value} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Identity Proof provided in input data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Identity Proof dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Identity Proof dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to select Identity Proof: {e}")
+                        fields_failed_count += 1
+
+
+                    # (v) Residential Proof
+                        
+                    try:
+                        residential_proof_value = partner.get('Residential Proof', '').strip()
+
+                        if residential_proof_value:
+                            dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[2]/div/div/div[2]/select"
+
+                            # Wait for dropdown
+                            dropdown_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, dropdown_xpath))
+                            )
+
+                            # Use Select helper to choose option
+                            select = Select(dropdown_element)
+                            select.select_by_visible_text(residential_proof_value)
+
+                            print(f"[✓] Partner {position}: Selected Residential Proof: {residential_proof_value} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Residential Proof provided in input data.")
+
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Residential Proof dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Residential Proof dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Failed to select Residential Proof: {e}")
+                        fields_failed_count += 1
+                        
+
+                    # Identity and Residential Proof
+                    identity_proof_xpath = f"(//input[@aria-label='Identity Proof No.'])[{position}]"
+                    driver.find_element(By.XPATH, identity_proof_xpath).send_keys(partner.get('Identity Proof No.', ''))
+
+                    residential_proof_xpath = f"(//input[@aria-label='Residential Proof No.'])[{position}]"
+                    driver.find_element(By.XPATH, residential_proof_xpath).send_keys(partner.get('Residential Proof No.', ''))
+
+                    # Upload proof documents
+                    try:
+                            # Identity Proof Upload
+                            if partner.get('Proof of identity'):
+                                try:
+                                    # Call the upload function for identity proof
+                                    upload_proof_of_identity_dynamic(driver, config_data)
+                                    print(f"[SUCCESS] Uploaded identity proof file for partner {position}")
+                                    fields_filled_count += 1
+                                except Exception as e:
+                                    print(f"[ERROR] Failed to upload identity proof file: {e}")
+                                    fields_failed_count += 1
+
+                            # Residential Proof Upload
+                            if partner.get('Residential proof'):
+                                try:
+                                    # Call the upload function for residential proof
+                                    upload_residential_proof_dynamic(driver, config_data)
+                                    print(f"[SUCCESS] Uploaded residential proof file for partner {position}")
+                                    fields_filled_count += 1
+                                except Exception as e:
+                                    print(f"[ERROR] Failed to upload residential proof file: {e}")
+                                    fields_failed_count += 1
+                    except Exception as e:
+                            print(f"[ERROR] Failed to handle file uploads: {e}")
+                            fields_failed_count += 2
+
+
+                    # --- Contribution Details ---
+                    print(f"[INFO] Partner {position}: Processing Contribution Details...")
+
+                    # --- Form of contribution ---
+                    time.sleep(0.5)
+                    try:
+                        form_of_contribution = partner.get('Form of contribution', '').strip()
+                        if form_of_contribution:
+                            dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[1]/div/div/div[2]/select"
+
+                            contribution_dropdown = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, dropdown_xpath_base))
+                            )
+                            select = Select(contribution_dropdown)
+                            select.select_by_visible_text(form_of_contribution)
+                            print(f"[✓] Partner {position}: Selected Form of contribution: '{form_of_contribution}' (i={i}).")
+                            fields_filled_count += 1
+
+                            # Handle "Other than cash" case
+                            if form_of_contribution.lower() == 'other than cash':
+                                other_detail = partner.get('Other contribution details', '').strip()
+                                if other_detail:
+                                    other_input_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[2]/div/div/div[2]/input"
+
+                                    other_input = WebDriverWait(driver, 10).until(
+                                        EC.element_to_be_clickable((By.XPATH, other_input_xpath))
+                                    )
+                                    other_input.send_keys(other_detail)
+                                    print(f"[✓] Partner {position}: Filled 'Other than cash' details: '{other_detail}' (i={i}).")
+                                    fields_filled_count += 1
+                                else:
+                                    print(f"[INFO] Partner {position}: No 'Other contribution details' provided.")
+                        else:
+                            print(f"[INFO] Partner {position}: Form of contribution not provided.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Form of contribution dropdown.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Form of contribution dropdown.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error selecting Form of contribution: {e}")
+                        fields_failed_count += 1
+                            
+                    # --- Monetary value of contribution (in INR.) (in figures) ---
+                    time.sleep(0.5)
+                    try:
+                        num_companies = partner.get('Number of companies', '').strip()
+                        if num_companies:
+                            company_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[3]/div/div/div[2]/input"
+
+                            company_input = WebDriverWait(driver, 10).until(
+                                EC.element_to_be_clickable((By.XPATH, company_xpath))
+                            )
+                            driver.execute_script("arguments[0].scrollIntoView(true);", company_input)
+                            company_input.clear()
+                            company_input.send_keys(num_companies)
+                            print(f"[✓] Partner {position}: Entered Number of company(s): {num_companies} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Number of company(s) provided in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Number of company(s) input.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Number of company(s) input.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to enter Number of company(s): {e}")
+                        fields_failed_count += 1
+
+
+                    # --- Number of LLP(s) in which he/ she is a partner ---
+                    time.sleep(0.5)
+                    try:
+                        num_llps = partner.get('Number of LLPs', '').strip()
+                        if num_llps:
+                            llp_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[5]/div/div/div[2]/input"
+
+                            llp_input = WebDriverWait(driver, 10).until(
+                                EC.element_to_be_clickable((By.XPATH, llp_xpath))
+                            )
+                            driver.execute_script("arguments[0].scrollIntoView(true);", llp_input)
+                            llp_input.clear()
+                            llp_input.send_keys(num_llps)
+                            print(f"[✓] Partner {position}: Entered Number of LLP(s): {num_llps} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Number of LLP(s) provided in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Number of LLP(s) input.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Number of LLP(s) input.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to enter Number of LLP(s): {e}")
+                        fields_failed_count += 1
+
+
+
+                    # --- Number of company(s) in which he/ she is a director ---
+                    time.sleep(0.5)
+                    try:
+                        num_companies = partner.get('Number of companies', '').strip()
+                        if num_companies:
+                            company_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[6]/div/div/div[2]/input"
+
+                            company_input = WebDriverWait(driver, 10).until(
+                                EC.element_to_be_clickable((By.XPATH, company_xpath))
+                            )
+                            driver.execute_script("arguments[0].scrollIntoView(true);", company_input)
+                            company_input.clear()
+                            company_input.send_keys(num_companies)
+                            print(f"[✓] Partner {position}: Entered Number of company(s): {num_companies} (i={i}).")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Partner {position}: No Number of company(s) provided in data.")
+                    except TimeoutException:
+                        print(f"[✗] Partner {position}: Timeout finding Number of company(s) input.")
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find Number of company(s) input.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Failed to enter Number of company(s): {e}")
+                        fields_failed_count += 1
+            # Add a small delay between partners
+            time.sleep(1)
+
+        print("[SUCCESS] Completed processing all partners without DIN/DPIN")
+
     except Exception as e:
-        print(f"[FAIL] Could not fill: Mobile No. = {value} | Reason: {str(e)}")
-        return False 
+        print(f"[ERROR] Failed to process partners without DIN/DPIN: {str(e)}")
+        raise

@@ -1,278 +1,475 @@
 {
-    "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\coyayv9e.default",
-    "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
-    "user_email": "registerkaro46@gmail.com",
-    "user_password": "SLPL@1234",
-    "form_data": {
-        "file_paths": {
-            "first_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "second_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "fifth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "sixth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
-        },
-        "fields": {
-            "Service Request Number": "M28055632",
-            "Address Line I": "3rd",
-            "Address Line II": "Street No 3",
-            "PIN CODE": "122016",
-            "Area/Locality1": "Industrial Complex Dhundahera",
-            "Longitude": "28.8881",
-            "Latitude": "36.9999",
-            "Jurisdiction of Police Station": "Gurugram",
-            "Phone (with STD/ISD code)": "91",
-            "*Mobile No": "9354886960",
-            "Fax": "1101234567",
-            "Email ID": "shagun@registerkaro.in",
-            "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
-        "Individuals Having valid DIN/DPIN": "0",
-        "Individuals Not having valid DIN/DPIN": "0",
-            "Body corporates and their nominees Having valid DIN/DPIN": "1",
-            "Body corporates and their nominee not having valid DIN/DPIN": "0",
-        "Individuals Having valid DIN/DPIN1": "0",
-        "Individuals Not having valid DIN/DPIN1": "0",
-        "Body corporates and their nominees Having valid DIN/DPIN1": "0",
-        "Body corporates and their nominee not having valid DIN/DPIN1": "0",
-            "Designated partner identification number (DIN/DPIN)": "10290759",
-            "Form of contribution": "Cash",
-            "Monetary value of contribution (in INR) (in figures)": "100000000",
-            "Monetary value of contribution (in words)": "Ten crore",
-            "Number of LLP(s) in which he/ she is a partner": "2",
-            "Number of company(s) in which he/ she is a director": "2",
-            "First Name": "Ashish",
-            "Middle Name": "Singh",
-            "Surname": "Mehra",
-            "Father Name": "Chanchal",
-            "Father Middle Name": "SIngh",
-            "Father Surname": "Mehra",
-            "Gender": "Male",
-            "Date of Birth": "19/06/2001",
-            "Nationality": "India",
-            "Place of Birth (State)": "Delhi",
-            "Place of Birth (District)": "South West Delhi",
-            "Income-tax PAN/Passport number details": "GVBPM4605P",
-            "Occupation type": "Professional",
-            "Area of Occupation": "Business",
-            "Educational qualification": "Bachelor's Degree",
-            "Mobile No": "9354886960",
-            "Email ID Designated partner": "ashishmehra@registerkaro.com",
-            "Designated partner Address Line I": "Unitech Signature Tower-II",
-            "Designated partner Address Line II": " Tower A, South City 1",
-            "Designated partner country": "India",
-            "Designated partner Pin code / Zip Code": "122001",
-            "Area/ Locality2": "Gurgaon",
-            "Designated partner Area/ Locality": "Gurugram",
-            "Designated partner City": "Sadar Bazar",
-            "Designated partner State": "Haryana",
-        "Designated partner Jurisdiction of Police Station": "Sector 30",
-            "Designated partner Phone (with STD/ISD code)": "91",
-            "Identity Proof": "Aadhaar",
-            "Residential Proof": "Electricity Bill",
-            "Identity Proof No.": "826851933417",
-            "Residential Proof No.": "QUT030055A0AA",
-            "Form of contribution1": "Cash",
-            "Monetary value of contribution (in INR.) (in figures)": "200",
-            "Number of LLP(s) in which he/ she is a partner1": "3",
-            "Number of company(s) in which he/ she is a director1": "2",
-            "PAN Area code": "N",
-            "PAN Area code1": "W",
-            "PAN Area code2": "R",
-            "PAN AO type": "W",
-            "PAN Range code": "5",
-            "PAN Range code1": "3",
-            "PAN AO No.": "3",
-            "TAN Area code1": "N",
-            "TAN Area code2": "W",
-            "TAN Area code3": "R",
-            "TAN AO type1": "W",
-            "TAN AO type2": "T",
-            "TAN Range code": "7",
-            "TAN Range code1": "4",
-            "TAN AO No": "6",
-            "Income Source": "Capital Gain",
-            "DIN/DPIN/PAN of designated partner": "10290759",
-            "Enter Name": "ghj",
-            "Enter Father's Name": "XYZ",
-            "partnership and my membership number": "228798"
-            },
-            "designated_partners": [
-                {
-                  "Designated partner identification number (DIN/DPIN)": "10290759",
-                  "Whether resident of India": "Yes",
-                  "Form of contribution": "Cash",
-                  "Monetary value of contribution (in INR) (in figures)": "1000000",
-                  "Number of LLP(s) in which he/ she is a partner": "2",
-                  "Number of company(s) in which he/ she is a director": "1"
-                },
-                {
-                  "Designated partner identification number (DIN/DPIN)": "00000001",
-                  "Whether resident of India": "No",
-                  "Number of shares held": "200",
-                  "Paid up value of shares held (in INR)": "100000",
-                  "Form of contribution": "Other than cash",
-                  "If 'Other than cash' selected, please specify": "Land",
-                  "Monetary value of contribution (in INR) (in figures)": "2000000",
-                  "Number of LLP(s) in which he/ she is a partner": "1",
-                  "Number of company(s) in which he/ she is a director": "2"
-                }
-              ]
+  "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\coyayv9e.default",
+  "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
+  "user_email": "registerkaro46@gmail.com",
+  "user_password": "SLPL@1234",
+  "form_data": {
+    "file_paths": {
+      "first_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "second_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "fifth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "sixth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
     },
-    "options": {
-      "already_approved": {
-        "yes": "True",
-        "no": "False"
+    "fields": {
+      "Service Request Number": "M28055632",
+      "Address Line I": "3rd",
+      "Address Line II": "Street No 3",
+      "PIN CODE": "122016",
+      "Area/Locality1": "Industrial Complex Dhundahera",
+      "Longitude": "28.8881",
+      "Latitude": "36.9999",
+      "Jurisdiction of Police Station": "Gurugram",
+      "Phone (with STD/ISD code)": "91",
+      "*Mobile No": "9354886960",
+      "Fax": "1101234567",
+      "Email ID": "shagun@registerkaro.in",
+      "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
+      "Individuals Having valid DIN/DPIN": "0",
+      "Individuals Not having valid DIN/DPIN": "2",
+      "Body corporates and their nominees Having valid DIN/DPIN": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN": "0",
+      "Individuals Having valid DIN/DPIN1": "0",
+      "Individuals Not having valid DIN/DPIN1": "0",
+      "Body corporates and their nominees Having valid DIN/DPIN1": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN1": "0",
+      "Designated partner identification number (DIN/DPIN)": "10290759",
+      "Form of contribution": "Cash",
+      "Monetary value of contribution (in INR) (in figures)": "100000000",
+      "Monetary value of contribution (in words)": "Ten crore",
+      "Number of LLP(s) in which he/ she is a partner": "2",
+      "Number of company(s) in which he/ she is a director": "2",
+      "First Name": "Ashish",
+      "Middle Name": "Singh",
+      "Surname": "Mehra",
+      "Father Name": "Chanchal",
+      "Father Middle Name": "SIngh",
+      "Father Surname": "Mehra",
+      "Gender": "Male",
+      "Date of Birth": "19/06/2001",
+      "Nationality": "India",
+      "Place of Birth (State)": "Delhi",
+      "Place of Birth (District)": "South West Delhi",
+      "Income-tax PAN/Passport number details": "GVBPM4605P",
+      "Occupation type": "Professional",
+      "Area of Occupation": "Business",
+      "Educational qualification": "Bachelor's Degree",
+      "Mobile No": "9354886960",
+      "Email ID Designated partner": "ashishmehra@registerkaro.com",
+      "Designated partner Address Line I": "Unitech Signature Tower-II",
+      "Designated partner Address Line II": " Tower A, South City 1",
+      "Designated partner country": "India",
+      "Designated partner Pin code / Zip Code": "122001",
+      "Area/ Locality2": "Gurgaon",
+      "Designated partner Area/ Locality": "Gurugram",
+      "Designated partner City": "Sadar Bazar",
+      "Designated partner State": "Haryana",
+      "Designated partner Jurisdiction of Police Station": "Sector 30",
+      "Designated partner Phone (with STD/ISD code)": "91",
+      "Identity Proof": "Aadhaar",
+      "Residential Proof": "Electricity Bill",
+      "Identity Proof No.": "826851933417",
+      "Residential Proof No.": "QUT030055A0AA",
+      "Form of contribution1": "Cash",
+      "Monetary value of contribution (in INR.) (in figures)": "200",
+      "Number of LLP(s) in which he/ she is a partner1": "3",
+      "Number of company(s) in which he/ she is a director1": "2",
+      "PAN Area code": "N",
+      "PAN Area code1": "W",
+      "PAN Area code2": "R",
+      "PAN AO type": "W",
+      "PAN Range code": "5",
+      "PAN Range code1": "3",
+      "PAN AO No.": "3",
+      "TAN Area code1": "N",
+      "TAN Area code2": "W",
+      "TAN Area code3": "R",
+      "TAN AO type1": "W",
+      "TAN AO type2": "T",
+      "TAN Range code": "7",
+      "TAN Range code1": "4",
+      "TAN AO No": "6",
+      "Income Source": "Capital Gain",
+      "DIN/DPIN/PAN of designated partner": "10290759",
+      "Enter Name": "ghj",
+      "Enter Father's Name": "XYZ",
+      "partnership and my membership number": "228798"
+    },
+    "designated_partners": [
+      {
+        "Designated partner identification number (DIN/DPIN)": "10290759",
+        "Whether resident of India": "Yes",
+        "Form of contribution": "Cash",
+        "Monetary value of contribution (in INR) (in figures)": "1000000",
+        "Number of LLP(s) in which he/ she is a partner": "2",
+        "Number of company(s) in which he/ she is a director": "1"
       },
-      "type_of_incorporation": {
-        "Type of incorporation": "True",
-        "Conversion of firm into LLP": "False",
-        "Conversion of private company/unlisted public company into LLP": "False"
-      },
-      "Resident_of_India": {
-        "Yes": "True",
-        "No": "False"
-      },
-      "Income-tax PAN/Passport number": {
-        "PAN": "True",
-        "Passport number": "False"
-      },
-      "Citizenship": {
-        "Yes": "True",
-        "No": "False"
+      {
+        "Designated partner identification number (DIN/DPIN)": "00000001",
+        "Whether resident of India": "No",
+        "Number of shares held": "200",
+        "Paid up value of shares held (in INR)": "100000",
+        "Form of contribution": "Other than cash",
+        "If 'Other than cash' selected, please specify": "Land",
+        "Monetary value of contribution (in INR) (in figures)": "2000000",
+        "Number of LLP(s) in which he/ she is a partner": "1",
+        "Number of company(s) in which he/ she is a director": "2"
       }
+    ]
+  },
+  "options": {
+    "already_approved": {
+      "yes": "True",
+      "no": "False"
     },
-    "file_uploads": {
-      "certificate": {
-        "path": "C:\\Users\\Admin\\Downloads\\certificate.pdf",
-        "selector": "#file-upload-certificate",
-        "selector_type": "css"
-      },
-      "identity_proof": {
-        "path": "C:\\Users\\Admin\\Downloads\\id_proof.pdf",
-        "selector": "//input[@type='file' and contains(@id, 'identity')]",
-        "selector_type": "xpath"
-      }
+    "type_of_incorporation": {
+      "Type of incorporation": "True",
+      "Conversion of firm into LLP": "False",
+      "Conversion of private company/unlisted public company into LLP": "False"
     },
-    "document_uploads": {
-      "identity_document": {
-        "path": "C:\\Users\\Admin\\Downloads\\id_document.pdf",
-        "selector": "#identity-upload",
-        "selector_type": "css"
-      },
-      "address_proof": {
-        "path": "C:\\Users\\Admin\\Downloads\\address_proof.pdf",
-        "selector": "#address-upload",
-        "selector_type": "css"
-      }
+    "Resident_of_India": {
+      "Yes": "True",
+      "No": "False"
     },
-    "final_uploads": {
-      "final_certificate": {
-        "path": "C:\\Users\\Admin\\Downloads\\final_certificate.pdf",
-        "selector": "#final-upload",
-        "selector_type": "css"
-      }
+    "Income-tax PAN/Passport number": {
+      "PAN": "True",
+      "Passport number": "False"
     },
+    "Citizenship": {
+      "Yes": "True",
+      "No": "False"
+    }
+  },
+  "file_uploads": {
+    "certificate": {
+      "path": "C:\\Users\\Admin\\Downloads\\certificate.pdf",
+      "selector": "#file-upload-certificate",
+      "selector_type": "css"
+    },
+    "identity_proof": {
+      "path": "C:\\Users\\Admin\\Downloads\\id_proof.pdf",
+      "selector": "//input[@type='file' and contains(@id, 'identity')]",
+      "selector_type": "xpath"
+    }
+  },
+  "document_uploads": {
+    "identity_document": {
+      "path": "C:\\Users\\Admin\\Downloads\\id_document.pdf",
+      "selector": "#identity-upload",
+      "selector_type": "css"
+    },
+    "address_proof": {
+      "path": "C:\\Users\\Admin\\Downloads\\address_proof.pdf",
+      "selector": "#address-upload",
+      "selector_type": "css"
+    }
+  },
+  "final_uploads": {
+    "final_certificate": {
+      "path": "C:\\Users\\Admin\\Downloads\\final_certificate.pdf",
+      "selector": "#final-upload",
+      "selector_type": "css"
+    }
+  },
     "partners_without_din": [
       {
         "First Name": "Ashish",
-        "Middle Name": "SIngh",
+        "Middle Name": "Singh",
         "Surname": "Mehra",
-        "Father Name": "Chanchal",
-        "Father Middle Name": "SIngh",
-        "Father Surname": "Mehra",
-        "Gender": "Male",
+        "Father's First Name": "Chanchal",
+        "Father's Middle Name": "Singh",
+        "Father's Surname": "Mehra",
+        "Gender": "male",
         "Date of Birth": "19/06/2001",
         "Nationality": "India",
+        "Whether resident of India": {
+          "Yes": "true",
+          "No": "false"
+        },
+        "Income-tax PAN/Passport number": {
+          "PAN": "true",
+          "Passport number": "false"
+        },
         "Income-tax PAN/Passport number details": "GVBPM4605P",
-        "Place of Birth (State)": "Maharashtra",
-        "Place of Birth (District)": "Mumbai",
+        "Place of Birth (State)": "Delhi",
+        "Place of Birth (District)": "South West Delhi",
+        "Whether citizen of India": {
+          "Yes": "true",
+          "No": "false"
+        },
         "Occupation type": "Business",
-        "Area of Occupation": "Professional",
-        "Educational qualification": "Bachelor's Degree",
-        "Mobile No": "9354886960",
-        "Email ID": "john@example.com",
-        "Address Line I": "123 Street",
-        "Address Line II": "Apt 4",
-        "Country": "India",
-        "Pin code / Zip Code": "400001",
-        "Area/ Locality": "Bazargate",
-        "Jurisdiction of Police Station": "Colaba PS",
-        "Phone (with STD/ISD code)": "91",
+        "Area of Occupation": "Student",
+        "Educational qualification": "Bachelor's degree",
+        "Mobile No.": "9876543210",
+        "Email ID": "john.doe@example.com",
+        
+        "Permanent Address Line I": "123 Main Street",
+        "Permanent Address Line II": "Apartment 4B",
+        "Permanent Country": "India",
+        "Permanent Pin code": "400001",
+        "Permanent Area/Locality": "Bazargate",
+        "Permanent City": "Mumbai",
+        "Permanent District": "Mumbai",
+        "Permanent State": "Maharashtra",
+        "Permanent Police Station": "Andheri Police Station",
+        "Permanent Phone": "91",
+        
+        "Whether present residential address same as permanent":{
+          "Yes": "true",
+          "No": "false"
+        },
+        "Present Address Line I": "456 Current Street",
+        "Present Address Line II": "Flat 5C",
+        "Duration Years": "2",
+        "Duration Months": "6",
+        
         "Identity Proof": "Aadhaar",
         "Residential Proof": "Electricity Bill",
         "Identity Proof No.": "826851933417",
         "Residential Proof No.": "QUT030055A0AA",
+        "Proof of identity": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+        "Residential proof": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+        
         "Form of contribution": "Cash",
-        "Monetary value of contribution (in INR.) (in figures)": "100000",
-        "Number of LLP(s) in which he/ she is a partner": "0",
-        "Number of company(s) in which he/ she is a director": "0",
-        "options": {
-            "Whether resident of India": { "Yes": "True" },
-            "Income-tax PAN/Passport number": { "PAN": "True" },
-            "Whether citizen of India": { "Yes": "True" },
-            "Same address": { "Yes": "True" }
-            
-          },
-          
-            "Permanent Address Line I": "123 Street",
-            "Permanent Address Line II": "Apt",
-            "Permanent Country": "India",
-            "Permanent Pin code / Zip Code": "400001",
-            "Permanent Area/ Locality": "Bazargate",
-            "Permanent Phone (with STD/ISD code)": "91",
-            "Permanent same_address": { "Yes": "True" },
-            "Permanent Jurisdiction of Police Station": "Colaba PS"
-          },
-          {
+        "Monetary value": "100000",
+        "Number of LLPs": "5",
+        "Number of companies": "4"
+      },
+      {
             "First Name": "Ashish",
             "Middle Name": "Singh",
             "Surname": "Mehra",
-            "Father Name": "Chanchal",
-            "Father Middle Name": "SIngh",
-            "Father Surname": "Mehra",
-            "Gender": "Male",
+            "Father's First Name": "Chanchal",
+            "Father's Middle Name": "Singh",
+            "Father's Surname": "Mehra",
+            "Gender": "male",
             "Date of Birth": "19/06/2001",
             "Nationality": "India",
+            "Whether resident of India": {
+              "Yes": "true",
+              "No": "false"
+            },
+            "Income-tax PAN/Passport number": {
+              "PAN": "true",
+              "Passport number": "false"
+            },
             "Income-tax PAN/Passport number details": "GVBPM4605P",
             "Place of Birth (State)": "Maharashtra",
             "Place of Birth (District)": "Mumbai",
+            "Whether citizen of India": {
+              "Yes": "true",
+              "No": "false"
+            },
             "Occupation type": "Business",
-            "Area of Occupation": "Professional",
-            "Educational qualification": "Bachelor's Degree",
-            "Mobile No": "9354886960",
-            "Email ID": "john@example.com",
-            "Address Line I": "123 Street",
-            "Address Line II": "Apt 4",
-            "Country": "India",
-            "Pin code / Zip Code": "400001",
-            "Area/ Locality": "Bazargate",
-            "Jurisdiction of Police Station": "Colaba PS",
-            "Phone (with STD/ISD code)": "91",
+            "Area of Occupation": "Student",
+            "Educational qualification": "Bachelor's degree",
+            "Mobile No.": "9876543210",
+            "Email ID": "john.doe@example.com",
+            
+            "Permanent Address Line I": "123 Main Street",
+            "Permanent Address Line II": "Apartment 4B",
+            "Permanent Country": "India",
+            "Permanent Pin code": "400001",
+            "Permanent Area/Locality": "Bazargate",
+            "Permanent City": "Mumbai",
+            "Permanent District": "Mumbai",
+            "Permanent State": "Maharashtra",
+            "Permanent Police Station": "Andheri Police Station",
+            "Permanent Phone": "91",
+            
+            "Whether present residential address same as permanent":{
+              "Yes": "true",
+              "No": "false"
+            },
+            "Present Address Line I": "456 Current Street",
+            "Present Address Line II": "Flat 5C",
+            "Duration Years": "2",
+            "Duration Months": "6",
+            
             "Identity Proof": "Aadhaar",
             "Residential Proof": "Electricity Bill",
             "Identity Proof No.": "826851933417",
             "Residential Proof No.": "QUT030055A0AA",
+            "Proof of identity": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "Residential proof": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            
             "Form of contribution": "Cash",
-            "Monetary value of contribution (in INR.) (in figures)": "100000",
-            "Number of LLP(s) in which he/ she is a partner": "0",
-            "Number of company(s) in which he/ she is a director": "0",
-            "options": {
-                "Whether resident of India": { "Yes": "True" },
-                "Income-tax PAN/Passport number": { "PAN": "True" },
-                "Whether citizen of India": { "Yes": "True" },
-                "Same address": { "Yes": "True" }
-                
-              },
-              
-                "Permanent Address Line I": "123 Street",
-                "Permanent Address Line II": "Apt",
-                "Permanent Country": "India",
-                "Permanent Pin code / Zip Code": "400001",
-                "Permanent Area/ Locality": "Bazargate",
-                "Permanent Phone (with STD/ISD code)": "91",
-                "Permanent same_address": { "Yes": "True" },
-                "Permanent Jurisdiction of Police Station": "Colaba PS"
-              }
-    ]
-  }
-  
+            "Monetary value": "100000",
+            "Number of LLPs": "0",
+            "Number of companies": "0"
+          }
+        ],
+  "bodies_corporate_with_din": [
+    {
+      "Type of body corporate": "Company",
+      "CIN/FCRN": "ACD-1540",
+      "Name of the body corporate": "R&J DRAFTING CONSULTING LLP",
+      "Form of contribution": "Cash",
+      "If 'Other than cash' selected, please specify": "value",
+      "Monetary value of contribution (in INR) (in figures)": "100",
+      "Number of LLP(s) in which it is a partner": "2",
+      "Number of company(s) in which it is a director": "1",
+      "DIN/DPIN": "M28055632",
+      "Name": "Ashish",
+      "options": {
+        "Whether resident of India": {
+          "Yes": true,
+          "No": false
+        }
+      }
+    }
+  ],
+
+  "bodies_corporate_designated_partners": [
+    {
+      "corporate_type": "Company",
+      "registration_number": "ACD-1540",
+      "pan": "GVBPM4605P",
+      "corporate_name": "r&j drafting consulting",
+      "address": {
+        "line1": "123 Main Street",
+        "line2": "Business Park",
+        "country": "India",
+        "pincode": "400001",
+        "area": "Nariman Point",
+        "city": "Mumbai",
+        "district": "Mumbai",
+        "state": "Maharashtra",
+        "jurisdiction": "Colaba Police Station"
+      },
+      "contact": {
+        "phone": "9354886960",
+        "mobile": "8373904638",
+        "fax": "1101234567",
+        "email": "info@abcpvt.com"
+      },
+      "conversion_details": {
+        "shares_held": "1000",
+        "share_value": "100000"
+      },
+      "contribution": {
+        "form": "Cash",
+        "other_specify": "Land",
+        "value_figures": "500000",
+        "value_words": "Five Lakhs Rupees",
+        "llp_count": 2,
+        "company_count": 1
+      },
+      "nominee": {
+        "din": "01234567",
+        "name": "John Doe",
+        "resident": "Yes",
+        "designation": "Authorized Signatory",
+        "resolution_upload_path": "resolutions/partner.pdf",
+        "authorization_upload_path": "resolutions/nominee.pdf"
+      }
+    }
+  ],
+
+  "bodies_corporate_nominee_no_din": [
+    {
+      "corporate_details": {
+        "type": "LLP",
+        "registration_number": "AAE1234",
+        "pan": "AACCL1234K",
+        "name": "XYZ LLP",
+        "address": {
+          "line1": "Plot 42",
+          "line2": "Tech Park",
+          "country": "India",
+          "pincode": "110011",
+          "area": "Connaught Place",
+          "city": "New Delhi",
+          "district": "New Delhi",
+          "state": "Delhi",
+          "jurisdiction": "Connaught Police Station"
+        },
+        "contact": {
+          "phone": "011-12345678",
+          "mobile": "9999999999",
+          "fax": "",
+          "email": "contact@xyzllp.in"
+        },
+        "conversion": {
+          "shares_held": "0",
+          "share_value": "0"
+        }
+      },
+      "contribution": {
+        "form": "Other than cash",
+        "other_specify": "Property transfer",
+        "value_figures": "1000000",
+        "value_words": "Ten Lakhs Only",
+        "llp_count": 1,
+        "company_count": 0
+      },
+      "nominee": {
+        "first_name": "Ravi",
+        "middle_name": "fhjd",
+        "surname": "Sharma",
+        "father_first": "Anil",
+        "father_middle": "gjfdk",
+        "father_surname": "Sharma",
+        "gender": "Male",
+        "dob": "1985-08-15",
+        "nationality": "Indian",
+        "resident": "Yes",
+        "pan": "BGTPS1234M",
+        "passport": "",
+        "birth_state": "Delhi",
+        "birth_district": "South Delhi",
+        "citizen": "Yes",
+        "occupation_type": "Professional",
+        "occupation_other": "",
+        "education": "Post Graduate",
+        "education_other": "",
+        "mobile": "9876543210",
+        "email": "ravi.sharma@example.com",
+        "permanent_address": {
+          "line1": "Flat 101",
+          "line2": "Green Apartments",
+          "country": "India",
+          "pincode": "110092",
+          "area": "Preet Vihar",
+          "city": "Delhi",
+          "district": "East Delhi",
+          "state": "Delhi",
+          "jurisdiction": "Preet Vihar PS",
+          "phone": "9354886960"
+        },
+        "present_same": false,
+        "present_address": {
+          "line1": "House 9",
+          "line2": "IT Residency",
+          "country": "India",
+          "pincode": "560001",
+          "area": "MG Road",
+          "city": "Bangalore",
+          "district": "Bangalore Urban",
+          "state": "Karnataka",
+          "jurisdiction": "MG Road PS",
+          "phone": "9354886960"
+        },
+        "stay_duration": {
+          "years": 2,
+          "months": 6
+        },
+        "identity_proof": {
+          "type": "PAN Card",
+          "number": "BGTPS1234M"
+        },
+        "residential_proof": {
+          "type": "Electricity Bill",
+          "number": "EB123456789"
+        },
+        "uploads": {
+          "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+          "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+          "resolution_partner_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+          "resolution_nominee_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+        }
+      }
+    }
+  ]
+}

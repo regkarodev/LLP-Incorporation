@@ -14,6 +14,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import partners_without_din
+import bodies_corporate_with_din, document_upload_file
+import bodies_corporate_without_din
 
 
 # Global driver variable
@@ -476,37 +478,11 @@ def run_llp_form_sequence(webdriver_instance=None):
         # Call the function from partners_without_din.py to handle partners without DIN/DPIN
         partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
 
-        # Additional form fields - add error handling
-        try:
-            # Form of contribution
-            send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_254891280-guidedropdownlist___widget', config_data['form_data']['fields']['Form of contribution1'])
-        except Exception as e:
-            print(f"Form of contribution field not found: {str(e)}")
+        # (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN
+        # bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data, config_selectors)
 
-        try:
-            # Monetary value of contribution (in INR.) (in figures)
-            send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_254891280-guidetextbox_copy___widget', config_data['form_data']['fields']['Monetary value of contribution (in INR.) (in figures)'])
-        except Exception as e:
-            print(f"Monetary value field not found: {str(e)}")
-
-        try:
-            # Number of LLP(s) in which he/ she is a partner
-            send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_254891280-guidetextbox_copy_1672616692___widget', config_data['form_data']['fields']['Number of LLP(s) in which he/ she is a partner1'])
-        except Exception as e:
-            print(f"Number of LLPs field not found: {str(e)}")
-
-        try:
-            # Number of company(s) in which he/ she is a director
-            send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1228427250-panel-panel-panel_254891280-guidetextbox_copy_709870004___widget', config_data['form_data']['fields']['Number of company(s) in which he/ she is a director1'])
-        except Exception as e:
-            print(f"Number of companies field not found: {str(e)}")
-
-
-        time.sleep(2)
-        attachment_upload.handle_file_uploads(driver, config_data)
-
-        time.sleep(2)
-        attachment_upload.upload_file(driver, config_data)
+        # (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN
+        # bodies_corporate_without_din.fill_bodies_corporate_nominee_no_din(driver, config_data)
 
 
         # SAVE BUTTON
@@ -556,15 +532,15 @@ def run_llp_form_sequence(webdriver_instance=None):
 
             # *AO type
             # Note: The selectors below appear to be incorrect - using unique IDs for now
-            # send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO type1'])
-            # send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO type2'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO type1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO type2'])
 
             # *Range code
-            # send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Range code'])
-            # send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Range code1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Range code'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Range code1'])
 
             # *AO No.
-            # send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO No'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO No'])
 
             # Income Source - fixing the potential issue with this line
             time.sleep(2)
@@ -614,6 +590,12 @@ def run_llp_form_sequence(webdriver_instance=None):
                         print(f"Failed to upload final document {upload_name}")
         except Exception as e:
             print(f"Final upload failed: {str(e)}")
+
+        
+        time.sleep(2)
+        document_upload_file.handle_file_uploads(driver, config_data)
+        time.sleep(2)
+        document_upload_file.upload_file(driver, config_data)
 
         # Final form section - add error handling for elements that may not be present
         try:
@@ -700,7 +682,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         print("\n" + "="*60)
         print("🎉 LLP FORM AUTOMATION COMPLETED")
         print("="*60)
-        print(f"✅ Total Partners Processed: {num_partners_no_din}")
+        print(f"✅ Total Partners Processed:")
         print(f"✅ Partner 1: CSS Selector Approach")
         print(f"✅ Partners 2+: Aria-Label XPath Approach")
         print("✅ Form Navigation: Completed with error handling")
