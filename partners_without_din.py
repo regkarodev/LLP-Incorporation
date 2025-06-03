@@ -647,7 +647,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
 
-                        # --- Area of Occupation ---
+                    # --- Area of Occupation ---
                     time.sleep(0.5)
                     try:
                             area_of_occupation = partner.get("Area of Occupation", "").strip()
@@ -690,7 +690,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
 
-                        # --- Educational qualification ---
+                    # --- Educational qualification ---
                     time.sleep(0.5)
                     try:
                             educational_qualification = partner.get('Educational qualification', '').strip()

@@ -27,8 +27,8 @@
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
       "Individuals Having valid DIN/DPIN": "0",
-      "Individuals Not having valid DIN/DPIN": "2",
-      "Body corporates and their nominees Having valid DIN/DPIN": "0",
+      "Individuals Not having valid DIN/DPIN": "0",
+      "Body corporates and their nominees Having valid DIN/DPIN": "2",
       "Body corporates and their nominee not having valid DIN/DPIN": "0",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
@@ -40,41 +40,6 @@
       "Monetary value of contribution (in words)": "Ten crore",
       "Number of LLP(s) in which he/ she is a partner": "2",
       "Number of company(s) in which he/ she is a director": "2",
-      "First Name": "Ashish",
-      "Middle Name": "Singh",
-      "Surname": "Mehra",
-      "Father Name": "Chanchal",
-      "Father Middle Name": "SIngh",
-      "Father Surname": "Mehra",
-      "Gender": "Male",
-      "Date of Birth": "19/06/2001",
-      "Nationality": "India",
-      "Place of Birth (State)": "Delhi",
-      "Place of Birth (District)": "South West Delhi",
-      "Income-tax PAN/Passport number details": "GVBPM4605P",
-      "Occupation type": "Professional",
-      "Area of Occupation": "Business",
-      "Educational qualification": "Bachelor's Degree",
-      "Mobile No": "9354886960",
-      "Email ID Designated partner": "ashishmehra@registerkaro.com",
-      "Designated partner Address Line I": "Unitech Signature Tower-II",
-      "Designated partner Address Line II": " Tower A, South City 1",
-      "Designated partner country": "India",
-      "Designated partner Pin code / Zip Code": "122001",
-      "Area/ Locality2": "Gurgaon",
-      "Designated partner Area/ Locality": "Gurugram",
-      "Designated partner City": "Sadar Bazar",
-      "Designated partner State": "Haryana",
-      "Designated partner Jurisdiction of Police Station": "Sector 30",
-      "Designated partner Phone (with STD/ISD code)": "91",
-      "Identity Proof": "Aadhaar",
-      "Residential Proof": "Electricity Bill",
-      "Identity Proof No.": "826851933417",
-      "Residential Proof No.": "QUT030055A0AA",
-      "Form of contribution1": "Cash",
-      "Monetary value of contribution (in INR.) (in figures)": "200",
-      "Number of LLP(s) in which he/ she is a partner1": "3",
-      "Number of company(s) in which he/ she is a director1": "2",
       "PAN Area code": "N",
       "PAN Area code1": "W",
       "PAN Area code2": "R",
@@ -118,6 +83,10 @@
       }
     ]
   },
+
+
+
+
   "options": {
     "already_approved": {
       "yes": "True",
@@ -172,6 +141,9 @@
       "selector_type": "css"
     }
   },
+
+
+  
     "partners_without_din": [
       {
         "First Name": "Ashish",
@@ -300,72 +272,69 @@
             "Number of companies": "0"
           }
         ],
-  "bodies_corporate_with_din": [
+
+
+
+
+    "bodies_corporate_with_din": [
     {
       "Type of body corporate": "Company",
       "CIN/FCRN": "ACD-1540",
+      "PAN": "GVBPM4605P",
       "Name of the body corporate": "R&J DRAFTING CONSULTING LLP",
+      "Address Line I": "3rd",
+      "Address Line II": "Street No 3",
+      "Country": "India",
+      "Pin code": "122016",
+      "Area/ Locality": "Industrial Complex Dhundahera",
+      "Jurisdiction of Police Station": "Gurugram",
+      "Phone (with STD/ISD code)": "91",
+      "Mobile No": "9354886960",
+      "Fax": "1101234567",
+      "Email ID": "shagun@registerkaro.in",
       "Form of contribution": "Cash",
-      "If 'Other than cash' selected, please specify": "value",
       "Monetary value of contribution (in INR) (in figures)": "100",
       "Number of LLP(s) in which it is a partner": "2",
       "Number of company(s) in which it is a director": "1",
       "DIN/DPIN": "M28055632",
       "Name": "Ashish",
-      "options": {
-        "Whether resident of India": {
+      "Whether resident of India": {
           "Yes": true,
           "No": false
-        }
-      }
+        },
+      "Designation and Authority in body corporate": "Director",
+      "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+    },
+    {
+      "Type of body corporate": "Company",
+      "CIN/FCRN": "ACD-1540",
+      "PAN": "GVBPM4605P",
+      "Name of the body corporate": "R&J DRAFTING CONSULTING LLP",
+      "Address Line I": "12",
+      "Address Line II": "Street No 20",
+      "Country": "India",
+      "Pin code": "122016",
+      "Area/ Locality": "Industrial Complex Dhundahera",
+      "Jurisdiction of Police Station": "Gurugram",
+      "Phone (with STD/ISD code)": "91",
+      "Mobile No": "9354886960",
+      "Fax": "1101234567",
+      "Email ID": "shagun@registerkaro.in",
+      "Form of contribution": "Cash",
+      "Monetary value of contribution (in INR) (in figures)": "100",
+      "Number of LLP(s) in which it is a partner": "2",
+      "Number of company(s) in which it is a director": "1",
+      "DIN/DPIN": "M28055632",
+      "Name": "Ashish",
+      "Whether resident of India": {
+          "Yes": true,
+          "No": false
+        },
+      "Designation and Authority in body corporate": "Director",
+      "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
     }
   ],
 
-  "bodies_corporate_designated_partners": [
-    {
-      "corporate_type": "Company",
-      "registration_number": "ACD-1540",
-      "pan": "GVBPM4605P",
-      "corporate_name": "r&j drafting consulting",
-      "address": {
-        "line1": "123 Main Street",
-        "line2": "Business Park",
-        "country": "India",
-        "pincode": "400001",
-        "area": "Nariman Point",
-        "city": "Mumbai",
-        "district": "Mumbai",
-        "state": "Maharashtra",
-        "jurisdiction": "Colaba Police Station"
-      },
-      "contact": {
-        "phone": "9354886960",
-        "mobile": "8373904638",
-        "fax": "1101234567",
-        "email": "info@abcpvt.com"
-      },
-      "conversion_details": {
-        "shares_held": "1000",
-        "share_value": "100000"
-      },
-      "contribution": {
-        "form": "Cash",
-        "other_specify": "Land",
-        "value_figures": "500000",
-        "value_words": "Five Lakhs Rupees",
-        "llp_count": 2,
-        "company_count": 1
-      },
-      "nominee": {
-        "din": "01234567",
-        "name": "John Doe",
-        "resident": "Yes",
-        "designation": "Authorized Signatory",
-        "resolution_upload_path": "resolutions/partner.pdf",
-        "authorization_upload_path": "resolutions/nominee.pdf"
-      }
-    }
-  ],
 
   "bodies_corporate_nominee_no_din": [
     {

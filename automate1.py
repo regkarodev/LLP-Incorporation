@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
 import function1, json, document_upload_file, attachment_upload
-from selenium.common.exceptions import WebDriverException, InvalidSessionIdException, NoSuchElementException
+from selenium.common.exceptions import WebDriverException, InvalidSessionIdException, NoSuchElementException, TimeoutException
 from selenium.webdriver.common.keys import Keys
 import sys
 from selenium import webdriver
@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import partners_without_din
 import bodies_corporate_with_din, document_upload_file
-import bodies_corporate_without_din
+import bodies_corporate_with_din
 
 
 # Global driver variable
@@ -113,38 +113,63 @@ def ensure_driver_session():
             return False
     return True
 
-def click_element(css_selector):
-    """Click an element using CSS selector"""
-    global driver
-    try:
-        if not ensure_driver_session():
-            raise Exception("Could not establish browser session")
-        
-        # Wait for any loading overlays to disappear
+def click_element(css_selector, max_retries=3, wait_time=10):
+    """
+    Click an element with retry mechanism and better error handling.
+    
+    Args:
+        css_selector: CSS selector for the element
+        max_retries: Maximum number of retry attempts
+        wait_time: Maximum wait time in seconds
+    """
+    for attempt in range(max_retries):
         try:
-            WebDriverWait(driver, 10).until(
-                EC.invisibility_of_element_located((By.ID, "loadingPage"))
+            # First wait for element to be present
+            element = WebDriverWait(driver, wait_time).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
             )
-        except:
-            pass  # Loading overlay might not be present
             
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
-        )
-        
-        # Scroll to element and wait for it to be clickable
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-        time.sleep(0.5)
-        
-        # Wait for element to be clickable
-        clickable_element = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector))
-        )
-        
-        function1.click_element(driver=driver, css_selector=css_selector)
-    except Exception as e:
-        print(f"Error clicking element: {e}")
-        raise
+            # Scroll element into view
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+            time.sleep(1)  # Wait for scroll to complete
+            
+            # Try multiple approaches to click the element
+            try:
+                # Approach 1: Regular click
+                element.click()
+                print(f"[✓] Successfully clicked element: {css_selector}")
+                return True
+            except Exception as click_error:
+                print(f"[DEBUG] Regular click failed, trying JavaScript click: {str(click_error)}")
+                
+                # Approach 2: JavaScript click
+                try:
+                    driver.execute_script("arguments[0].click();", element)
+                    print(f"[✓] Successfully clicked element using JavaScript: {css_selector}")
+                    return True
+                except Exception as js_error:
+                    print(f"[DEBUG] JavaScript click failed, trying Actions: {str(js_error)}")
+                    
+                    # Approach 3: Actions click
+                    try:
+                        actions = ActionChains(driver)
+                        actions.move_to_element(element).click().perform()
+                        print(f"[✓] Successfully clicked element using Actions: {css_selector}")
+                        return True
+                    except Exception as actions_error:
+                        print(f"[DEBUG] Actions click failed: {str(actions_error)}")
+                        raise
+                        
+        except TimeoutException:
+            if attempt < max_retries - 1:
+                print(f"[INFO] Attempt {attempt + 1} failed, retrying...")
+                time.sleep(2)  # Wait before retry
+            else:
+                print(f"[✗] Failed to click element after {max_retries} attempts: {css_selector}")
+                raise
+        except Exception as e:
+            print(f"[✗] Error clicking element: {str(e)}")
+            raise
 
 def send_text(css_selector, keys):
     """Send text to an element using CSS selector"""
@@ -256,7 +281,18 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         # OK POP_UP BUTTON
         time.sleep(2)
-        click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+        try:
+            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget', 
+                         max_retries=5,  # Increase retries
+                         wait_time=15)   # Increase wait time
+        except Exception as e:
+            print(f"[ERROR] Failed to click MCA button: {str(e)}")
+            # Try alternative selector if the first one fails
+            try:
+                click_element('button[aria-label="MCA"]', max_retries=3, wait_time=10)
+            except Exception as e2:
+                print(f"[ERROR] Failed to click MCA button with alternative selector: {str(e2)}")
+                raise
 
         # NEXT BUTTON
         time.sleep(2)
@@ -476,34 +512,34 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         # (B) Particulars of individual designated partners not having DIN/DPIN
         # Call the function from partners_without_din.py to handle partners without DIN/DPIN
-        partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
+        # partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
 
         # (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN
-        # bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data, config_selectors)
+        bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data)
 
         # (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN
         # bodies_corporate_without_din.fill_bodies_corporate_nominee_no_din(driver, config_data)
 
 
         # SAVE BUTTON
-        time.sleep(2)
-        try:
-            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
-        except Exception as e:
-            print(f"Save button not found: {str(e)}")
+        # time.sleep(2)
+        # try:
+        #     click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
+        # except Exception as e:
+        #     print(f"Save button not found: {str(e)}")
 
-        # POPUP - OK BUTTON
-        time.sleep(2)
-        try:
-            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
-        except Exception as e:
-            print(f"Popup OK button not found, continuing: {str(e)}")
+        # # POPUP - OK BUTTON
+        # time.sleep(2)
+        # try:
+        #     click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+        # except Exception as e:
+        #     print(f"Popup OK button not found, continuing: {str(e)}")
 
-        # NEXT BUTTON
-        try:
-            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
-        except Exception as e:
-            print(f"Next button not found: {str(e)}")
+        # # NEXT BUTTON
+        # try:
+        #     click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
+        # except Exception as e:
+        #     print(f"Next button not found: {str(e)}")
 
         # Try to fill PAN/TAN fields if they exist
         try:
