@@ -1036,10 +1036,11 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 print(f"[ERROR] Exception in 'Whether present address same as permanent': {e}")
                                 fields_failed_count += 1
                                 
+                    # --- Present Address ---
+                    
 
 
-
-                        # --- (iv) Identity Proof ---
+                    # --- (iv) Identity Proof ---
                     time.sleep(0.5)
                     try:
                         identity_proof_value = partner.get('Identity Proof', '').strip()

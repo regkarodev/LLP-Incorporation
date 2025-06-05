@@ -22,14 +22,14 @@
       "Latitude": "36.9999",
       "Jurisdiction of Police Station": "Gurugram",
       "Phone (with STD/ISD code)": "91",
-      "*Mobile No": "9354886960",
+      "Mobile No": "9354886960",
       "Fax": "1101234567",
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
       "Individuals Having valid DIN/DPIN": "0",
       "Individuals Not having valid DIN/DPIN": "0",
-      "Body corporates and their nominees Having valid DIN/DPIN": "2",
-      "Body corporates and their nominee not having valid DIN/DPIN": "0",
+      "Body corporates and their nominees Having valid DIN/DPIN": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN": "2",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
@@ -336,109 +336,188 @@
   ],
 
 
-  "bodies_corporate_nominee_no_din": [
-    {
-      "corporate_details": {
-        "type": "LLP",
-        "registration_number": "AAE1234",
-        "pan": "AACCL1234K",
-        "name": "XYZ LLP",
-        "address": {
-          "line1": "Plot 42",
-          "line2": "Tech Park",
-          "country": "India",
-          "pincode": "110011",
-          "area": "Connaught Place",
-          "city": "New Delhi",
-          "district": "New Delhi",
-          "state": "Delhi",
-          "jurisdiction": "Connaught Police Station"
+    "bodies_corporate_nominee_no_din": [
+      {
+        "corporate_details": {
+          "type": "LLP",
+          "registration_number": "AAE1234",
+          "pan": "AACCL1234K",
+          "name": "XYZ LLP",
+          "address": {
+            "line1": "Plot 42",
+            "line2": "Tech Park",
+            "country": "India",
+            "pincode": "110071",
+            "area": "Chhawla",
+            "jurisdiction": "Chhawla Police Station"
+          },
+          "contact": {
+            "phone": "91",
+            "mobile": "9354886960",
+            "fax": "1101234567",
+            "email": "contact@xyzllp.in"
+          },
+          "conversion": {
+            "shares_held": "0",
+            "share_value": "0"
+          }
         },
-        "contact": {
-          "phone": "011-12345678",
-          "mobile": "9999999999",
-          "fax": "",
-          "email": "contact@xyzllp.in"
+        "contribution": {
+          "form": "Other than cash",
+          "other_specify": "Property transfer",
+          "value_figures": "1000000",
+          "llp_count": 1,
+          "company_count": 2
         },
-        "conversion": {
-          "shares_held": "0",
-          "share_value": "0"
-        }
-      },
-      "contribution": {
-        "form": "Other than cash",
-        "other_specify": "Property transfer",
-        "value_figures": "1000000",
-        "value_words": "Ten Lakhs Only",
-        "llp_count": 1,
-        "company_count": 0
-      },
-      "nominee": {
-        "first_name": "Ravi",
-        "middle_name": "fhjd",
-        "surname": "Sharma",
-        "father_first": "Anil",
-        "father_middle": "gjfdk",
-        "father_surname": "Sharma",
-        "gender": "Male",
-        "dob": "1985-08-15",
-        "nationality": "Indian",
-        "resident": "Yes",
-        "pan": "BGTPS1234M",
-        "passport": "",
-        "birth_state": "Delhi",
-        "birth_district": "South Delhi",
-        "citizen": "Yes",
-        "occupation_type": "Professional",
-        "occupation_other": "",
-        "education": "Post Graduate",
-        "education_other": "",
-        "mobile": "9876543210",
-        "email": "ravi.sharma@example.com",
+        "nominee": {
+          "first_name": "Ashish",
+          "middle_name": "Singh",
+          "surname": "Mehra",
+          "father_first": "Chanchal",
+          "father_middle": "Singh",
+          "father_surname": "Mehra",
+          "gender": "Male",
+          "dob": "19/06/2001",
+          "nationality": "India",
+          "resident": "Yes",
+          "PAN/Passport number": "PAN",
+          "pan/passport": "GVBPM4605P",
+          "birth_state": "Delhi",
+          "birth_district": "South Delhi",
+          "citizen": "Yes",
+          "occupation_type": "Business",
+          "occupation_other": "",
+          "Area of Occupation": "Student",
+          "If 'Others' selected, please specify": "",
+          "education": "Bachelor's Degree",
+          "education_other": "",
+          "mobile": "9876543210",
+          "email": "ravi.sharma@example.com"
+        },
         "permanent_address": {
-          "line1": "Flat 101",
-          "line2": "Green Apartments",
-          "country": "India",
-          "pincode": "110092",
-          "area": "Preet Vihar",
-          "city": "Delhi",
-          "district": "East Delhi",
-          "state": "Delhi",
-          "jurisdiction": "Preet Vihar PS",
-          "phone": "9354886960"
+            "line1": "Flat 101",
+            "line2": "Green Apartments",
+            "country": "India",
+            "pincode": "110092",
+            "area": "New Delhi",
+            "jurisdiction": "Preet Vihar PS",
+            "phone": "9354886960"
+          },
+          "present_same": {
+            "Yes": "false",
+            "No": "true"
+          },
+          "present_address": {
+            "line1": "House 9",
+            "line2": "IT Residency",
+            "country": "India",
+            "pincode": "110071",
+            "area": "Chhawla",
+            "jurisdiction": "MG Road PS",
+            "phone": "9354886960"
+          },
+          "stay_duration": {
+            "years": "2",
+            "months": "6"
+          },
+          "identity_proof": {
+            "type": "PAN Card",
+            "number": "BGTPS1234M"
+          },
+          "residential_proof": {
+            "type": "Electricity Bill",
+            "number": "EB123456789"
+          },
+          "uploads": {
+            "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "resolution_partner_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "resolution_nominee_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+          }
         },
-        "present_same": false,
-        "present_address": {
-          "line1": "House 9",
-          "line2": "IT Residency",
-          "country": "India",
-          "pincode": "560001",
-          "area": "MG Road",
-          "city": "Bangalore",
-          "district": "Bangalore Urban",
-          "state": "Karnataka",
-          "jurisdiction": "MG Road PS",
-          "phone": "9354886960"
+      {
+        "corporate_details": {
+          "type": "LLP",
+          "registration_number": "AAE1234",
+          "pan": "AACCL1234K",
+          "name": "XYZ LLP",
+          "address": {
+            "line1": "Plot 42",
+            "line2": "Tech Park",
+            "country": "India",
+            "pincode": "110071",
+            "area": "Chhawla",
+            "jurisdiction": "Chhawla Police Station"
+          },
+          "contact": {
+            "phone": "91",
+            "mobile": "9354886960",
+            "fax": "1101234567",
+            "email": "contact@xyzllp.in"
+          },
+          "conversion": {
+            "shares_held": "0",
+            "share_value": "0"
+          }
         },
-        "stay_duration": {
-          "years": 2,
-          "months": 6
+        "contribution": {
+          "form": "Other than cash",
+          "other_specify": "Property transfer",
+          "value_figures": "1000000",
+          "value_words": "Ten Lakhs Only",
+          "llp_count": 1,
+          "company_count": 2
         },
-        "identity_proof": {
-          "type": "PAN Card",
-          "number": "BGTPS1234M"
+        "nominee": {
+          "first_name": "Ashish",
+          "middle_name": "Singh",
+          "surname": "Mehra",
+          "father_first": "Chanchal",
+          "father_middle": "Singh",
+          "father_surname": "Mehra",
+          "gender": "Male",
+          "dob": "19/06/2001",
+          "nationality": "India",
+          "resident": "Yes",
+          "PAN/Passport number": "PAN",
+          "pan/passport": "GVBPM4605P",
+          "birth_state": "Delhi",
+          "birth_district": "South Delhi",
+          "citizen": "Yes",
+          "occupation_type": "Professional",
+          "occupation_other": "",
+          "Area of Occupation": "Student",
+          "If 'Others' selected, please specify": "",
+          "education": "Bachelor's Degree",
+          "education_other": "",
+          "mobile": "9354886960",
+          "email": "ravi.sharma@example.com"
         },
-        "residential_proof": {
-          "type": "Electricity Bill",
-          "number": "EB123456789"
-        },
-        "uploads": {
-          "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-          "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-          "resolution_partner_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-          "resolution_nominee_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+        "permanent_address": {
+            "line1": "Flat 101",
+            "line2": "Green Apartments",
+            "country": "India",
+            "pincode": "110092",
+            "area": "New Delhi",
+            "jurisdiction": "Preet Vihar PS",
+            "phone": "9354886960"
+          },
+          "present_same":{
+            "Yes": "true",
+            "No": "false"
+          },
+          "identity_proof": {
+            "type": "PAN Card",
+            "number": "BGTPS1234M"
+          },
+          "residential_proof": {
+            "type": "Electricity Bill",
+            "number": "EB123456789"
+          },
+          "uploads": {
+            "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+          }
         }
-      }
-    }
-  ]
-}
+    ]
+  }

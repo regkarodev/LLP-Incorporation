@@ -1,25 +1,23 @@
 import time
 import os
 import traceback
+import sys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
-import function1, json, document_upload_file, attachment_upload
+import function1, json,  attachment_upload
 from selenium.common.exceptions import WebDriverException, InvalidSessionIdException, NoSuchElementException, TimeoutException
 from selenium.webdriver.common.keys import Keys
-import sys
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-import partners_without_din
-import bodies_corporate_with_din, document_upload_file
-import bodies_corporate_with_din
-
+import partners_without_din, bodies_corporate_with_din, bodies_corporate_without_din, bodies_corporate_with_din, document_upload_file
+from function1 import scroll_to_middle
 
 # Global driver variable
-driver = None
+driver = None 
 
 def setup_driver(webdriver_instance):
     """Set up the driver for this module"""
@@ -515,10 +513,10 @@ def run_llp_form_sequence(webdriver_instance=None):
         # partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
 
         # (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN
-        bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data)
+        # bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data)
 
         # (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN
-        # bodies_corporate_without_din.fill_bodies_corporate_nominee_no_din(driver, config_data)
+        bodies_corporate_without_din.handle_bodies_corporate_with_din(driver, config_data)
 
 
         # SAVE BUTTON
