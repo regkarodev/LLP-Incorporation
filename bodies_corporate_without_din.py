@@ -4,140 +4,286 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
 from function1 import scroll_to_middle, send_text, click_element, set_date_field
 from selenium.webdriver.common.action_chains import ActionChains
+import json
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+from webdriver_manager.firefox import GeckoDriverManager
 
 
-def upload_residential_proof_for_partner(driver, partner_data, partner_position):
+
+def validate_file_paths(file_paths):
+    """Validate that all file paths exist."""
+    for file_path in file_paths:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+def upload_nominee_identity_proofs(driver, config, max_wait=10):
     """
-    Uploads 'Proof of residence' for a single partner based on their position.
-
-    Args:
-        driver: Selenium WebDriver instance.
-        partner_data (dict): The data for this partner.
-        partner_position (int): 1-based index of the partner in the form.
+    Uploads 'Proof of Identity' files for nominees in 'bodies_corporate_nominee_no_din' section.
+    Uses stable selectors to handle dynamic IDs and verifies uploads.
     """
-    file_path = partner_data.get("uploads", {}).get("residential_proof_path", "").strip()
+    nominees = config.get('bodies_corporate_nominee_no_din', [])
+    file_paths = [nominee.get("uploads", {}).get("identity_proof_path", "").strip() for nominee in nominees]
+    file_paths = [path for path in file_paths if path]  # Filter out empty paths
 
-    print(f"\n=== Partner #{partner_position}: Uploading Residential Proof ===")
-
-    if not file_path:
-        print(f"[SKIP] No file path provided for partner #{partner_position}.")
-        return
-
-    file_path = os.path.abspath(file_path)
-    if not os.path.exists(file_path):
-        print(f"[ERROR] File does not exist: {file_path}")
-        return
-
-    try:
-        # Use normalize-space to handle whitespace in label text exactly:
-        label_xpath = f"(//label[normalize-space(text())='Residential proof'])[{partner_position}]"
-        print(f"[DEBUG] Searching label with XPath: {label_xpath}")
-        residence_label = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, label_xpath))
-        )
-
-        field_container = residence_label.find_element(
-            By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
-        )
-        print(f"[SUCCESS] Located upload container for partner #{partner_position}")
-
-        file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
-
-        driver.execute_script("""
-            arguments[0].style.display = 'block';
-            arguments[0].style.visibility = 'visible';
-            arguments[0].style.opacity = '1';
-            arguments[0].removeAttribute('disabled');
-            arguments[0].removeAttribute('hidden');
-        """, file_input)
-        time.sleep(1)
-
-        file_input.send_keys(file_path)
-        print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
-
-        try:
-            attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-            WebDriverWait(attached_files_list, 5).until(
-                EC.presence_of_element_located((By.XPATH, f".//li[contains(text(), '{os.path.basename(file_path)}')]"))
-            )
-            print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
-        except Exception:
-            print(f"[WARNING] File upload might not be visually confirmed in UI for partner #{partner_position}")
-
-    except TimeoutException as e:
-        print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
-    except NoSuchElementException as e:
-        print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
-    except Exception as e:
-        print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
-def upload_proof_of_identity_for_partner(driver, partner_data, partner_position):
-    """
-    Uploads 'Proof of identity' for a single partner based on their position.
-
-    Args:
-        driver: Selenium WebDriver instance.
-        partner_data (dict): The data for this partner.
-        partner_position (int): 1-based index of the partner in the form.
-    """
-    file_path = partner_data.get("uploads", {}).get("identity_proof_path", "").strip()
-
-    print(f"\n=== Partner #{partner_position}: Uploading Proof of Identity ===")
-
-    if not file_path:
-        print(f"[SKIP] No file path provided for partner #{partner_position}.")
-        return
-
-    file_path = os.path.abspath(file_path)
-    if not os.path.exists(file_path):
-        print(f"[ERROR] File does not exist: {file_path}")
+    if not file_paths:
+        print("[WARNING] No valid file paths provided in config.")
         return
 
     try:
-        # Updated XPath using normalize-space for exact text match ignoring whitespace
-        label_xpath = f"(//label[normalize-space(text())='Proof of identity'])[{partner_position}]"
-        print(f"[DEBUG] Searching label with XPath: {label_xpath}")
-        identity_label = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, label_xpath))
-        )
+        # Validate file paths
+        validate_file_paths(file_paths)
 
-        field_container = identity_label.find_element(
-            By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
-        )
-        print(f"[SUCCESS] Located upload container for partner #{partner_position}")
+        # Find all file input fields with uniquename="6dvIdentityProof"
+        file_inputs = driver.find_elements(By.CSS_SELECTOR, 'input[uniquename="6dvIdentityProof"][type="file"]')
+        print(f"[INFO] Found {len(file_inputs)} 'Proof of identity' file input fields.")
 
-        file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
+        if not file_inputs:
+            raise Exception("No Proof of identity file inputs found.")
 
-        driver.execute_script("""
-            arguments[0].style.display = 'block';
-            arguments[0].style.visibility = 'visible';
-            arguments[0].style.opacity = '1';
-            arguments[0].removeAttribute('disabled');
-            arguments[0].removeAttribute('hidden');
-        """, file_input)
-        time.sleep(1)
+        # Check if enough files are provided
+        if len(file_paths) < len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but {len(file_inputs)} fields found. Using available files.")
 
-        file_input.send_keys(file_path)
-        print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
+        # Upload files to the detected fields
+        for i, (file_input, file_path) in enumerate(zip(file_inputs[:len(file_paths)], file_paths)):
+            file_path = os.path.abspath(file_path)
+            try:
+                # Ensure the file input is interactable
+                driver.execute_script("""
+                    arguments[0].style.display = 'block';
+                    arguments[0].style.visibility = 'visible';
+                    arguments[0].style.opacity = 1;
+                    arguments[0].removeAttribute('disabled');
+                    arguments[0].removeAttribute('hidden');
+                """, file_input)
 
-        try:
-            attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-            WebDriverWait(attached_files_list, 5).until(
-                EC.presence_of_element_located((By.XPATH, f".//li[contains(text(), '{os.path.basename(file_path)}')]"))
-            )
-            print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
-        except Exception:
-            print(f"[WARNING] File upload might not be visually confirmed in UI for partner #{partner_position}")
+                # Scroll to the element to ensure visibility
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
+                time.sleep(0.5)  # Brief pause for stability
 
-    except TimeoutException as e:
-        print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
-    except NoSuchElementException as e:
-        print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
+                # Upload the file
+                file_input.send_keys(file_path)
+                print(f"[SUCCESS] Uploaded file to field {i+1}: {os.path.basename(file_path)}")
+
+                # Verify the upload by checking the file list
+                try:
+                    container = file_input.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fileUpload')]")
+                    file_list = container.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+                    WebDriverWait(driver, max_wait).until(
+                        EC.text_to_be_present_in_element(
+                            (By.CSS_SELECTOR, "ul.guide-fu-fileItemList li"),
+                            os.path.basename(file_path)
+                        )
+                    )
+                    print(f"[VERIFIED] File appears in UI list for field {i+1}")
+                except TimeoutException:
+                    print(f"[WARNING] File may not have appeared in UI list for field {i+1}")
+                except NoSuchElementException:
+                    print(f"[WARNING] File list not found for field {i+1}")
+
+                # Check for validation errors
+                try:
+                    error = container.find_element(By.CSS_SELECTOR, ".guideFieldError")
+                    if error.is_displayed() and "This Field is a required field." in error.text:
+                        print(f"[ERROR] Validation error in field {i+1}: {error.text}")
+                except NoSuchElementException:
+                    pass  # No error found, which is good
+
+            except NoSuchElementException:
+                print(f"[ERROR] File input not interactable for field {i+1}")
+            except Exception as e:
+                print(f"[ERROR] Failed to upload file to field {i+1}: {type(e).__name__} - {e}")
+
+        if len(file_paths) > len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but only {len(file_inputs)} fields found. Excess files ignored.")
+
+        print(f"[INFO] Completed uploading to {min(len(file_inputs), len(file_paths))} fields.")
+
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
     except Exception as e:
-        print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
+        print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
+
+def upload_nominee_residential_proofs(driver, config, max_wait=10):
+    """
+    Uploads 'Residential proof' files for nominees in 'bodies_corporate_nominee_no_din' section.
+    Uses stable selectors to handle dynamic IDs and verifies uploads.
+    """
+    nominees = config.get('bodies_corporate_nominee_no_din', [])
+    file_paths = [nominee.get("uploads", {}).get("residential_proof_path", "").strip() for nominee in nominees]
+    file_paths = [path for path in file_paths if path]  # Filter out empty paths
+
+    if not file_paths:
+        print("[WARNING] No valid file paths provided in config for Residential proof.")
+        return
+
+    try:
+        # Validate file paths
+        validate_file_paths(file_paths)
+
+        # Find all file input fields with uniquename="6dvResidentialProof"
+        file_inputs = driver.find_elements(By.CSS_SELECTOR, 'input[uniquename="6dvResidentialProof"][type="file"]')
+        print(f"[INFO] Found {len(file_inputs)} 'Residential proof' file input fields.")
+
+        if not file_inputs:
+            raise Exception("No Residential proof file inputs found.")
+
+        # Check if enough files are provided
+        if len(file_paths) < len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but {len(file_inputs)} fields found. Using available files.")
+
+        # Upload files to the detected fields
+        for i, (file_input, file_path) in enumerate(zip(file_inputs[:len(file_paths)], file_paths)):
+            file_path = os.path.abspath(file_path)
+            try:
+                # Ensure the file input is interactable
+                driver.execute_script("""
+                    arguments[0].style.display = 'block';
+                    arguments[0].style.visibility = 'visible';
+                    arguments[0].style.opacity = 1;
+                    arguments[0].removeAttribute('disabled');
+                    arguments[0].removeAttribute('hidden');
+                """, file_input)
+
+                # Scroll to the element to ensure visibility
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
+                time.sleep(0.5)  # Brief pause for stability
+
+                # Upload the file
+                file_input.send_keys(file_path)
+                print(f"[SUCCESS] Uploaded file to field {i+1}: {os.path.basename(file_path)}")
+
+                # Verify the upload by checking the file list
+                try:
+                    container = file_input.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fileUpload')]")
+                    file_list = container.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+                    WebDriverWait(driver, max_wait).until(
+                        EC.text_to_be_present_in_element(
+                            (By.CSS_SELECTOR, "ul.guide-fu-fileItemList li"),
+                            os.path.basename(file_path)
+                        )
+                    )
+                    print(f"[VERIFIED] File appears in UI list for field {i+1}")
+                except TimeoutException:
+                    print(f"[WARNING] File may not have appeared in UI list for field {i+1}")
+                except NoSuchElementException:
+                    print(f"[WARNING] File list not found for field {i+1}")
+
+                # Check for validation errors
+                try:
+                    error = container.find_element(By.CSS_SELECTOR, ".guideFieldError")
+                    if error.is_displayed() and "This Field is a required field." in error.text:
+                        print(f"[ERROR] Validation error in field {i+1}: {error.text}")
+                except NoSuchElementException:
+                    pass  # No error found, which is good
+
+            except NoSuchElementException:
+                print(f"[ERROR] File input not interactable for field {i+1}")
+            except Exception as e:
+                print(f"[ERROR] Failed to upload file to field {i+1}: {type(e).__name__} - {e}")
+
+        if len(file_paths) > len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but only {len(file_inputs)} fields found. Excess files ignored.")
+
+        print(f"[INFO] Completed uploading to {min(len(file_inputs), len(file_paths))} fields.")
+
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
+    except Exception as e:
+        print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
+
+def upload_nominee_resolution_proofs(driver, config, max_wait=10):
+    """
+    Uploads 'Copy of resolution' files for nominees in 'bodies_corporate_nominee_no_din' section.
+    Uses stable selectors to handle dynamic IDs and verifies uploads.
+    """
+    nominees = config.get('bodies_corporate_nominee_no_din', [])
+    file_paths = [nominee.get("uploads", {}).get("resolution_copy_path", "").strip() for nominee in nominees]
+    file_paths = [path for path in file_paths if path]  # Filter out empty paths
+
+    if not file_paths:
+        print("[WARNING] No valid file paths provided in config for Copy of resolution.")
+        return
+
+    try:
+        # Validate file paths
+        validate_file_paths(file_paths)
+
+        # Find all file input fields with uniquename="6dvCopyOfResolution"
+        file_inputs = driver.find_elements(By.CSS_SELECTOR, 'input[uniquename="6dvCopyOfResolution"][type="file"]')
+        print(f"[INFO] Found {len(file_inputs)} 'Copy of resolution' file input fields.")
+
+        if not file_inputs:
+            raise Exception("No Copy of resolution file inputs found.")
+
+        # Check if enough files are provided
+        if len(file_paths) < len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but {len(file_inputs)} fields found. Using available files.")
+
+        # Upload files to the detected fields
+        for i, (file_input, file_path) in enumerate(zip(file_inputs[:len(file_paths)], file_paths)):
+            file_path = os.path.abspath(file_path)
+            try:
+                # Ensure the file input is interactable
+                driver.execute_script("""
+                    arguments[0].style.display = 'block';
+                    arguments[0].style.visibility = 'visible';
+                    arguments[0].style.opacity = 1;
+                    arguments[0].removeAttribute('disabled');
+                    arguments[0].removeAttribute('hidden');
+                """, file_input)
+
+                # Scroll to the element to ensure visibility
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
+                time.sleep(0.5)  # Brief pause for stability
+
+                # Upload the file
+                file_input.send_keys(file_path)
+                print(f"[SUCCESS] Uploaded file to field {i+1}: {os.path.basename(file_path)}")
+
+                # Verify the upload by checking the file list
+                try:
+                    container = file_input.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fileUpload')]")
+                    file_list = container.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+                    WebDriverWait(driver, max_wait).until(
+                        EC.text_to_be_present_in_element(
+                            (By.CSS_SELECTOR, "ul.guide-fu-fileItemList li"),
+                            os.path.basename(file_path)
+                        )
+                    )
+                    print(f"[VERIFIED] File appears in UI list for field {i+1}")
+                except TimeoutException:
+                    print(f"[WARNING] File may not have appeared in UI list for field {i+1}")
+                except NoSuchElementException:
+                    print(f"[WARNING] File list not found for field {i+1}")
+
+                # Check for validation errors
+                try:
+                    error = container.find_element(By.CSS_SELECTOR, ".guideFieldError")
+                    if error.is_displayed() and "This Field is a required field." in error.text:
+                        print(f"[ERROR] Validation error in field {i+1}: {error.text}")
+                except NoSuchElementException:
+                    pass  # No error found, which is good
+
+            except NoSuchElementException:
+                print(f"[ERROR] File input not interactable for field {i+1}")
+            except Exception as e:
+                print(f"[ERROR] Failed to upload file to field {i+1}: {type(e).__name__} - {e}")
+
+        if len(file_paths) > len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but only {len(file_inputs)} fields found. Excess files ignored.")
+
+        print(f"[INFO] Completed uploading to {min(len(file_inputs), len(file_paths))} fields.")
+
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
+    except Exception as e:
+        print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
 
 
 def handle_bodies_corporate_with_din(driver, config_data):
@@ -2124,23 +2270,23 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         print(f"[INFO] Body Corporate {position}: 'Address Line II' is empty or missing in input data. Skipping.")
 
                     # --- Country (dropdown) ---
-                country_value = present_address_data.get('country', '').strip()
-                if country_value:
-                        country_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
+                # country_value = present_address_data.get('country', '').strip()
+                # if country_value:
+                #         country_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
 
-                        try:
-                            country_select_element = WebDriverWait(driver, 10).until(
-                                EC.presence_of_element_located((By.XPATH, country_xpath))
-                            )
-                            country_select = Select(country_select_element)
-                            country_select.select_by_visible_text(country_value)
-                            print(f"[✓] Body Corporate {position}: Selected Country: {country_value}")
-                            fields_filled_count += 1
-                        except Exception as e:
-                            print(f"[✗] Body Corporate {position}: Error selecting Country: {str(e)}")
-                            fields_failed_count += 1
-                else:
-                        print(f"[INFO] Body Corporate {position}: 'Country' is empty or missing in input data. Skipping.")
+                #         try:
+                #             country_select_element = WebDriverWait(driver, 10).until(
+                #                 EC.presence_of_element_located((By.XPATH, country_xpath))
+                #             )
+                #             country_select = Select(country_select_element)
+                #             country_select.select_by_visible_text(country_value)
+                #             print(f"[✓] Body Corporate {position}: Selected Country: {country_value}")
+                #             fields_filled_count += 1
+                #         except Exception as e:
+                #             print(f"[✗] Body Corporate {position}: Error selecting Country: {str(e)}")
+                #             fields_failed_count += 1
+                # else:
+                #         print(f"[INFO] Body Corporate {position}: 'Country' is empty or missing in input data. Skipping.")
 
                     # --- Pin code / Zip Code ---
                 try:
@@ -2191,41 +2337,26 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         area_value = present_address_data.get('area', '').strip()
 
                         if area_value:
-                            # area_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[5]/div/div/div[2]/select"
+                            area_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[5]/div/div/div[2]/select"
+
         
-                            try:
-                                # Wait for the loading overlay to disappear
-                                WebDriverWait(driver, 15).until(
-                                    EC.invisibility_of_element_located((By.ID, "loadingPage"))
-                                )
+                        try:
+                            area_input = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, area_xpath))
+                            )
 
-                                area_xpath = f"(//label[normalize-space(text())='Area/ Locality']/following::select)[{position}]"
-                                
-                                # Wait for dropdown to be clickable
-                                area_dropdown = WebDriverWait(driver, 10).until(
-                                    EC.element_to_be_clickable((By.XPATH, area_xpath))
-                                )
+                            time.sleep(2)
+                            click_element(driver, xpath=area_xpath)
+                            time.sleep(2)
+                            send_text(driver, xpath=area_xpath, keys=area_value)
 
-                                # Scroll into view
-                                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", area_dropdown)
-                                time.sleep(1)
-
-                                try:
-                                    Select(area_dropdown).select_by_visible_text(area_value)
-                                    print(f"[✓] Body Corporate {position}: Selected Area/Locality: {area_value}")
-                                    fields_filled_count += 1
-                                except ElementClickInterceptedException:
-                                    print(f"[RETRY] Body Corporate {position}: Element not clickable initially, retrying...")
-                                    time.sleep(2)
-                                    driver.execute_script("arguments[0].click();", area_dropdown)
-                                    time.sleep(1)
-                                    Select(area_dropdown).select_by_visible_text(area_value)
-                                    print(f"[✓] Body Corporate {position}: Selected Area/Locality after retry: {area_value}")
-                                fields_filled_count += 1
-
-                            except (NoSuchElementException, TimeoutException):
-                                print(f"[✗] Body Corporate {position}: Area/Locality dropdown not found or not clickable at XPath:\n{area_xpath}")
-                                fields_failed_count += 1
+                            print(f"[✓] Body Corporate: Entered Area/Locality: {area_value}")
+                            # fields_filled_count += 1
+                        except Exception as e:
+                            print(f"[✗] Body Corporate: Error setting Area/Locality: {e}")
+                            # fields_failed_count += 1
+                        else:
+                            print(f"[INFO] Body Corporate: No Area/Locality provided in data.")
                 except Exception as e:
                                 print(f"[✗] Body Corporate {position}: Error selecting Area/Locality: {str(e)}")
                                 fields_failed_count += 1
@@ -2510,30 +2641,43 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
 
             # --- File Uploads ---
-            try:
-                # Identity Proof Upload
-                if body.get('uploads', {}).get('identity_proof_path'):
-                    try:
-                        upload_proof_of_identity_for_partner(driver, body, position)
-                        print(f"[SUCCESS] Uploaded identity proof file for partner {position}")
-                        fields_filled_count += 1
-                    except Exception as e:
-                        print(f"[ERROR] Failed to upload identity proof file: {e}")
-                        fields_failed_count += 1
+            try: 
+                try:
+                        with open("config_data.json", "r") as f:
+                            config_data = json.load(f)
+                except FileNotFoundError:
+                        print("[ERROR] config_data.json not found.")
+                except json.JSONDecodeError:
+                        print("[ERROR] Invalid JSON in config_data.json.")
+                upload_nominee_identity_proofs(driver, config_data)
+
 
                 # Residential Proof Upload
-                if body.get('uploads', {}).get('residential_proof_path'):
-                    try:
-                        upload_residential_proof_for_partner(driver, body, position)
-                        print(f"[SUCCESS] Uploaded residential proof file for partner {position}")
-                        fields_filled_count += 1
-                    except Exception as e:
-                        print(f"[ERROR] Failed to upload residential proof file for partner {position}: {e}")
-                        fields_failed_count += 1
+                try:
+                    with open("config_data.json", "r") as f:
+                        config_data = json.load(f)
+                except FileNotFoundError:
+                    print("[ERROR] config_data.json not found.")
+                except json.JSONDecodeError:
+                    print("[ERROR] Invalid JSON in config_data.json.")
+                
+                # Upload files
+                upload_nominee_residential_proofs(driver, config_data)
+
 
             except Exception as e:
                 print(f"[ERROR] Failed to handle file uploads: {e}")
                 fields_failed_count += 2
+
+            
+            try:
+                    with open("config_data.json", "r") as f:
+                        config_data = json.load(f)
+            except FileNotFoundError:
+                    print("[ERROR] config_data.json not found.")
+            except json.JSONDecodeError:
+                    print("[ERROR] Invalid JSON in config_data.json.")
+            upload_nominee_resolution_proofs(driver, config_data)
 
             # Add a small delay between bodies corporate
             time.sleep(1)

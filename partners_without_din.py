@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-import function1
+from function1 import send_text, click_element, scroll_to_middle
 
 def normalize_options_dict(options_dict):
     """Convert string 'True'/'False' to boolean True/False in options_dict."""
@@ -1037,6 +1037,258 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_failed_count += 1
                                 
                     # --- Present Address ---
+                     
+                    try:                        
+                        # --- Address Line I ---
+                        address1_value = partner.get('Present Address Line I', '')
+                        if address1_value:
+                                address1_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[1]/div/div/div[2]/input"
+
+                                # Wait for the input field
+                                address1_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, address1_xpath))
+                                )
+
+                                driver.execute_script("arguments[0].value = arguments[1];", address1_input, address1_value)
+                                print(f"[✓] Body Corporate {position}: Entered Address Line I: {address1_value}")
+                                fields_filled_count += 1
+                        else:
+                                print(f"[INFO] Body Corporate {position}: 'Address Line I' is empty or missing in input data. Skipping.")
+
+                            # --- Address Line II ---
+                        address2_value = partner.get('Present Address Line II', '')
+                        if address2_value:
+                                address2_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[2]/div/div/div[2]/input"
+
+                                address2_input = WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.XPATH, address2_xpath))
+                                )
+
+                                driver.execute_script("arguments[0].value = arguments[1];", address2_input, address2_value)
+                                print(f"[✓] Body Corporate {position}: Entered Address Line II: {address2_value}")
+                                fields_filled_count += 1
+                        else:
+                                print(f"[INFO] Body Corporate {position}: 'Address Line II' is empty or missing in input data. Skipping.")
+
+                            # --- Country (dropdown) ---
+                        country_value = partner.get('Present Country', '')
+                        if country_value:
+                                country_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
+
+                                try:
+                                    country_select_element = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, country_xpath))
+                                    )
+                                    country_select = Select(country_select_element)
+                                    country_select.select_by_visible_text(country_value)
+                                    print(f"[✓] Body Corporate {position}: Selected Country: {country_value}")
+                                    fields_filled_count += 1
+                                except Exception as e:
+                                    print(f"[✗] Body Corporate {position}: Error selecting Country: {str(e)}")
+                                    fields_failed_count += 1
+                        else:
+                                print(f"[INFO] Body Corporate {position}: 'Country' is empty or missing in input data. Skipping.")
+
+                            # --- Pin code / Zip Code ---
+                        try:
+                                pincode1_value = partner.get('Present Pin code', '')
+                                if pincode1_value:
+                                    pincode1_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[4]/div/div/div[2]/input"
+
+                                    try:
+                                        # Wait for the input field
+                                        pincode1_input = WebDriverWait(driver, 10).until(
+                                            EC.presence_of_element_located((By.XPATH, pincode1_xpath))
+                                        )
+
+                                        # Scroll to the input field
+                                        if callable(globals().get('scroll_to_middle')):
+                                            scroll_to_middle(driver, pincode1_input)
+                                        else:
+                                            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pincode1_input)
+
+                                        # Remove readonly if present, clear and set value
+                                        driver.execute_script("arguments[0].removeAttribute('readonly');", pincode1_input)
+                                        driver.execute_script("arguments[0].value = '';", pincode1_input)
+                                        driver.execute_script("arguments[0].value = arguments[1];", pincode1_input, pincode1_value)
+
+                                        # Dispatch standard input/change events
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", pincode1_input)
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", pincode1_input)
+
+                                        time.sleep(0.5)
+                                        send_text(driver, xpath=pincode1_xpath, keys=pincode1_value)
+
+                                        print(f"[✓] Body Corporate {position}: Entered Pin code: {pincode1_value}")
+                                        fields_filled_count += 1
+                                    except Exception as e:
+                                        print(f"[✗] Body Corporate {position}: Error setting Pin code (XPath: {pincode1_xpath}): {e}")
+                                        fields_failed_count += 1
+                                else:
+                                    print(f"[INFO] Body Corporate {position}: 'Pin code / Zip Code' is empty or missing in input data. Skipping.")
+                        except Exception as e_outer:
+                                print(f"[✗] Body Corporate {position}: Unexpected error in Pin code block: {str(e_outer)}")
+                                fields_failed_count += 1
+
+
+                            
+                            # --- Area/Locality (dropdown) ---
+                        time.sleep(1)
+                        try:
+                                area_value = partner.get('Present Area/Locality', '')
+
+                                if area_value:
+                                    area_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[5]/div/div/div[2]/select"
+
+                
+                                try:
+                                    area_input = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, area_xpath))
+                                    )
+
+                                    time.sleep(2)
+                                    click_element(driver, xpath=area_xpath)
+                                    time.sleep(2)
+                                    send_text(driver, xpath=area_xpath, keys=area_value)
+
+                                    print(f"[✓] Body Corporate: Entered Area/Locality: {area_value}")
+                                    # fields_filled_count += 1
+                                except Exception as e:
+                                    print(f"[✗] Body Corporate: Error setting Area/Locality: {e}")
+                                    # fields_failed_count += 1
+                                else:
+                                    print(f"[INFO] Body Corporate: No Area/Locality provided in data.")
+                        except Exception as e:
+                                        print(f"[✗] Body Corporate {position}: Error selecting Area/Locality: {str(e)}")
+                                        fields_failed_count += 1
+
+
+                            # --- Jurisdiction of Police Station ---
+
+                            # time.sleep(0.5)
+                            # try:
+                            #     jurisdiction_value = present_address_data.get('jurisdiction', '').strip()
+                            #     if jurisdiction_value:
+                            #             jurisdiction_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[10]/div/div/div[2]/input"
+                                    
+                            #             try:
+                            #                 jurisdiction_input = WebDriverWait(driver, 10).until(
+                            #                     EC.presence_of_element_located((By.XPATH, jurisdiction_xpath))
+                            #                 )
+                                            
+                            #                 # Scroll to view
+                            #                 scroll_to_middle(driver, jurisdiction_input)
+                            #                 time.sleep(0.5)
+                                            
+                            #                 # Clear and set value
+                            #                 jurisdiction_input.clear()
+                            #                 jurisdiction_input.send_keys(jurisdiction_value)
+                                            
+                            #                 print(f"[✓] Body Corporate {position}: Entered Jurisdiction: {jurisdiction_value}")
+                            #                 fields_filled_count += 1
+                            #             except Exception as e:
+                            #                 print(f"[✗] Body Corporate {position}: Error setting Jurisdiction: {str(e)}")
+                            #                 fields_failed_count += 1
+                            #     else:
+                            #         print(f"[INFO] Body Corporate {position}: No Jurisdiction provided in data.")
+                            # except Exception as e:
+                            #     print(f"[✗] Body Corporate {position}: Exception while processing Jurisdiction: {e}")
+                            #     fields_failed_count += 1
+
+
+
+                            # --- Phone (with STD/ISD code) ---
+                        phone_value = partner.get('Present Phone', '')
+                        if phone_value:
+                                phone_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[11]/div/div/div[2]/input"
+                                
+                                try:
+                                    phone_input = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, phone_xpath))
+                                    )
+                                    
+                                    # Scroll to the input field
+                                    if callable(globals().get('scroll_to_middle')):
+                                        scroll_to_middle(driver, phone_input)
+                                    else:
+                                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
+
+                                    # Remove readonly and fill value
+                                    driver.execute_script("arguments[0].removeAttribute('readonly');", phone_input)
+                                    driver.execute_script("arguments[0].value = '';", phone_input)
+                                    driver.execute_script("arguments[0].value = arguments[1];", phone_input, phone_value)
+                                    
+                                    # Dispatch events
+                                    driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", phone_input)
+                                    driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", phone_input)
+
+                                    time.sleep(0.5)
+                                    send_text(driver, xpath=phone_xpath, keys=phone_value)
+
+                                    print(f"[✓] Body Corporate {position}: Entered Phone: {phone_value}")
+                                    fields_filled_count += 1
+                                except Exception as e:
+                                    print(f"[✗] Body Corporate {position}: Error entering Phone: {str(e)}")
+                                    fields_failed_count += 1
+                        else:
+                                print(f"[INFO] Body Corporate {position}: No present address data provided.")
+
+                    except Exception as e:
+                        print(f"[ERROR] Exception in 'Present Address': {e}")
+                        fields_failed_count += 1
+
+                    # --- Year Block ---
+                    try:
+                        year_value = partner.get('Duration Years', '')
+                        if year_value:
+                            year_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[2]/div/div/div[2]/select"
+
+                            year_select_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, year_xpath))
+                            )
+                            if callable(globals().get('scroll_to_middle')):
+                                scroll_to_middle(driver, year_select_element)
+                            else:
+                                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", year_select_element)
+
+                            year_select = Select(year_select_element)
+                            year_select.select_by_visible_text(year_value)
+
+                            print(f"[✓] Body Corporate {position}: Selected Year: {year_value}")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Body Corporate {position}: 'Year' is empty or missing in input data. Skipping.")
+                    except Exception as e:
+                        print(f"[✗] Body Corporate {position}: Error selecting Year: {str(e)}")
+                        fields_failed_count += 1
+
+
+                    # --- Month Block ---
+                    try:
+                        month_value = partner.get('Duration Months', '')
+                        if month_value:
+                            month_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
+
+                            month_select_element = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.XPATH, month_xpath))
+                            )
+                            if callable(globals().get('scroll_to_middle')):
+                                scroll_to_middle(driver, month_select_element)
+                            else:
+                                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", month_select_element)
+
+                            month_select = Select(month_select_element)
+                            month_select.select_by_visible_text(month_value)
+
+                            print(f"[✓] Body Corporate {position}: Selected Month: {month_value}")
+                            fields_filled_count += 1
+                        else:
+                            print(f"[INFO] Body Corporate {position}: 'Month' is empty or missing in input data. Skipping.")
+                    except Exception as e:
+                        print(f"[✗] Body Corporate {position}: Error selecting Month: {str(e)}")
+                        fields_failed_count += 1
+
+
                     
 
 

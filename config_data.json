@@ -230,8 +230,8 @@
             "Place of Birth (State)": "Maharashtra",
             "Place of Birth (District)": "Mumbai",
             "Whether citizen of India": {
-              "Yes": "true",
-              "No": "false"
+              "Yes": "false",
+              "No": "true"
             },
             "Occupation type": "Business",
             "Area of Occupation": "Student",
@@ -249,6 +249,7 @@
             "Permanent State": "Maharashtra",
             "Permanent Police Station": "Andheri Police Station",
             "Permanent Phone": "91",
+
             
             "Whether present residential address same as permanent":{
               "Yes": "true",
@@ -256,6 +257,10 @@
             },
             "Present Address Line I": "456 Current Street",
             "Present Address Line II": "Flat 5C",
+            "Present Country": "India",
+            "Present Pin code": "400001",
+            "Present Area/Locality": "Bazargate",
+            "Present Phone": "91",
             "Duration Years": "2",
             "Duration Months": "6",
             
@@ -431,10 +436,10 @@
           "uploads": {
             "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
             "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "resolution_partner_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "resolution_nominee_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+            "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
           }
         },
+      
       {
         "corporate_details": {
           "type": "LLP",
@@ -516,8 +521,12 @@
           },
           "uploads": {
             "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
           }
+          
         }
+        
+        
     ]
   }
