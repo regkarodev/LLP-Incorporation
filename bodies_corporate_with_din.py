@@ -8,7 +8,103 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from function1 import scroll_to_middle, send_text, click_element
 from selenium.webdriver.common.action_chains import ActionChains
-# import function1 # Assuming function1 is not directly used in this specific function, but kept for context if it's part of a larger script.
+import json
+
+
+def validate_file_paths(file_paths):
+    """Validate that all file paths exist."""
+    for file_path in file_paths:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+def upload_nominee_resolution_proofs_form3c(driver, config, max_wait=10):
+    """
+    Uploads 'Copy of resolution' files for entities in 'bodies_corporate_with_din' section in Form 3 (C).
+    Uses stable selectors to handle dynamic IDs and verifies uploads.
+    """
+    entities = config.get('bodies_corporate_with_din', [])
+    file_paths = [entity.get("Copy of resolution", "").strip() for entity in entities]
+    file_paths = [path for path in file_paths if path]  # Filter out empty paths
+
+    if not file_paths:
+        print("[WARNING] No valid file paths provided in config for Copy of resolution in Form 3 (C).")
+        return
+
+    try:
+        # Validate file paths
+        validate_file_paths(file_paths)
+
+        # Find all file input fields with uniquename="BodyCorporate6c"
+        file_inputs = driver.find_elements(By.CSS_SELECTOR, 'input[uniquename="BodyCorporate6c"][type="file"]')
+        print(f"[INFO] Found {len(file_inputs)} 'Copy of resolution' file input fields in Form 3 (C).")
+
+        if not file_inputs:
+            raise Exception("No Copy of resolution file inputs found in Form 3 (C).")
+
+        # Check if enough files are provided
+        if len(file_paths) < len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but {len(file_inputs)} fields found. Using available files.")
+
+        # Upload files to the detected fields
+        for i, (file_input, file_path) in enumerate(zip(file_inputs[:len(file_paths)], file_paths)):
+            file_path = os.path.abspath(file_path)
+            try:
+                # Ensure the file input is interactable
+                driver.execute_script("""
+                    arguments[0].style.display = 'block';
+                    arguments[0].style.visibility = 'visible';
+                    arguments[0].style.opacity = 1;
+                    arguments[0].removeAttribute('disabled');
+                    arguments[0].removeAttribute('hidden');
+                """, file_input)
+
+                # Scroll to the element to ensure visibility
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
+                time.sleep(0.5)  # Brief pause for stability
+
+                # Upload the file
+                file_input.send_keys(file_path)
+                print(f"[SUCCESS] Uploaded file to field {i+1}: {os.path.basename(file_path)}")
+
+                # Verify the upload by checking the file list
+                try:
+                    container = file_input.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fileUpload')]")
+                    file_list = container.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+                    WebDriverWait(driver, max_wait).until(
+                        EC.text_to_be_present_in_element(
+                            (By.CSS_SELECTOR, "ul.guide-fu-fileItemList li"),
+                            os.path.basename(file_path)
+                        )
+                    )
+                    print(f"[VERIFIED] File appears in UI list for field {i+1}")
+                except TimeoutException:
+                    print(f"[WARNING] File may not have appeared in UI list for field {i+1}")
+                except NoSuchElementException:
+                    print(f"[WARNING] File list not found for field {i+1}")
+
+                # Check for validation errors
+                try:
+                    error = container.find_element(By.CSS_SELECTOR, ".guideFieldError")
+                    if error.is_displayed() and "This Field is a required field." in error.text:
+                        print(f"[ERROR] Validation error in field {i+1}: {error.text}")
+                except NoSuchElementException:
+                    pass  # No error found, which is good
+
+            except NoSuchElementException:
+                print(f"[ERROR] File input not interactable for field {i+1}")
+            except Exception as e:
+                print(f"[ERROR] Failed to upload file to field {i+1}: {type(e).__name__} - {e}")
+
+        if len(file_paths) > len(file_inputs):
+            print(f"[WARNING] {len(file_paths)} files provided, but only {len(file_inputs)} fields found. Excess files ignored.")
+
+        print(f"[INFO] Completed uploading to {min(len(file_inputs), len(file_paths))} fields.")
+
+    except FileNotFoundError as e:
+        print(f"[ERROR] {e}")
+    except Exception as e:
+        print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
+
 def upload_proof_of_identity_bodies_corporate(driver, config_data):
     """
     For each body corporate with DIN:
@@ -288,7 +384,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
         print(f"[DEBUG] Found {len(bodies_data)} bodies corporate entries in config")
         
-        i = 5  # Initialize 'i' based on the pattern you observed
+        i = 8  # Initialize 'i' based on the pattern you observed
             
         for idx, body in enumerate(bodies_data):
             position = idx + 1  # XPath is 1-based
@@ -307,6 +403,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             if not isinstance(body, dict):
                 print(f"[ERROR] Invalid data structure for body corporate {position}")
                 continue
+                
 
             # --- Type of body corporate ---
             time.sleep(2)
@@ -529,7 +626,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
                     # Clear existing value and set new one using JavaScript (bypass read-only)
                     driver.execute_script("arguments[0].value = '';", address2_input)
-                    driver.execute_script("arguments[0].value = arguments[1];", address1_input, address2_value)
+                    driver.execute_script("arguments[0].value = arguments[1];", address2_input, address2_value)
 
                     # Dispatch 'input' and 'change' events to trigger any dynamic behavior
                     driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", address2_input)
@@ -1403,9 +1500,18 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
             print(f"\n[INFO] Finished filling details for body corporate {position}. Fields Filled: {fields_filled_count}, Fields Failed: {fields_failed_count}")
 
-            # --- (iv) fill_identity_proof_and_upload(driver, config_data) ---
-            upload_proof_of_identity_bodies_corporate(driver, config_data)
 
+                # Load configuration
+            try:
+                with open("config_data.json", "r") as f:
+                    config_data = json.load(f)
+            except FileNotFoundError:
+                print("[ERROR] config_data.json not found.")
+                return
+            except json.JSONDecodeError:
+                print("[ERROR] Invalid JSON in config_data.json.")
+                return
+            upload_nominee_resolution_proofs_form3c(driver, config_data)
 
             # Add a small delay between bodies corporate
             time.sleep(1)

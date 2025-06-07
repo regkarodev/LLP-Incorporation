@@ -286,7 +286,7 @@ def upload_nominee_resolution_proofs(driver, config, max_wait=10):
         print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
 
 
-def handle_bodies_corporate_with_din(driver, config_data):
+def handle_bodies_corporate_without_din(driver, config_data):
     """
     Handle the section for bodies corporate with DIN in the MCA LLP form.
 
@@ -322,7 +322,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
         print(f"[DEBUG] Found {len(bodies_data)} bodies corporate entries in config")
         
-        i = 7  # Initialize 'i' based on the pattern you observed
+        i = 10  # Initialize 'i' based on the pattern you observed
             
         for idx, body in enumerate(bodies_data):
             position = idx + 1  # XPath is 1-based
@@ -534,6 +534,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Exception while processing Address Line II: {e}")
                 fields_failed_count += 1
 
+
             # --- Country ---
             time.sleep(0.5)
             try:
@@ -581,6 +582,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Exception while processing Country: {str(e)}")
                 fields_failed_count += 1
 
+
             # --- Pin Code ---
             time.sleep(0.5)
             try:
@@ -610,6 +612,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             except Exception as e:
                 print(f"[✗] Body Corporate {position}: Exception while processing Pin Code: {e}")
                 fields_failed_count += 1
+
 
             # --- Area/Locality ---
             time.sleep(0.5)
@@ -643,6 +646,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Exception while processing Area/Locality: {e}")
                 fields_failed_count += 1
 
+
             # --- Jurisdiction of Police Station ---
             time.sleep(0.5)
             try:
@@ -672,6 +676,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             except Exception as e:
                 print(f"[✗] Body Corporate {position}: Exception while processing Jurisdiction: {e}")
                 fields_failed_count += 1
+
 
             # --- Contact Details ---
             contact = corporate_details.get('contact', {})
@@ -705,6 +710,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             except Exception as e:
                 print(f"[✗] Body Corporate {position}: Exception while processing Phone: {e}")
                 fields_failed_count += 1
+
 
             # Mobile
             time.sleep(0.5)
@@ -1896,8 +1902,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 
                 else:
                     print(f"[!] Body Corporate {position}: 'Address Line I' is empty or missing in input data. Skipping.")
-                    # Optionally count as failure:
-                    # fields_failed_count += 1
+
 
             except Exception as e:
                 print(f"[✗] Body Corporate {position}: Failed to fill 'Address Line I' due to error: {str(e)}")

@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import send_text, click_element, scroll_to_middle
+from function1 import send_text, click_element, scroll_to_middle, set_date_field
 
 def normalize_options_dict(options_dict):
     """Convert string 'True'/'False' to boolean True/False in options_dict."""
@@ -198,7 +198,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
         if not partners_data:
             print("[WARNING] No partner data found in config")
             return
-
+        
+        i = 4
         # Process each partner sequentially
         for idx in range(num_partners):
             position = idx + 1  # XPath is 1-based
@@ -211,6 +212,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
             print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
             fields_filled_count = 0
             fields_failed_count = 0
+            i += 1  #
 
             try:
                 # Wait for the subform to be visible
@@ -299,8 +301,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             dob_id = f"dob_input_{int(time.time())}"
                             driver.execute_script(f"arguments[0].id = '{dob_id}';", dob_input)
                         
-                        # Use the set_date_field function from function1
-                        if function1.set_date_field(driver, dob_id, dob):
+                        # ✅ Call set_date_field directly
+                        if set_date_field(driver, dob_id, dob):
                             print(f"[SUCCESS] Filled: Date of Birth = {dob}")
                             fields_filled_count += 1
                         else:
@@ -316,17 +318,13 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                 fields_failed_count += 1
             
             # Nationality
-            i = 3  # Initialize 'i' based on the pattern you observed
 
-            for idx, partner in enumerate(partners_data):
-                    position = idx + 1
-                    i += 1  # Increment 'i' for each partner
 
-                    print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
+            print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
 
                     # --- Nationality using dynamic 'i' in XPath ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                         nationality = partner.get('Nationality', '').strip()  # Get the nationality value
 
                         if nationality:
@@ -347,13 +345,13 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         else:
                             print(f"[!] Partner {position}: Nationality value not provided.")
 
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Failed to select nationality using dynamic 'i' (i={i}): {e}")
                         fields_failed_count += 1
 
                     # --- Whether resident of India using dynamic 'i' and clicking radio (dynamic IDs handled) ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                         is_resident_data = partner.get('Whether resident of India', {})
                         is_resident = is_resident_data.get('Yes', 'false').lower() == 'true'
 
@@ -383,17 +381,17 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 print(f"[✗] Partner {position}: Could not find 'No' radio button.")
                             except Exception as e:
                                 print(f"[✗] Partner {position}: Error clicking 'No' for Whether resident of India (i={i}): {e}")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' container.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find 'Whether resident of India' label/container.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[FAIL] Partner {position}: Error handling 'Whether resident of India' (i={i}): {e}")
                         fields_failed_count += 1
 
                     # --- Income-tax PAN/Passport number type ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                         id_type_data = partner.get('Income-tax PAN/Passport number', {})
                         radio_container_xpath_id = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[12]/div/div/div[2]"
                         radio_container_id = WebDriverWait(driver, 10).until(
@@ -423,19 +421,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     print(f"[✗] Partner {position}: Error clicking Passport Number radio button (i={i}): {e}")
                             else:
                                 print(f"[!] Partner {position}: No valid ID type specified in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding PAN/Passport radio button container.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find PAN/Passport radio button container.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to select PAN/Passport radio button (i={i}): {e}")
                         fields_failed_count += 1
 
 
 
                     # --- Income-tax PAN/Passport number details ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                         pan_passport_details = partner.get('Income-tax PAN/Passport number details', '').strip()
                         if pan_passport_details:
                             details_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[1]/div/div/div[2]"
@@ -449,19 +447,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Income-tax PAN/Passport number details provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Income-tax PAN/Passport number details input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Income-tax PAN/Passport number details input.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to enter Income-tax PAN/Passport number details: {e}")
                         fields_failed_count += 1
 
 
 
                     # --- Verify PAN Button ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                         verify_pan_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[3]/div/div/div[1]"
                         verify_pan_xpath = f"{verify_pan_xpath_base}/button[@aria-label='Verify PAN']"
 
@@ -471,18 +469,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         driver.execute_script("arguments[0].click();", verify_pan_button)
                         print(f"[SUCCESS] Partner {position}: Clicked Verify PAN button (i={i}).")
                         fields_filled_count += 1
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Verify PAN button.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Verify PAN button.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to click Verify PAN button: {e}")
                         fields_failed_count += 1
 
 
 
                     # --- Place of Birth (State) ---
-                    try:
+            time.sleep(1.5)
+            try:
                         birth_state = partner.get('Place of Birth (State)', '').strip()
                         if birth_state:
                             dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[15]/div/div/div[2]/select"  # your full XPath here
@@ -499,18 +498,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             print(f"[✓] Partner {position}: Selected Place of Birth (State) - {birth_state}")
                         else:
                             print(f"[INFO] Partner {position}: Place of Birth (State) not provided.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Place of Birth (State) dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Place of Birth (State) dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Error selecting Place of Birth (State) (i={i}): {e}")
 
 
 
                     # --- Place of Birth (District) ---
-                    time.sleep(5)
-                    try:
+            time.sleep(1.5)
+            try:
                         district_value = partner.get('Place of Birth (District)', '').strip()
                         if district_value:
                             dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[16]/div/div/div[2]/select"
@@ -533,19 +532,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: Place of Birth (District) not provided.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Place of Birth (District) dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Place of Birth (District) dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Error selecting Place of Birth (District) (i={i}): {e}")
                         fields_filled_count += 1
 
                 
 
                     # --- Whether citizen of India ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             citizen_data = partner.get('Whether citizen of India', {})
                             label = next((k for k, v in citizen_data.items() if v.lower() == 'true'), None) if isinstance(citizen_data, dict) else None
 
@@ -590,11 +589,11 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     fields_failed_count += 1
                             else:
                                 print("[INFO] No valid option marked as True for 'Whether citizen of India'")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding 'Whether citizen of India' container.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find 'Whether citizen of India' label/container.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[ERROR] Exception in 'Whether citizen of India': {e}")
                             fields_failed_count += 1
 
@@ -603,8 +602,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
                     # --- Occupation type ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             occupation_type = partner.get('Occupation type', '').strip()
                             if occupation_type:
                                 dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[18]/div/div/div[2]"
@@ -635,11 +634,11 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
                             else:
                                 print(f"[INFO] Partner {position}: Occupation type not provided.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Occupation type dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Occupation type dropdown or 'Description of others' input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Error selecting Occupation type (i={i}): {e}")
                             fields_filled_count += 1
 
@@ -648,8 +647,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
                     # --- Area of Occupation ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             area_of_occupation = partner.get("Area of Occupation", "").strip()
                             if area_of_occupation:
                                 dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[20]/div/div/div[2]"
@@ -680,19 +679,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
                             else:
                                 print(f"[INFO] Partner {position}: No value provided for Area of Occupation.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Area of Occupation dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Area of Occupation dropdown or 'If Others' specify input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Error filling Area of Occupation: {e}")
                             fields_filled_count += 1
 
 
 
                     # --- Educational qualification ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             educational_qualification = partner.get('Educational qualification', '').strip()
                             if educational_qualification:
                                 dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[22]/div/div/div[2]"
@@ -723,19 +722,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
                             else:
                                 print(f"[INFO] Partner {position}: Educational qualification not provided.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Educational qualification dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Educational qualification dropdown or 'If Others' specify input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Error selecting Educational qualification (i={i}): {e}")
                             fields_filled_count += 1
 
 
 
                     # Contact Details
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             mobile_value = partner.get('Mobile No.', '').strip()
                             if mobile_value:
                                 mobile_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[24]/div/div/div[2]"
@@ -749,19 +748,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_filled_count += 1
                             else:
                                 print(f"[INFO] Partner {position}: No Mobile No. provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Mobile No. input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Mobile No. input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Failed to enter Mobile No.: {e}")
                             fields_failed_count += 1
 
 
 
                         # --- Email ID ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             email_value = partner.get('Email ID', '').strip()
                             if email_value:
                                 email_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[25]/div/div/div[2]"
@@ -775,18 +774,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_filled_count += 1
                             else:
                                 print(f"[INFO] Partner {position}: No Email ID provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Email ID input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Email ID input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Failed to enter Email ID: {e}")
                             fields_failed_count += 1
 
 
                     # --- Permanent Address - Address Line I ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(1.5)
+            try:
                             perm_address1 = partner.get('Permanent Address Line I', '').strip()
                             if perm_address1:
                                 address1_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[1]/div/div/div[2]"
@@ -800,18 +799,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_filled_count += 1
                             else:
                                 print(f"[INFO] Partner {position}: No Permanent Address Line I provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Permanent Address Line I input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Permanent Address Line I input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Failed to enter Permanent Address Line I: {e}")
                             fields_failed_count += 1
 
 
                     # --- Permanent Address - Address Line II ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                             perm_address2 = partner.get('Permanent Address Line II', '').strip()
                             if perm_address2:
                                 address2_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div[2]"
@@ -825,19 +824,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_filled_count += 1
                             else:
                                 print(f"[INFO] Partner {position}: No Permanent Address Line II provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Permanent Address Line II input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Permanent Address Line II input.")
-                    except Exception as e:
+            except Exception as e:
                             print(f"[✗] Partner {position}: Failed to enter Permanent Address Line II: {e}")
                             fields_failed_count += 1
 
 
 
-                    # --- Permanent Country ---
-                    time.sleep(0.5)
-                    try:
+            # --- Permanent Country ---
+            time.sleep(0.5)
+            try:
                         perm_country = partner.get('Permanent Country', '').strip()
                         if perm_country:
                             country_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
@@ -853,17 +852,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Permanent Country provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Permanent Country dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Permanent Country dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Error selecting Permanent Country: {e}")
                         fields_failed_count += 1
 
+
                     # --- Permanent Pin code ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)        
+            try:
                             perm_pin = partner.get('Permanent Pin code', '').strip()
                             if perm_pin:
                                 pin_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[4]/div/div/div[2]"
@@ -877,17 +877,17 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_filled_count += 1
                             else:
                                 print(f"[INFO] Partner {position}: No Permanent Pin code provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                             print(f"[✗] Partner {position}: Timeout finding Permanent Pin code input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                             print(f"[✗] Partner {position}: Could not find Permanent Pin code input.")
-                    except Exception as e:
-                            print(f"[✗] Partner {position}: Failed to enter Permanent Pin code: {e}")
-                            fields_failed_count += 1
+            except Exception as e:
+                                print(f"[✗] Partner {position}: Failed to enter Permanent Pin code: {e}")
+                                fields_failed_count += 1
 
-                    # --- Area/ Locality ---
-                    time.sleep(0.5)
-                    try:
+            # --- Area/ Locality ---
+            time.sleep(0.5)
+            try:
                             area_locality = partner.get('Permanent Area/Locality', '').strip()
                             if area_locality:
                                 dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[5]/div/div/div[2]"
@@ -926,19 +926,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
                             else:
                                     print(f"[INFO] Partner {position}: No value provided for Area/Locality.")
-                    except TimeoutException:
+            except TimeoutException:
                                 print(f"[✗] Partner {position}: Timeout finding Area/Locality dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                                 print(f"[✗] Partner {position}: Could not find Area/Locality dropdown or 'If Others' specify input.")
-                    except Exception as e:
+            except Exception as e:
                                 print(f"[✗] Partner {position}: Error filling Area/Locality: {e}")
                                 fields_filled_count += 1
 
 
 
-                    # --- Permanent Police Station ---
-                    time.sleep(0.5)
-                    try:
+            # --- Permanent Police Station ---
+            time.sleep(0.5)
+            try:
                                 perm_police = partner.get('Permanent Police Station', '').strip()
                                 if perm_police:
                                     police_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[10]/div/div/div[2]"
@@ -952,18 +952,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     fields_filled_count += 1
                                 else:
                                     print(f"[INFO] Partner {position}: No Permanent Police Station provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                                 print(f"[✗] Partner {position}: Timeout finding Permanent Police Station input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                                 print(f"[✗] Partner {position}: Could not find Permanent Police Station input.")
-                    except Exception as e:
+            except Exception as e:
                                 print(f"[✗] Partner {position}: Failed to enter Permanent Police Station: {e}")
                                 fields_failed_count += 1
 
 
                             # --- Permanent Phone ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                                 phone_value = partner.get('Permanent Phone', '').strip()
 
                                 if phone_value:
@@ -981,18 +981,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     fields_filled_count += 1
                                 else:
                                     print("[INFO] No value provided for 'Permanent Phone'")
-                    except TimeoutException:
+            except TimeoutException:
                                 print(f"[✗] Partner {position}: Timeout finding Permanent Phone input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                                 print(f"[✗] Partner {position}: Could not find Permanent Phone input.")
-                    except Exception as e:
+            except Exception as e:
                                 print(f"[ERROR] Could not fill Phone (STD/ISD) field: {e}")
                                 fields_failed_count += 1
 
 
                         # --- Whether present residential address same as permanent ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                                 same_address_data = partner.get('Whether present residential address same as permanent', {})
                                 label = next((k for k, v in same_address_data.items() if v.lower() == 'true'), None) if isinstance(same_address_data, dict) else None
 
@@ -1028,32 +1028,49 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                         print(f"[INFO] Partner {position}: Invalid value for 'Whether present address same as permanent': {label}")
                                 else:
                                     print(f"[INFO] Partner {position}: 'Whether present address same as permanent' not found in data.")
-                    except TimeoutException:
+            except TimeoutException:
                                 print(f"[✗] Partner {position}: Timeout finding 'Whether present address same as permanent' container.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                                 print(f"[✗] Partner {position}: Could not find 'Whether present address same as permanent' label/container.")
-                    except Exception as e:
+            except Exception as e:
                                 print(f"[ERROR] Exception in 'Whether present address same as permanent': {e}")
                                 fields_failed_count += 1
                                 
                     # --- Present Address ---
                      
-                    try:                        
+            try:                        
                         # --- Address Line I ---
                         address1_value = partner.get('Present Address Line I', '')
                         if address1_value:
                                 address1_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[1]/div/div/div[2]/input"
-
-                                # Wait for the input field
+                                # Wait for the field to appear
                                 address1_input = WebDriverWait(driver, 10).until(
                                     EC.presence_of_element_located((By.XPATH, address1_xpath))
                                 )
 
+                                # Scroll to the element using helper function or JS fallback
+                                if callable(globals().get('scroll_to_middle')):
+                                    scroll_to_middle(driver, address1_input)
+                                else:
+                                    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address1_input)
+
+                                # Clear existing value and set new one using JavaScript
+                                driver.execute_script("arguments[0].value = '';", address1_input)
                                 driver.execute_script("arguments[0].value = arguments[1];", address1_input, address1_value)
-                                print(f"[✓] Body Corporate {position}: Entered Address Line I: {address1_value}")
+
+                                # Dispatch 'input' and 'change' events
+                                driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", address1_input)
+                                driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", address1_input)
+
+                                # Also use send_text if needed (defensive double entry)
+                                send_text(driver, xpath=address1_xpath, keys=address1_value)
+
                                 fields_filled_count += 1
+                                print(f"[✓] Body Corporate {position}: Entered Address Line I: {address1_value}")
+                            
                         else:
-                                print(f"[INFO] Body Corporate {position}: 'Address Line I' is empty or missing in input data. Skipping.")
+                                print(f"[!] Body Corporate {position}: 'Address Line I' is empty or missing in input data. Skipping.")
+                                
 
                             # --- Address Line II ---
                         address2_value = partner.get('Present Address Line II', '')
@@ -1064,11 +1081,30 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     EC.presence_of_element_located((By.XPATH, address2_xpath))
                                 )
 
+                                # Scroll to the element
+                                if callable(globals().get('scroll_to_middle')):
+                                    scroll_to_middle(driver, address2_input)
+                                else:
+                                    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address2_input)
+
+                                # Clear existing value and set new one using JavaScript (bypass read-only)
+                                driver.execute_script("arguments[0].value = '';", address2_input)
                                 driver.execute_script("arguments[0].value = arguments[1];", address2_input, address2_value)
-                                print(f"[✓] Body Corporate {position}: Entered Address Line II: {address2_value}")
+
+                                # Dispatch 'input' and 'change' events to trigger any dynamic behavior
+                                driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", address2_input)
+                                driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", address2_input)
+
+                                # Use function1's send_text with the element directly
+                                send_text(driver, xpath=address2_xpath, keys=address2_value)
+
+
                                 fields_filled_count += 1
+                                print(f"[✓] Body Corporate {position}: Entered Address Line II: {address2_value}")
+
                         else:
-                                print(f"[INFO] Body Corporate {position}: 'Address Line II' is empty or missing in input data. Skipping.")
+                                print(f"[!] Body Corporate {position}: 'Address Line II' is empty or missing in input data. Skipping.")
+
 
                             # --- Country (dropdown) ---
                         country_value = partner.get('Present Country', '')
@@ -1131,8 +1167,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 fields_failed_count += 1
 
 
-                            
-                            # --- Area/Locality (dropdown) ---
+                        time.sleep(0.8)
+                        # --- Area/Locality (dropdown) ---
                         time.sleep(1)
                         try:
                                 area_value = partner.get('Present Area/Locality', '')
@@ -1163,37 +1199,37 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                         fields_failed_count += 1
 
 
-                            # --- Jurisdiction of Police Station ---
+                        # --- Jurisdiction of Police Station ---
 
-                            # time.sleep(0.5)
-                            # try:
-                            #     jurisdiction_value = present_address_data.get('jurisdiction', '').strip()
-                            #     if jurisdiction_value:
-                            #             jurisdiction_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[25]/div/div/div/div[1]/div/div[10]/div/div/div[2]/input"
+                        time.sleep(0.5)
+                        try:
+                                jurisdiction_value = partner.get('Present Jurisdiction', '')
+                                if jurisdiction_value:
+                                        jurisdiction_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[10]/div/div/div[2]/input"
                                     
-                            #             try:
-                            #                 jurisdiction_input = WebDriverWait(driver, 10).until(
-                            #                     EC.presence_of_element_located((By.XPATH, jurisdiction_xpath))
-                            #                 )
+                                        try:
+                                            jurisdiction_input = WebDriverWait(driver, 10).until(
+                                                EC.presence_of_element_located((By.XPATH, jurisdiction_xpath))
+                                            )
                                             
-                            #                 # Scroll to view
-                            #                 scroll_to_middle(driver, jurisdiction_input)
-                            #                 time.sleep(0.5)
+                                            # Scroll to view
+                                            scroll_to_middle(driver, jurisdiction_input)
+                                            time.sleep(0.5)
                                             
-                            #                 # Clear and set value
-                            #                 jurisdiction_input.clear()
-                            #                 jurisdiction_input.send_keys(jurisdiction_value)
+                                            # Clear and set value
+                                            jurisdiction_input.clear()
+                                            jurisdiction_input.send_keys(jurisdiction_value)
                                             
-                            #                 print(f"[✓] Body Corporate {position}: Entered Jurisdiction: {jurisdiction_value}")
-                            #                 fields_filled_count += 1
-                            #             except Exception as e:
-                            #                 print(f"[✗] Body Corporate {position}: Error setting Jurisdiction: {str(e)}")
-                            #                 fields_failed_count += 1
-                            #     else:
-                            #         print(f"[INFO] Body Corporate {position}: No Jurisdiction provided in data.")
-                            # except Exception as e:
-                            #     print(f"[✗] Body Corporate {position}: Exception while processing Jurisdiction: {e}")
-                            #     fields_failed_count += 1
+                                            print(f"[✓] Body Corporate {position}: Entered Jurisdiction: {jurisdiction_value}")
+                                            fields_filled_count += 1
+                                        except Exception as e:
+                                            print(f"[✗] Body Corporate {position}: Error setting Jurisdiction: {str(e)}")
+                                            fields_failed_count += 1
+                                else:
+                                    print(f"[INFO] Body Corporate {position}: No Jurisdiction provided in data.")
+                        except Exception as e:
+                                print(f"[✗] Body Corporate {position}: Exception while processing Jurisdiction: {e}")
+                                fields_failed_count += 1
 
 
 
@@ -1233,12 +1269,12 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         else:
                                 print(f"[INFO] Body Corporate {position}: No present address data provided.")
 
-                    except Exception as e:
+            except Exception as e:
                         print(f"[ERROR] Exception in 'Present Address': {e}")
                         fields_failed_count += 1
 
                     # --- Year Block ---
-                    try:
+            try:
                         year_value = partner.get('Duration Years', '')
                         if year_value:
                             year_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[2]/div/div/div[2]/select"
@@ -1258,13 +1294,13 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Body Corporate {position}: 'Year' is empty or missing in input data. Skipping.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Body Corporate {position}: Error selecting Year: {str(e)}")
                         fields_failed_count += 1
 
 
                     # --- Month Block ---
-                    try:
+            try:
                         month_value = partner.get('Duration Months', '')
                         if month_value:
                             month_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[3]/div/div/div[2]/select"
@@ -1284,7 +1320,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Body Corporate {position}: 'Month' is empty or missing in input data. Skipping.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Body Corporate {position}: Error selecting Month: {str(e)}")
                         fields_failed_count += 1
 
@@ -1293,8 +1329,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
                     # --- (iv) Identity Proof ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                         identity_proof_value = partner.get('Identity Proof', '').strip()
 
                         if identity_proof_value:
@@ -1313,18 +1349,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Identity Proof provided in input data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Identity Proof dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Identity Proof dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to select Identity Proof: {e}")
                         fields_failed_count += 1
 
 
                     # (v) Residential Proof
                         
-                    try:
+            try:
                         residential_proof_value = partner.get('Residential Proof', '').strip()
 
                         if residential_proof_value:
@@ -1344,24 +1380,24 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         else:
                             print(f"[INFO] Partner {position}: No Residential Proof provided in input data.")
 
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Residential Proof dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Residential Proof dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Failed to select Residential Proof: {e}")
                         fields_failed_count += 1
                         
 
-                    # Identity and Residential Proof
-                    identity_proof_xpath = f"(//input[@aria-label='Identity Proof No.'])[{position}]"
-                    driver.find_element(By.XPATH, identity_proof_xpath).send_keys(partner.get('Identity Proof No.', ''))
+            # Identity and Residential Proof
+            identity_proof_xpath = f"(//input[@aria-label='Identity Proof No.'])[{position}]"
+            driver.find_element(By.XPATH, identity_proof_xpath).send_keys(partner.get('Identity Proof No.', ''))
 
-                    residential_proof_xpath = f"(//input[@aria-label='Residential Proof No.'])[{position}]"
-                    driver.find_element(By.XPATH, residential_proof_xpath).send_keys(partner.get('Residential Proof No.', ''))
+            residential_proof_xpath = f"(//input[@aria-label='Residential Proof No.'])[{position}]"
+            driver.find_element(By.XPATH, residential_proof_xpath).send_keys(partner.get('Residential Proof No.', ''))
 
                     # Upload proof documents
-                    try:
+            try:
                             # Identity Proof Upload
                             if partner.get('Proof of identity'):
                                 try:
@@ -1383,17 +1419,17 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 except Exception as e:
                                     print(f"[ERROR] Failed to upload residential proof file: {e}")
                                     fields_failed_count += 1
-                    except Exception as e:
+            except Exception as e:
                             print(f"[ERROR] Failed to handle file uploads: {e}")
                             fields_failed_count += 2
 
 
                     # --- Contribution Details ---
-                    print(f"[INFO] Partner {position}: Processing Contribution Details...")
+            print(f"[INFO] Partner {position}: Processing Contribution Details...")
 
                     # --- Form of contribution ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                         form_of_contribution = partner.get('Form of contribution', '').strip()
                         if form_of_contribution:
                             dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[1]/div/div/div[2]/select"
@@ -1422,18 +1458,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     print(f"[INFO] Partner {position}: No 'Other contribution details' provided.")
                         else:
                             print(f"[INFO] Partner {position}: Form of contribution not provided.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Form of contribution dropdown.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Form of contribution dropdown.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Error selecting Form of contribution: {e}")
                         fields_failed_count += 1
                             
                     # --- Monetary value of contribution (in INR.) (in figures) ---
-                    time.sleep(0.5)
-                    try:
-                        num_companies = partner.get('Number of companies', '').strip()
+            time.sleep(0.5)
+            try:
+                        num_companies = partner.get('Monetary value', '')
                         if num_companies:
                             company_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[3]/div/div/div[2]/input"
 
@@ -1447,18 +1483,18 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Number of company(s) provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Number of company(s) input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Number of company(s) input.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to enter Number of company(s): {e}")
                         fields_failed_count += 1
 
 
                     # --- Number of LLP(s) in which he/ she is a partner ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                         num_llps = partner.get('Number of LLPs', '').strip()
                         if num_llps:
                             llp_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[5]/div/div/div[2]/input"
@@ -1473,19 +1509,19 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Number of LLP(s) provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Number of LLP(s) input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Number of LLP(s) input.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to enter Number of LLP(s): {e}")
                         fields_failed_count += 1
 
 
 
                     # --- Number of company(s) in which he/ she is a director ---
-                    time.sleep(0.5)
-                    try:
+            time.sleep(0.5)
+            try:
                         num_companies = partner.get('Number of companies', '').strip()
                         if num_companies:
                             company_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[20]/div/div/div/div[1]/div/div[6]/div/div/div[2]/input"
@@ -1500,11 +1536,11 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             fields_filled_count += 1
                         else:
                             print(f"[INFO] Partner {position}: No Number of company(s) provided in data.")
-                    except TimeoutException:
+            except TimeoutException:
                         print(f"[✗] Partner {position}: Timeout finding Number of company(s) input.")
-                    except NoSuchElementException:
+            except NoSuchElementException:
                         print(f"[✗] Partner {position}: Could not find Number of company(s) input.")
-                    except Exception as e:
+            except Exception as e:
                         print(f"[✗] Partner {position}: Failed to enter Number of company(s): {e}")
                         fields_failed_count += 1
             # Add a small delay between partners

@@ -205,7 +205,7 @@ def perform_login(driver=None, close_after_login=False):
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='password']"))
             )
             password_field.clear()
-            password_field.send_keys("SLPL@1234")
+            password_field.send_keys("Plushie0w0!")
             print("Password entered successfully")
         except Exception as e:
             raise Exception(f"Could not find or interact with password field: {e}")

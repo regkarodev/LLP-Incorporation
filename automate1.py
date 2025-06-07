@@ -421,15 +421,55 @@ def run_llp_form_sequence(webdriver_instance=None):
                 except Exception:
                     failed += 1
                 # Whether resident of India (radio)
-                resident = partner.get('Whether resident of India', '').strip().lower()
-                if resident in ['yes', 'no']:
-                    try:
-                        radio_elem = driver.find_element(By.XPATH, f"(//input[@aria-label='Whether resident of India'])[{position}]")
-                        radio_elem.click()
-                        filled += 1
-                    except Exception as e:
-                        print(f"[WARNING] Could not select resident radio for partner {position}: {str(e)}")
+                try:
+                    resident_data = partner.get('Whether resident of India', {})
+                    # Find the key ('Yes' or 'No') marked as 'true'
+                    label = next((k for k, v in resident_data.items() if v.lower() == 'true'), None) if isinstance(resident_data, dict) else None
+
+                    if label in ['Yes', 'No']:
+                        # Use a relative XPath to find the radio button for the specific partner
+                        radio_xpath = f"(//input[@type='radio' and @aria-label='{label}'])[{position}]"
+                        radio_elem = WebDriverWait(driver, 20).until(
+                            EC.element_to_be_clickable((By.XPATH, radio_xpath))
+                        )
+                        
+                        # Ensure the element is visible and interactable
+                        driver.execute_script("""
+                            arguments[0].style.display = 'block';
+                            arguments[0].style.visibility = 'visible';
+                            arguments[0].style.opacity = '1';
+                            arguments[0].removeAttribute('disabled');
+                            arguments[0].scrollIntoView({block: 'center'});
+                        """, radio_elem)
+                        time.sleep(0.3)
+                        
+                        # Click the radio button
+                        driver.execute_script("arguments[0].click();", radio_elem)
+                        
+                        # Verify if selected
+                        if radio_elem.get_attribute('aria-checked') == 'true' or radio_elem.is_selected():
+                            print(f"[✓] Partner {position}: Selected 'Whether resident of India' = {label}")
+                            filled += 1
+                        else:
+                            print(f"[WARNING] Partner {position}: Radio button '{label}' not selected after click")
+                            failed += 1
+                    else:
+                        print(f"[INFO] Partner {position}: No valid option for 'Whether resident of India' provided")
                         failed += 1
+                except TimeoutException:
+                    print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' radio button for '{label}'")
+                    with open(f"page_source_partner_{position}_resident.html", "w", encoding="utf-8") as f:
+                        f.write(driver.page_source)
+                    driver.save_screenshot(f"error_screenshot_partner_{position}_resident.png")
+                    failed += 1
+                except NoSuchElementException:
+                    print(f"[✗] Partner {position}: Could not find 'Whether resident of India' radio button for '{label}'")
+                    with open(f"page_source_partner_{position}_resident.html", "w", encoding="utf-8") as f:
+                        f.write(driver.page_source)
+                    driver.save_screenshot(f"error_screenshot_partner_{position}_resident.png")
+                    failed += 1
+                except Exception as e:
+                    print(f"[WARNING] Could not select resident radio for partner {position}: {str(e)}")
                 # Form of contribution (select)
                 form_contrib = partner.get('Form of contribution', '')
                 if form_contrib:
@@ -505,39 +545,43 @@ def run_llp_form_sequence(webdriver_instance=None):
         if not designated_partners:
             designated_partners = [config_data['form_data']['fields']]
         fill_designated_partners_section(driver, designated_partners)
-
+        
+        time.sleep(1.5)
 
 
         # (B) Particulars of individual designated partners not having DIN/DPIN
         # Call the function from partners_without_din.py to handle partners without DIN/DPIN
-        # partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
+        partners_without_din.handle_partners_without_din(driver, config_data, config_selectors)
+        time.sleep(1.5)
 
-        # (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN
-        # bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data)
+        # # (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN
+        bodies_corporate_with_din.handle_bodies_corporate_with_din(driver, config_data)
+        time.sleep(1.5)
 
-        # (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN
-        bodies_corporate_without_din.handle_bodies_corporate_with_din(driver, config_data)
+        # # (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN
+        bodies_corporate_without_din.handle_bodies_corporate_without_din(driver, config_data)
+        time.sleep(1.5)
 
 
         # SAVE BUTTON
-        # time.sleep(2)
-        # try:
-        #     click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
-        # except Exception as e:
-        #     print(f"Save button not found: {str(e)}")
+        time.sleep(2)
+        try:
+            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
+        except Exception as e:
+            print(f"Save button not found: {str(e)}")
 
-        # # POPUP - OK BUTTON
-        # time.sleep(2)
-        # try:
-        #     click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
-        # except Exception as e:
-        #     print(f"Popup OK button not found, continuing: {str(e)}")
+        # POPUP - OK BUTTON
+        time.sleep(2)
+        try:
+            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+        except Exception as e:
+            print(f"Popup OK button not found, continuing: {str(e)}")
 
-        # # NEXT BUTTON
-        # try:
-        #     click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
-        # except Exception as e:
-        #     print(f"Next button not found: {str(e)}")
+        # NEXT BUTTON
+        try:
+            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
+        except Exception as e:
+            print(f"Next button not found: {str(e)}")
 
         # Try to fill PAN/TAN fields if they exist
         try:
@@ -560,25 +604,30 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         try:
             # *Area code
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Area code1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Area code2'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['TAN Area code3'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Area code1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Area code2'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['TAN Area code3'])
 
             # *AO type
             # Note: The selectors below appear to be incorrect - using unique IDs for now
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO type1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO type2'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox___widget', config_data['form_data']['fields']['TAN AO type1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO type2'])
 
             # *Range code
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Range code'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Range code1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_450718701-guidetextbox___widget', config_data['form_data']['fields']['TAN Range code'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_450718701-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Range code1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_450718701-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['TAN Range code2'])
 
             # *AO No.
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN AO No'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox___widget', config_data['form_data']['fields']['TAN AO No'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO No1'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co___widget', config_data['form_data']['fields']['TAN AO No2'])
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co_739099102___widget', config_data['form_data']['fields']['TAN AO No3'])
 
             # Income Source - fixing the potential issue with this line
             time.sleep(2)
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel-guidetextbox_2064455___widget', config_data['form_data']['fields']['Income Source'])
+            click_element('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget')
+            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget', config_data['form_data']['fields']['Income Source'])
         except Exception as e:
             print(f"Could not fill TAN fields, they may not be present on this page: {str(e)}")
 
