@@ -326,11 +326,11 @@ def handle_bodies_corporate_without_din(driver, config_data):
         # Safely extract DIN/DPIN values as strings, falling back to empty string if None
         num_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN')
         num_no_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Not having valid DIN/DPIN')
-        num_bodies = config_data.get('form_data', {}).get('fields', {}).get('Body corporates and their nominees Having valid DIN/DPIN')
+        bodies_cor_with_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Body corporates and their nominees Having valid DIN/DPIN')
 
         num_din_str = str(num_din_raw).strip() if num_din_raw is not None else ''
         num_no_din_str = str(num_no_din_raw).strip() if num_no_din_raw is not None else ''
-        num_bodies_str = str(num_bodies).strip() if num_bodies is not None else ''
+        bodies_cor_with_din_str = str(bodies_cor_with_din_raw).strip() if bodies_cor_with_din_raw is not None else ''
 
         # Convert to integers safely
         try:
@@ -344,33 +344,39 @@ def handle_bodies_corporate_without_din(driver, config_data):
         except ValueError:
             print(f"[WARN] Invalid value for 'Individuals Not having valid DIN/DPIN': '{num_no_din_str}', defaulting to 0")
             num_no_din = 0
-        
-        try:
-            num_bodies = int(num_bodies_str) if num_bodies_str else 0
-        except ValueError:
-            print(f"[WARN] Invalid value for 'Body corporates and their nominees Having valid DIN/DPIN': '{num_bodies_str}', defaulting to 0")
-            num_bodies = 0
 
-        if num_din == 0:
-            dynamic_start_index = 4
-            i = dynamic_start_index + num_no_din + 1
-            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
-        elif num_no_din == 0:
+        try:
+            bodies_cor_with_din = int(bodies_cor_with_din_str) if bodies_cor_with_din_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Body corporates and their nominees Having valid DIN/DPIN': '{bodies_cor_with_din_str}', defaulting to 0")
+            bodies_cor_with_din = 0
+
+
+        
+        if num_no_din == 0:
             dynamic_start_index = 2
-            i = dynamic_start_index + num_din + 2
-            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+            i = dynamic_start_index + num_din + 4
+            print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
+        elif num_din == 0:
+            dynamic_start_index = 4
+            i = dynamic_start_index + num_no_din + 2
+            print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
+        elif bodies_cor_with_din == 0:
+            dynamic_start_index = 6
+            i = dynamic_start_index + bodies_cor_with_din 
+            print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
         # Calculate dynamic form index
-        elif num_din > 0 or num_no_din > 0:
-            dynamic_start_index = 2  # Where individual forms begin
-            i = dynamic_start_index + num_din + num_no_din + 1
-            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        elif num_din > 0 or num_no_din > 0 or bodies_cor_with_din > 0:
+            # dynamic_start_index = 2   Where individual forms begin
+            i =  num_din + num_no_din + bodies_cor_with_din + 4
+            print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
         else:
             try:
-                i = int(config_data.get('dynamic_form_index', {}).get('body_corporates_and_their_nominees_having_valid_din_dpin', 5))
+                i = int(config_data.get('dynamic_form_index', {}).get('body_corporates_and_their_nominee_not_having_valid_din_dpin', 7))
             except (ValueError, TypeError):
-                i = 5  # fallback default
-                print("[WARN] Invalid fallback index, defaulting to 5")
-            print(f"[INFO] No individual partners found. Using fallback index for body corporates with DIN/DPIN: i={i}")
+                i = 7  # fallback default
+                print("[WARN] Invalid fallback index, defaulting to 7")
+            print(f"[INFO] No individual partners found. Using fallback index for body corporates without DIN/DPIN: i={i}")
 
 
             
@@ -2396,7 +2402,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
 
         
                         try:
-                            area_input = WebDriverWait(driver, 10).until(
+                            area_input = WebDriverWait(driver, 25).until(
                                 EC.presence_of_element_located((By.XPATH, area_xpath))
                             )
 

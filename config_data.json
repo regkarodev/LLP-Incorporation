@@ -29,9 +29,9 @@
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
       "Individuals Having valid DIN/DPIN": "0",
-      "Individuals Not having valid DIN/DPIN": "2",
+      "Individuals Not having valid DIN/DPIN": "0",
       "Body corporates and their nominees Having valid DIN/DPIN": "2",
-      "Body corporates and their nominee not having valid DIN/DPIN": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN": "2",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
@@ -72,7 +72,7 @@
       "individuals_having_valid_din_dpin": "2",
       "individuals_not_having_valid_din_dpin": "3",
       "body_corporates_and_their_nominees_having_valid_din_dpin": "5",
-      "body_corporates_and_their_nominee_not_having_valid_din_dpin": "0"
+      "body_corporates_and_their_nominee_not_having_valid_din_dpin": "7"
     },
 
     "designated_partners": [

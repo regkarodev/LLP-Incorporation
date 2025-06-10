@@ -405,13 +405,13 @@ def handle_bodies_corporate_with_din(driver, config_data):
             print(f"[WARN] Invalid value for 'Individuals Not having valid DIN/DPIN': '{num_no_din_str}', defaulting to 0")
             num_no_din = 0
         
-        if num_din == 0:
-            dynamic_start_index = 4
-            i = dynamic_start_index + num_no_din 
-            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
-        elif num_no_din == 0:
+        if num_no_din == 0:
             dynamic_start_index = 2
-            i = dynamic_start_index + num_din + 2
+            i = dynamic_start_index + num_din + 3
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        elif  num_din == 0:
+            dynamic_start_index = 4
+            i = dynamic_start_index + num_no_din + 1
             print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
         # Calculate dynamic form index
         elif num_din > 0 or num_no_din > 0:
