@@ -14,7 +14,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import partners_without_din, bodies_corporate_with_din, bodies_corporate_without_din, bodies_corporate_with_din, document_upload_file
-from function1 import scroll_to_middle
+from function1 import scroll_into_view, send_text, click_element
 
 # Global driver variable
 driver = None 
@@ -33,38 +33,6 @@ def log_terminal_output(message, level="info"):
 def log_message(message):
     """Simple logging function"""
     print(f"[AUTOMATE1] {message}")
-
-def scroll_to_middle(driver, element):
-    """Scroll element to middle of viewport"""
-    try:
-        # Get viewport height
-        viewport_height = driver.execute_script("return window.innerHeight")
-        
-        # Get element's Y position
-        element_y = element.location['y']
-        
-        # Calculate scroll position to center the element
-        scroll_position = element_y - (viewport_height / 2)
-        
-        # Store current scroll position
-        current_scroll = driver.execute_script("return window.pageYOffset;")
-        
-        # Only scroll if the element is not already in view
-        if abs(current_scroll - scroll_position) > 100:  # Threshold of 100 pixels
-            # Scroll to position
-            driver.execute_script(f"window.scrollTo(0, {scroll_position});")
-            time.sleep(0.5)  # Small delay to allow scroll to complete
-            
-            # Prevent any automatic scrolling
-            driver.execute_script('''
-                window.onscroll = function() {
-                    if (window.scrollY !== arguments[0]) {
-                        window.scrollTo(0, arguments[0]);
-                    }
-                };
-            ''', scroll_position)
-    except Exception as e:
-        print(f"Error scrolling to element: {e}")
 
 def check_driver_session():
     """Check if the driver session is still active"""
@@ -111,129 +79,6 @@ def ensure_driver_session():
             return False
     return True
 
-def click_element(css_selector, max_retries=3, wait_time=10):
-    """
-    Click an element with retry mechanism and better error handling.
-    
-    Args:
-        css_selector: CSS selector for the element
-        max_retries: Maximum number of retry attempts
-        wait_time: Maximum wait time in seconds
-    """
-    for attempt in range(max_retries):
-        try:
-            # First wait for element to be present
-            element = WebDriverWait(driver, wait_time).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
-            )
-            
-            # Scroll element into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-            time.sleep(1)  # Wait for scroll to complete
-            
-            # Try multiple approaches to click the element
-            try:
-                # Approach 1: Regular click
-                element.click()
-                print(f"[✓] Successfully clicked element: {css_selector}")
-                return True
-            except Exception as click_error:
-                print(f"[DEBUG] Regular click failed, trying JavaScript click: {str(click_error)}")
-                
-                # Approach 2: JavaScript click
-                try:
-                    driver.execute_script("arguments[0].click();", element)
-                    print(f"[✓] Successfully clicked element using JavaScript: {css_selector}")
-                    return True
-                except Exception as js_error:
-                    print(f"[DEBUG] JavaScript click failed, trying Actions: {str(js_error)}")
-                    
-                    # Approach 3: Actions click
-                    try:
-                        actions = ActionChains(driver)
-                        actions.move_to_element(element).click().perform()
-                        print(f"[✓] Successfully clicked element using Actions: {css_selector}")
-                        return True
-                    except Exception as actions_error:
-                        print(f"[DEBUG] Actions click failed: {str(actions_error)}")
-                        raise
-                        
-        except TimeoutException:
-            if attempt < max_retries - 1:
-                print(f"[INFO] Attempt {attempt + 1} failed, retrying...")
-                time.sleep(2)  # Wait before retry
-            else:
-                print(f"[✗] Failed to click element after {max_retries} attempts: {css_selector}")
-                raise
-        except Exception as e:
-            print(f"[✗] Error clicking element: {str(e)}")
-            raise
-
-def send_text(css_selector, keys):
-    """Send text to an element using CSS selector"""
-    global driver
-    try:
-        if not ensure_driver_session():
-            raise Exception("Could not establish browser session")
-        
-        # Wait for any loading overlays to disappear
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.invisibility_of_element_located((By.ID, "loadingPage"))
-            )
-        except:
-            pass  # Loading overlay might not be present
-            
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
-        )
-        
-        # Scroll to element
-        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-        time.sleep(0.5)
-        
-        function1.send_text(driver=driver, css_selector=css_selector, keys=keys)
-    except Exception as e:
-        print(f"Error sending text: {e}")
-        raise
-
-def upload_file(driver, file_input_selector, file_path, selector_type="css"):
-    """
-    Simple file upload function
-    Args:
-        driver: WebDriver instance
-        file_input_selector: CSS selector or XPath for the file input
-        file_path: Path to the file to upload
-        selector_type: "css" or "xpath"
-    """
-    try:
-        # Verify file exists
-        if not os.path.exists(file_path):
-            print(f"Error: File not found at path: {file_path}")
-            return False
-            
-        # Find the file input element
-        if selector_type == "xpath":
-            file_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, file_input_selector))
-            )
-        else:
-            file_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, file_input_selector))
-            )
-
-        # Send the file path
-        file_input.send_keys(file_path)
-        print(f"Sent file path: {file_path}")
-        
-        # Small delay to ensure upload completes
-        time.sleep(2)
-        
-        return True
-        
-    except Exception as e:
-        print(f"Error in upload_file: {str(e)}")
-        return False
 
 def run_llp_form_sequence(webdriver_instance=None):
     """Run the full LLP form filling sequence"""
@@ -264,76 +109,78 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Registrar of Companies
         time.sleep(2)
-        click_element('#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
+        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
 
         # Service Request Number
-        send_text('#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guidetextbox_copy___widget', config_data['form_data']['fields']['Service Request Number'])
+        send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Service Request Number'])
 
         # Type of incorporation
         time.sleep(2)
-        click_element('#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton_1069538009__-1_widget')
+        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton_1069538009__-1_widget')
 
         # SAVE AND CONTINUE BUTTON 
         time.sleep(2)
-        click_element('#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy_copy-mca_button___widget')
+        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy_copy-mca_button___widget')
 
         # OK POP_UP BUTTON
         time.sleep(2)
         try:
-            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget', 
-                         max_retries=5,  # Increase retries
-                         wait_time=15)   # Increase wait time
+            click_element(driver,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')   # Increase wait time
         except Exception as e:
             print(f"[ERROR] Failed to click MCA button: {str(e)}")
             # Try alternative selector if the first one fails
             try:
-                click_element('button[aria-label="MCA"]', max_retries=3, wait_time=10)
+                click_element(driver,css_selector='button[aria-label="MCA"]')
             except Exception as e2:
                 print(f"[ERROR] Failed to click MCA button with alternative selector: {str(e2)}")
                 raise
 
         # NEXT BUTTON
         time.sleep(2)
-        click_element('#guideContainer-rootPanel-panel-panel-panel_copy_copy_copy_1792429032-mca_button___widget')
+        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel_copy_copy_copy_1792429032-mca_button___widget')
 
         # *Address Line I
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11___widget', config_data['form_data']['fields']['Address Line I'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11___widget', keys=config_data['form_data']['fields']['Address Line I'])
 
         # *Address Line II
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11_635080626___widget', config_data['form_data']['fields']['Address Line II'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11_635080626___widget', keys=config_data['form_data']['fields']['Address Line II'])
 
         # *PIN CODE
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11_1386963699___widget', config_data['form_data']['fields']['PIN CODE'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11_1386963699___widget', keys=config_data['form_data']['fields']['PIN CODE'])
 
         # *Area/ Locality
-        click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_9527960___widget')
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_9527960___widget', config_data['form_data']['fields']['Area/Locality1'])
+        # Wait for the dropdown to have more than 1 option
+        time.sleep(2)
+        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_9527960___widget')
+        time.sleep(2)
+        send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_9527960___widget',keys=config_data['form_data']['fields']['Area/Locality1'] )
+        
 
         # *Longitude
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433___widget', config_data['form_data']['fields']['Longitude'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433___widget', keys=config_data['form_data']['fields']['Longitude'])
 
         # *Latitude
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433_1076286455___widget', config_data['form_data']['fields']['Latitude'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433_1076286455___widget', keys=config_data['form_data']['fields']['Latitude'])
 
         # *Jurisdiction of Police Station
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['Jurisdiction of Police Station'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Jurisdiction of Police Station'])
 
         # (b) Contact Details
 
         # Phone (with STD/ISD code)
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-phonestdisdbox___widget', config_data['form_data']['fields']['Phone (with STD/ISD code)'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-phonestdisdbox___widget', keys=config_data['form_data']['fields']['Phone (with STD/ISD code)'])
 
         # *Mobile No.
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidetextbox_copy_11_211671462___widget', config_data['form_data']['fields']['Mobile No'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidetextbox_copy_11_211671462___widget', keys=config_data['form_data']['fields']['Mobile No'])
 
         # Fax
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidenumericbox_1010___widget', config_data['form_data']['fields']['Fax'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidenumericbox_1010___widget', keys=config_data['form_data']['fields']['Fax'])
 
         # *Email ID
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidetextbox_copy_11___widget', config_data['form_data']['fields']['Email ID'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-guidetextbox_copy_11___widget', keys=config_data['form_data']['fields']['Email ID'])
 
         # partnership and my membership number
-        send_text('#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1809173783___widget', config_data['form_data']['fields']['partnership and my membership number'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1809173783___widget', keys=config_data['form_data']['fields']['partnership and my membership number'])
 
         ## (c) Attachments
 
@@ -345,34 +192,34 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         #(d) *Name of the office of Registrar in whose jurisdiction the proposed LLP is to be registered
         time.sleep(0.5)        
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_2015234307-guidedropdownlist_co___widget', config_data['form_data']['fields']['Name of the office of Registrar'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_2015234307-guidedropdownlist_co___widget', keys=config_data['form_data']['fields']['Name of the office of Registrar'])
+
 
         # 5 Total number of designated partners and partners of the LLP
-
         # *Individuals Having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350115276-tableItem1629350115279___widget', config_data['form_data']['fields']['Individuals Having valid DIN/DPIN'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350115276-tableItem1629350115279___widget', keys=config_data['form_data']['fields']['Individuals Having valid DIN/DPIN'])
 
         # *Individuals Not having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350123645-tableItem1629350123648___widget', config_data['form_data']['fields']['Individuals Not having valid DIN/DPIN'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350123645-tableItem1629350123648___widget', keys=config_data['form_data']['fields']['Individuals Not having valid DIN/DPIN'])
 
         # *Body corporates and their nominees Having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350126976-tableItem1629350126979___widget', config_data['form_data']['fields']['Body corporates and their nominees Having valid DIN/DPIN'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350126976-tableItem1629350126979___widget', keys=config_data['form_data']['fields']['Body corporates and their nominees Having valid DIN/DPIN'])
 
         time.sleep(0.5)
         # *Body corporates and their nominee not having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350131849-tableItem1629350131852___widget', config_data['form_data']['fields']['Body corporates and their nominee not having valid DIN/DPIN'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350131849-tableItem1629350131852___widget', keys=config_data['form_data']['fields']['Body corporates and their nominee not having valid DIN/DPIN'])
 
         # *Individuals Having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350148437-tableItem1629350148441___widget', config_data['form_data']['fields']['Individuals Having valid DIN/DPIN1'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629350148437-tableItem1629350148441___widget', keys=config_data['form_data']['fields']['Individuals Having valid DIN/DPIN1'])
 
         # *Individuals Not having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356006750-tableItem1629356006753___widget', config_data['form_data']['fields']['Individuals Not having valid DIN/DPIN1'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356006750-tableItem1629356006753___widget', keys=config_data['form_data']['fields']['Individuals Not having valid DIN/DPIN1'])
 
         # *Body corporates and their nominees Having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356019361-tableItem1629356019364___widget', config_data['form_data']['fields']['Body corporates and their nominees Having valid DIN/DPIN1'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356019361-tableItem1629356019364___widget', keys=config_data['form_data']['fields']['Body corporates and their nominees Having valid DIN/DPIN1'])
 
         # *Body corporates and their nominee not having valid DIN/DPIN
-        send_text('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356041275-tableItem1629356041278___widget', config_data['form_data']['fields']['Body corporates and their nominee not having valid DIN/DPIN1'])
+        send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_1891907560_cop-table_copy-Row1629356041275-tableItem1629356041278___widget', keys=config_data['form_data']['fields']['Body corporates and their nominee not having valid DIN/DPIN1'])
 
 
 
@@ -396,10 +243,12 @@ def run_llp_form_sequence(webdriver_instance=None):
                 num_partners = 1
                 fallback_din = ''
 
+            i = 1
             for idx in range(num_partners):
                 position = idx + 1  # XPath is 1-based
                 if idx < len(partners_data):
                     partner = partners_data[idx]
+                    i += 1
                 else:
                     partner = {'Designated partner identification number (DIN/DPIN)': fallback_din}
                 print(f"[LOG] Filling Designated Partner {position} (DIN/DPIN)")
@@ -411,6 +260,7 @@ def run_llp_form_sequence(webdriver_instance=None):
                     din_elem.clear()
                     din_elem.send_keys(partner.get('Designated partner identification number (DIN/DPIN)', ''))
                     filled += 1
+
                 except Exception as e:
                     print(f"[WARNING] Could not fill DIN/DPIN for partner {position}: {str(e)}")
                     failed += 1
@@ -420,56 +270,58 @@ def run_llp_form_sequence(webdriver_instance=None):
                     filled += 1
                 except Exception:
                     failed += 1
+                
                 # Whether resident of India (radio)
+                time.sleep(0.5)
                 try:
+                    # Get the resident status, defaulting to False if not provided
+                    is_resident = False
                     resident_data = partner.get('Whether resident of India', {})
-                    # Find the key ('Yes' or 'No') marked as 'true'
-                    label = next((k for k, v in resident_data.items() if v.lower() == 'true'), None) if isinstance(resident_data, dict) else None
+                    if isinstance(resident_data, dict):
+                        is_resident = resident_data.get('Yes', False)
+                    elif isinstance(resident_data, str):
+                        is_resident = resident_data.lower() in ['true', 'yes']
+                    elif isinstance(resident_data, bool):
+                        is_resident = resident_data
 
-                    if label in ['Yes', 'No']:
-                        # Use a relative XPath to find the radio button for the specific partner
-                        radio_xpath = f"(//input[@type='radio' and @aria-label='{label}'])[{position}]"
-                        radio_elem = WebDriverWait(driver, 20).until(
-                            EC.element_to_be_clickable((By.XPATH, radio_xpath))
+                    # Absolute XPath with dynamic index {i}
+                    radio_container_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[3]/div/div/div[2]"
+                    
+                    try:
+                        radio_container = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, radio_container_xpath))
                         )
-                        
-                        # Ensure the element is visible and interactable
-                        driver.execute_script("""
-                            arguments[0].style.display = 'block';
-                            arguments[0].style.visibility = 'visible';
-                            arguments[0].style.opacity = '1';
-                            arguments[0].removeAttribute('disabled');
-                            arguments[0].scrollIntoView({block: 'center'});
-                        """, radio_elem)
-                        time.sleep(0.3)
-                        
-                        # Click the radio button
-                        driver.execute_script("arguments[0].click();", radio_elem)
-                        
-                        # Verify if selected
-                        if radio_elem.get_attribute('aria-checked') == 'true' or radio_elem.is_selected():
-                            print(f"[✓] Partner {position}: Selected 'Whether resident of India' = {label}")
-                            filled += 1
+
+                        radio_buttons = radio_container.find_elements(By.XPATH, ".//input[@type='radio']")
+
+                        if len(radio_buttons) >= 2:
+                            try:
+                                if is_resident:
+                                    driver.execute_script("arguments[0].click();", radio_buttons[0])  # 'Yes'
+                                    print(f"[✓] Body Corporate {position}: Selected 'Yes' for Whether resident of India.")
+                                else:
+                                    driver.execute_script("arguments[0].click();", radio_buttons[1])  # 'No'
+                                    print(f"[✓] Body Corporate {position}: Selected 'No' for Whether resident of India.")
+                                filled += 1  # Use 'filled' instead of 'fields_filled_count'
+                            except Exception as e:
+                                print(f"[WARNING] Body Corporate {position}: Error clicking radio button: {str(e)}")
+                                failed += 1  # Use 'failed' instead of 'fields_failed_count'
                         else:
-                            print(f"[WARNING] Partner {position}: Radio button '{label}' not selected after click")
-                            failed += 1
-                    else:
-                        print(f"[INFO] Partner {position}: No valid option for 'Whether resident of India' provided")
-                        failed += 1
-                except TimeoutException:
-                    print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' radio button for '{label}'")
-                    with open(f"page_source_partner_{position}_resident.html", "w", encoding="utf-8") as f:
-                        f.write(driver.page_source)
-                    driver.save_screenshot(f"error_screenshot_partner_{position}_resident.png")
-                    failed += 1
-                except NoSuchElementException:
-                    print(f"[✗] Partner {position}: Could not find 'Whether resident of India' radio button for '{label}'")
-                    with open(f"page_source_partner_{position}_resident.html", "w", encoding="utf-8") as f:
-                        f.write(driver.page_source)
-                    driver.save_screenshot(f"error_screenshot_partner_{position}_resident.png")
-                    failed += 1
+                            print(f"[WARNING] Body Corporate {position}: Less than 2 radio buttons found for 'Whether resident of India'.")
+                            failed += 1  # Use 'failed' instead of 'fields_failed_count'
+
+                    except TimeoutException:
+                        print(f"[✗] Body Corporate {position}: Timeout finding 'Whether resident of India' radio button container.")
+                        failed += 1  # Use 'failed' instead of 'fields_failed_count'
+                    except Exception as e:
+                        print(f"[✗] Body Corporate {position}: Error handling 'Whether resident of India' radio buttons: {str(e)}")
+                        failed += 1  # Use 'failed' instead of 'fields_failed_count'
+
                 except Exception as e:
-                    print(f"[WARNING] Could not select resident radio for partner {position}: {str(e)}")
+                    print(f"[✗] Body Corporate {position}: Failed to process 'Whether resident of India': {str(e)}")
+
+
+
                 # Form of contribution (select)
                 form_contrib = partner.get('Form of contribution', '')
                 if form_contrib:
@@ -566,52 +418,52 @@ def run_llp_form_sequence(webdriver_instance=None):
         # SAVE BUTTON
         time.sleep(2)
         try:
-            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
+            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
         except Exception as e:
             print(f"Save button not found: {str(e)}")
 
         # POPUP - OK BUTTON
         time.sleep(2)
         try:
-            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+            click_element(driver,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         except Exception as e:
             print(f"Popup OK button not found, continuing: {str(e)}")
 
         # NEXT BUTTON
         try:
-            click_element('#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
+            click_element(driver ,xpath='//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget"]')
         except Exception as e:
             print(f"Next button not found: {str(e)}")
 
         # Try to fill PAN/TAN fields if they exist
         try:
             # *Area code
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox___widget', config_data['form_data']['fields']['PAN Area code'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['PAN Area code1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['PAN Area code2'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox___widget', keys=config_data['form_data']['fields']['PAN Area code'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['PAN Area code1'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel-guidetextbox_copy_2031803169___widget', keys=config_data['form_data']['fields']['PAN Area code2'])
 
             # *AO type
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_912586437-guidetextbox___widget', config_data['form_data']['fields']['PAN AO type'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_912586437-guidetextbox___widget', keys=config_data['form_data']['fields']['PAN AO type'])
 
             # *Range code
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_450718701-guidetextbox___widget', config_data['form_data']['fields']['PAN Range code'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_450718701-guidetextbox_copy___widget', config_data['form_data']['fields']['PAN Range code1'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_450718701-guidetextbox___widget', keys=config_data['form_data']['fields']['PAN Range code'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_450718701-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['PAN Range code1'])
 
             # *AO No.
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_912586437_1323045745-guidetextbox___widget', config_data['form_data']['fields']['PAN AO No.'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_969275493-panel_copy_912586437_1323045745-guidetextbox___widget', keys=config_data['form_data']['fields']['PAN AO No.'])
         except Exception as e:
             print(f"Could not fill PAN fields, they may not be present on this page: {str(e)}")
 
         try:
             # *Area code
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox___widget', config_data['form_data']['fields']['TAN Area code1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN Area code2'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['TAN Area code3'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox___widget', keys=config_data['form_data']['fields']['TAN Area code1'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['TAN Area code2'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel-guidetextbox_copy_2031803169___widget', keys=config_data['form_data']['fields']['TAN Area code3'])
 
             # *AO type
             # Note: The selectors below appear to be incorrect - using unique IDs for now
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox___widget', config_data['form_data']['fields']['TAN AO type1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO type2'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox___widget', keys=config_data['form_data']['fields']['TAN AO type1'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['TAN AO type2'])
 
             # *Range code
             send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_450718701-guidetextbox___widget', config_data['form_data']['fields']['TAN Range code'])
@@ -619,78 +471,60 @@ def run_llp_form_sequence(webdriver_instance=None):
             send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_450718701-guidetextbox_copy_2031803169___widget', config_data['form_data']['fields']['TAN Range code2'])
 
             # *AO No.
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox___widget', config_data['form_data']['fields']['TAN AO No'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy___widget', config_data['form_data']['fields']['TAN AO No1'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co___widget', config_data['form_data']['fields']['TAN AO No2'])
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co_739099102___widget', config_data['form_data']['fields']['TAN AO No3'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox___widget', keys=config_data['form_data']['fields']['TAN AO No'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['TAN AO No1'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co___widget', keys=config_data['form_data']['fields']['TAN AO No2'])
+
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-panel_copy_912586437_1323045745-guidetextbox_copy_co_739099102___widget', keys=config_data['form_data']['fields']['TAN AO No3'])
 
             # Income Source - fixing the potential issue with this line
+            
             time.sleep(2)
-            click_element('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget')
-            send_text('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget', config_data['form_data']['fields']['Income Source'])
+            function1.click_element(driver, xpath='//*[@id="guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget"]')
+            time.sleep(1)
+            function1.send_text(driver, xpath='//*[@id="guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy-panel-panel_copy-panel_copy-panel_969275493_copy-guidetextbox_2064455___widget"]',keys=config_data['form_data']['fields']['Income Source'])
+
+
         except Exception as e:
             print(f"Could not fill TAN fields, they may not be present on this page: {str(e)}")
 
         # SAVE BUTTON
         time.sleep(2)
         try:
-            click_element('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button_copy___widget')
+            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button_copy___widget')
         except Exception as e:
             print(f"Save button not found: {str(e)}")
 
         # POPUP - OK BUTTON
         time.sleep(2)
         try:
-            click_element('#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+            click_element(driver,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         except Exception as e:
             print(f"Popup OK button not found, continuing: {str(e)}")
 
         # NEXT BUTTON
         try:
-            click_element('#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button___widget')
+            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button___widget')
         except Exception as e:
             print(f"Next button not found: {str(e)}")
 
-        # Upload final documents using JavaScript override
+        # FINAL UPLOADS of file
         time.sleep(2)
-        print("Starting final uploads with JavaScript override...")
-        
-        try:
-            # Get file paths from config for final uploads
-            final_uploads = config_data.get('final_uploads', {})
-            for upload_name, file_info in final_uploads.items():
-                if 'path' in file_info and 'selector' in file_info:
-                    print(f"Uploading final document {upload_name} with override...")
-                    success = upload_file(
-                        driver, 
-                        file_info['selector'], 
-                        file_info['path'],
-                        file_info.get('selector_type', 'css')
-                    )
-                    if success:
-                        print(f"Successfully uploaded final document {upload_name}")
-                    else:
-                        print(f"Failed to upload final document {upload_name}")
-        except Exception as e:
-            print(f"Final upload failed: {str(e)}")
-
-        
+        attachment_upload.handle_file_uploads(driver, config_data)
         time.sleep(2)
-        document_upload_file.handle_file_uploads(driver, config_data)
-        time.sleep(2)
-        document_upload_file.upload_file(driver, config_data)
+        attachment_upload.handle_file_uploads(driver, config_data)
 
         # Final form section - add error handling for elements that may not be present
         try:
             #*DIN/DPIN/PAN of designated partner
-            send_text('#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-guidetextbox_1527295062___widget', config_data['form_data']['fields']['DIN/DPIN/PAN of designated partner'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-guidetextbox_1527295062___widget', keys=config_data['form_data']['fields']['DIN/DPIN/PAN of designated partner'])
         except Exception as e:
             print(f"DIN/DPIN/PAN field not found: {str(e)}")
 
         # Declaration and certification by professional
         try:
             # Enter Name
-            send_text('#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox___widget', config_data['form_data']['fields']['Enter Name'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox___widget', keys=config_data['form_data']['fields']['Enter Name'])
         except Exception as e:
             print(f"Enter Name field not found: {str(e)}")
 
@@ -702,7 +536,7 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         try:
             # Enter Father's Name
-            send_text('#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1141998439___widget', config_data['form_data']['fields']["Enter Father's Name"])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1141998439___widget', keys=config_data['form_data']['fields']["Enter Father's Name"])
         except Exception as e:
             print(f"Enter Father's Name field not found: {str(e)}")
 
@@ -714,7 +548,7 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         try:
             # partnership and my membership number
-            send_text('#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1809173783___widget', config_data['form_data']['fields']['partnership and my membership number'])
+            send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-panel_1137005940_cop-guidetextbox_1809173783___widget', keys=config_data['form_data']['fields']['partnership and my membership number'])
         except Exception as e:
             print(f"Partnership membership number field not found: {str(e)}")
 

@@ -11,47 +11,21 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import traceback
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 
 # Removing the direct driver initialization
-
-def scroll_to_middle(driver, element):
-    """Scroll element to middle of viewport"""
+def scroll_into_view(driver, element):
+    """Helper function to scroll an element into view using JavaScript."""
     try:
-        # Get viewport height
-        viewport_height = driver.execute_script("return window.innerHeight")
-        
-        # Get element position and size
-        element_y = element.location['y']
-        element_height = element.size['height']
-        
-        # Calculate scroll position to center element
-        scroll_y = element_y - (viewport_height / 2) + (element_height / 2)
-        
-        # Scroll to position with smooth behavior
-        driver.execute_script("""
-            window.scrollTo({
-                top: arguments[0],
-                behavior: 'smooth',
-                block: 'center'
-            });
-        """, scroll_y)
-        
-        # Wait for scroll to complete
-        time.sleep(1)
-        
-        # Ensure element is in view
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
         time.sleep(0.5)
-        
+        return True
     except Exception as e:
-        print(f"Error in scroll_to_middle: {e}")
-        # Fallback to basic scroll if smooth scroll fails
-        try:
-            driver.execute_script("arguments[0].scrollIntoView(true);", element)
-            time.sleep(0.5)
-        except:
-            pass
+        print(f"Error scrolling element into view: {str(e)}")
+        return False
+
+
 
 def click_element(driver, *, xpath=None, id=None, css_selector=None, class_name=None, name=None):
     try:
@@ -136,10 +110,6 @@ def log_terminal_output(message, level="info"):
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] [{level.upper()}] {message}")
 
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 def set_date_field(driver, date_field_id, your_date):
     """
@@ -253,7 +223,7 @@ def click_true_option(driver, parent_key, options_dict, section_heading=None):
                 element = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.XPATH, selector))
                 )
-                scroll_to_middle(driver, element)
+                scroll_into_view(driver, element)
                 element.click()
                 print(f"Successfully clicked option: {true_option}")
                 return True
@@ -265,14 +235,6 @@ def click_true_option(driver, parent_key, options_dict, section_heading=None):
         print(f"Error in click_true_option: {e}")
         return False
 
-
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import os
-import time
 
 def upload_proof_of_identity(driver, file_path, partner_position=1):
     """

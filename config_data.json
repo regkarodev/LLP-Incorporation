@@ -12,6 +12,8 @@
       "fifth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
       "sixth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
     },
+
+
     "fields": {
       "Service Request Number": "M28055632",
       "Address Line I": "3rd",
@@ -26,10 +28,10 @@
       "Fax": "1101234567",
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
-      "Individuals Having valid DIN/DPIN": "2",
+      "Individuals Having valid DIN/DPIN": "0",
       "Individuals Not having valid DIN/DPIN": "2",
       "Body corporates and their nominees Having valid DIN/DPIN": "2",
-      "Body corporates and their nominee not having valid DIN/DPIN": "2",
+      "Body corporates and their nominee not having valid DIN/DPIN": "0",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
@@ -56,19 +58,30 @@
       "TAN Range code1": "4",
       "TAN Range code2":"",
       "TAN AO No": "6",
-      "PAN AO No1": "",
-      "PAN AO No2": "",
-      "PAN AO No3": "",
+      "TAN AO No1": "",
+      "TAN AO No2": "",
+      "TAN AO No3": "",
       "Income Source": "Capital Gains",
       "DIN/DPIN/PAN of designated partner": "10290759",
       "Enter Name": "ghj",
       "Enter Father's Name": "XYZ",
       "partnership and my membership number": "228798"
     },
+
+    "dynamic_form_index": {
+      "individuals_having_valid_din_dpin": "2",
+      "individuals_not_having_valid_din_dpin": "3",
+      "body_corporates_and_their_nominees_having_valid_din_dpin": "5",
+      "body_corporates_and_their_nominee_not_having_valid_din_dpin": "0"
+    },
+
     "designated_partners": [
       {
         "Designated partner identification number (DIN/DPIN)": "10290759",
-        "Whether resident of India": "Yes",
+        "Whether resident of India": {
+          "Yes": "true",
+          "No": "false"
+        },
         "Form of contribution": "Cash",
         "Monetary value of contribution (in INR) (in figures)": "1000000",
         "Number of LLP(s) in which he/ she is a partner": "2",
@@ -76,7 +89,10 @@
       },
       {
         "Designated partner identification number (DIN/DPIN)": "00000001",
-        "Whether resident of India": "No",
+        "Whether resident of India": {
+          "Yes": "false",
+          "No": "true"
+        },
         "Number of shares held": "200",
         "Paid up value of shares held (in INR)": "100000",
         "Form of contribution": "Other than cash",
@@ -195,10 +211,15 @@
           "Yes": "true",
           "No": "false"
         },
-        "Present Address Line I": "456 Current Street",
-        "Present Address Line II": "Flat 5C",
-        "Duration Years": "2",
-        "Duration Months": "6",
+        "Present Address Line I": "",
+        "Present Address Line II": "",
+        "Present Country": "",
+        "Present Pin code": "",
+        "Present Area/Locality": "",
+        "Present Phone": "",
+        "Present Jurisdiction": "",
+        "Duration Years": "",
+        "Duration Months": "",
         
         "Identity Proof": "Aadhaar",
         "Residential Proof": "Electricity Bill",
@@ -223,8 +244,8 @@
             "Date of Birth": "18/02/2004",
             "Nationality": "India",
             "Whether resident of India": {
-              "Yes": "true",
-              "No": "false"
+              "Yes": "false",
+              "No": "true"
             },
             "Income-tax PAN/Passport number": {
               "PAN": "true",
@@ -290,7 +311,7 @@
     {
       "Type of body corporate": "Company",
       "CIN/FCRN": "ACD-1540",
-      "PAN": "GVBPM4605P",
+      "PAN": "NVAPS9384F",
       "Name of the body corporate": "R&J DRAFTING CONSULTING LLP",
       "Address Line I": "3rd",
       "Address Line II": "Street No 3",
@@ -320,16 +341,16 @@
       "CIN/FCRN": "U73100DL2025PTC447333",
       "PAN": "GVBPM4605P",
       "Name of the body corporate": "Indusind Bank",
-      "Address Line I": "12",
-      "Address Line II": "Street No 20",
-      "Country": "India",
-      "Pin code": "122016",
-      "Area/ Locality": "Industrial Complex Dhundahera",
-      "Jurisdiction of Police Station": "Gurugram",
+      "Address Line I": "",
+      "Address Line II": "",
+      "Country": "",
+      "Pin code": "",
+      "Area/ Locality": "",
+      "Jurisdiction of Police Station": "",
       "Phone (with STD/ISD code)": "91",
       "Mobile No": "9354886960",
       "Fax": "1101234567",
-      "Email ID": "shagun@registerkaro.in",
+      "Email ID": "",
       "Form of contribution": "Cash",
       "Monetary value of contribution (in INR) (in figures)": "100",
       "Number of LLP(s) in which it is a partner": "2",

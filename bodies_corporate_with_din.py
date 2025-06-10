@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import scroll_to_middle, send_text, click_element
+from function1 import scroll_into_view, send_text, click_element
 from selenium.webdriver.common.action_chains import ActionChains
 import json
 
@@ -323,11 +323,11 @@ def upload_proof_of_identity_bodies_corporate(driver, config_data):
 
     print(f"\nUpload Summary: {uploads_successful} successful, {uploads_failed} failed.")
 
-
 def fill_section_field(driver, section_label, field_label, value):
     """
     Fill a field within a specific section by section and field label.
     """
+
     try:
         # Find the section by its label (case-insensitive, partial match)
         section_xpath = f"//div[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{section_label.lower()}')]"
@@ -384,7 +384,49 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
         print(f"[DEBUG] Found {len(bodies_data)} bodies corporate entries in config")
         
-        i = 8  # Initialize 'i' based on the pattern you observed
+
+        # Safely extract DIN/DPIN values as strings, falling back to empty string if None
+        num_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN')
+        num_no_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Not having valid DIN/DPIN')
+
+        num_din_str = str(num_din_raw).strip() if num_din_raw is not None else ''
+        num_no_din_str = str(num_no_din_raw).strip() if num_no_din_raw is not None else ''
+
+        # Convert to integers safely
+        try:
+            num_din = int(num_din_str) if num_din_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Individuals Having valid DIN/DPIN': '{num_din_str}', defaulting to 0")
+            num_din = 0
+
+        try:
+            num_no_din = int(num_no_din_str) if num_no_din_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Individuals Not having valid DIN/DPIN': '{num_no_din_str}', defaulting to 0")
+            num_no_din = 0
+        
+        if num_din == 0:
+            dynamic_start_index = 4
+            i = dynamic_start_index + num_no_din 
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        elif num_no_din == 0:
+            dynamic_start_index = 2
+            i = dynamic_start_index + num_din + 2
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        # Calculate dynamic form index
+        elif num_din > 0 or num_no_din > 0:
+            dynamic_start_index = 2  # Where individual forms begin
+            i = dynamic_start_index + num_din + num_no_din + 1
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        else:
+            try:
+                i = int(config_data.get('dynamic_form_index', {}).get('body_corporates_and_their_nominees_having_valid_din_dpin', 5))
+            except (ValueError, TypeError):
+                i = 5  # fallback default
+                print("[WARN] Invalid fallback index, defaulting to 5")
+            print(f"[INFO] No individual partners found. Using fallback index for body corporates with DIN/DPIN: i={i}")
+
+
             
         for idx, body in enumerate(bodies_data):
             position = idx + 1  # XPath is 1-based
@@ -416,7 +458,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                             EC.presence_of_element_located((By.XPATH, dropdown_xpath))
                         )
                         # Scroll to middle before interacting
-                        scroll_to_middle(driver, corporate_type_element)
+                        scroll_into_view(driver, corporate_type_element)
                         select = Select(corporate_type_element)
                         select.select_by_visible_text(body_corporate_type)
                         print(f"[✓] Body Corporate {position}: Selected Type of body corporate - {body_corporate_type}")
@@ -576,8 +618,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     )
 
                     # Scroll to the element using a helper function if available
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, address1_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, address1_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address1_input)
 
@@ -619,8 +661,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     )
 
                     # Scroll to the element
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, address2_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, address2_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address2_input)
 
@@ -664,8 +706,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to the dropdown element
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, country_select_element)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, country_select_element)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", country_select_element)
 
@@ -721,8 +763,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to the input field
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, pincode_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, pincode_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pincode_input)
 
@@ -762,13 +804,13 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     area_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[7]/div/div/div/div[1]/div/div[5]/div/div/div[2]/select"
 
                     try:
-                        area_select_element = WebDriverWait(driver, 10).until(
+                        area_select_element = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.XPATH, area_xpath))
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, area_select_element)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, area_select_element)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", area_select_element)
 
@@ -814,8 +856,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to the input field
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, police_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, police_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", police_input)
 
@@ -846,6 +888,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Unexpected error in Police Station field block: {str(e_outer)}")
                 fields_failed_count += 1
 
+
             # --- Phone (with STD/ISD code) ---
             try:
                 phone_value = body.get('Phone (with STD/ISD code)', '').strip()
@@ -860,8 +903,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, phone_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, phone_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
 
@@ -894,7 +937,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             # --- Mobile No. ---
             time.sleep(1)
             try:
-                mobile_value = body.get('Mobile No', '').strip()
+                mobile_value = body.get('Mobile No', '')
 
                 if mobile_value:
                     # Static XPath for Mobile No input with dynamic index i
@@ -906,8 +949,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, mobile_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, mobile_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", mobile_input)
 
@@ -936,6 +979,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Unexpected error in Mobile No. input block: {str(e_outer)}")
                 fields_failed_count += 1
 
+
             # --- Fax ---
             time.sleep(0.5)
             try:
@@ -951,8 +995,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, fax_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, fax_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", fax_input)
 
@@ -986,6 +1030,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                 print(f"[✗] Body Corporate {position}: Error setting Fax: {str(e)}")
                 fields_failed_count += 1
 
+
             # --- Email ID ---
             time.sleep(0.5)
             try:
@@ -1000,9 +1045,9 @@ def handle_bodies_corporate_with_din(driver, config_data):
                             EC.presence_of_element_located((By.XPATH, email_xpath))
                         )
 
-                        # Scroll into view (use your scroll_to_middle if available)
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, email_input)
+                        # Scroll into view (use your scroll_into_view if available)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, email_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
 
@@ -1062,7 +1107,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                             select.select_by_visible_text(form_of_contribution_value)
                             time.sleep(0.2)
 
-                            selected_value = select.first_selected_option.text.strip()
+                            selected_value = select.first_selected_option.text
                             if selected_value == form_of_contribution_value:
                                 print(f"[✓] Body Corporate {position}: Selected Form of contribution: {selected_value}")
                                 fields_filled_count += 1
@@ -1136,8 +1181,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to element
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, monetary_value_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, monetary_value_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", monetary_value_input)
                         time.sleep(0.2)
@@ -1195,8 +1240,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     )
 
                     # Scroll into view
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, num_llps_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, num_llps_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", num_llps_input)
                     time.sleep(0.2)
@@ -1244,8 +1289,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     )
 
                     # Scroll to view
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, num_companies_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, num_companies_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", num_companies_input)
 
@@ -1263,7 +1308,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     send_text(driver, xpath=num_companies_xpath, keys=num_companies)
 
                     # Confirm
-                    actual_value = num_companies_input.get_attribute('value').strip()
+                    actual_value = num_companies_input.get_attribute('value')
                     if actual_value == num_companies:
                         print(f"[✓] Body Corporate {position}: Entered Number of companies: {actual_value}")
                         fields_filled_count += 1
@@ -1284,7 +1329,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             # --- Designated partner Identification number (DIN/DPIN) ---
             time.sleep(0.5)
             try:
-                din_dpin_value = body.get('DIN/DPIN', '').strip()
+                din_dpin_value = body.get('DIN/DPIN', '')
                 if din_dpin_value:
 
                     # Absolute XPath with dynamic index {i}
@@ -1297,8 +1342,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, din_dpin_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, din_dpin_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", din_dpin_input)
 
@@ -1344,7 +1389,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             # --- Name of Designated Partner ---
             time.sleep(0.5)
             try:
-                din_dpin_value = body.get('Name', '').strip()
+                din_dpin_value = body.get('Name', '')
                 if din_dpin_value:
 
                     # Absolute XPath with dynamic index {i}
@@ -1356,8 +1401,8 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         )
 
                         # Scroll to view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, din_dpin_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, din_dpin_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", din_dpin_input)
 
@@ -1454,7 +1499,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
             # --- Designation and Authority in body corporate ---   
             time.sleep(0.5)
             try:
-                designation_authority_value = body.get('Designation and Authority in body corporate', '').strip()
+                designation_authority_value = body.get('Designation and Authority in body corporate', '')
                 if designation_authority_value:
                     # Absolute XPath with dynamic index {i}
                     designation_authority_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[18]/div/div/div/div[1]/div/div[4]/div/div/div[2]/input"

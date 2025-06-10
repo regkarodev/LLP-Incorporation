@@ -6,7 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import send_text, click_element, scroll_to_middle, set_date_field
+from function1 import send_text, click_element, scroll_into_view, set_date_field
+import function1
 
 def normalize_options_dict(options_dict):
     """Convert string 'True'/'False' to boolean True/False in options_dict."""
@@ -198,8 +199,30 @@ def handle_partners_without_din(driver, config_data, config_selectors):
         if not partners_data:
             print("[WARNING] No partner data found in config")
             return
+
+
+        # Get number of partners having valid DIN/DPIN
+        num_partners_str = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN', '').strip()
+
+        try:
+            num_din_partners = int(num_partners_str) if num_partners_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid DIN/DPIN value: '{num_partners_str}', defaulting to 0")
+            num_din_partners = 0
+
+        # If valid number found, calculate dynamic starting index
+        if num_din_partners > 0:
+            dynamic_num_starting_index = 2
+            i = dynamic_num_starting_index + num_din_partners
+            print(f"[INFO] Detected {num_din_partners} DIN/DPIN partners. Using dynamic form index: i={i}")
+        else:
+            # Fallback only if field is truly missing or invalid
+            i = int(config_data.get('dynamic_form_index', {}).get('individuals_not_having_valid_din_dpin', 3))
+            print(f"[INFO] No valid DIN/DPIN partners found. Using fallback dynamic form index: i={i}")
         
-        i = 4
+
+
+
         # Process each partner sequentially
         for idx in range(num_partners):
             position = idx + 1  # XPath is 1-based
@@ -1049,8 +1072,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 )
 
                                 # Scroll to the element using helper function or JS fallback
-                                if callable(globals().get('scroll_to_middle')):
-                                    scroll_to_middle(driver, address1_input)
+                                if callable(globals().get('scroll_into_view')):
+                                    scroll_into_view(driver, address1_input)
                                 else:
                                     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address1_input)
 
@@ -1082,8 +1105,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                 )
 
                                 # Scroll to the element
-                                if callable(globals().get('scroll_to_middle')):
-                                    scroll_to_middle(driver, address2_input)
+                                if callable(globals().get('scroll_into_view')):
+                                    scroll_into_view(driver, address2_input)
                                 else:
                                     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address2_input)
 
@@ -1138,8 +1161,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                         )
 
                                         # Scroll to the input field
-                                        if callable(globals().get('scroll_to_middle')):
-                                            scroll_to_middle(driver, pincode1_input)
+                                        if callable(globals().get('scroll_into_view')):
+                                            scroll_into_view(driver, pincode1_input)
                                         else:
                                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pincode1_input)
 
@@ -1178,14 +1201,14 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
                 
                                 try:
-                                    area_input = WebDriverWait(driver, 10).until(
+                                    area_input = WebDriverWait(driver, 30).until(
                                         EC.presence_of_element_located((By.XPATH, area_xpath))
                                     )
 
                                     time.sleep(2)
                                     click_element(driver, xpath=area_xpath)
                                     time.sleep(2)
-                                    send_text(driver, xpath=area_xpath, keys=area_value)
+                                    function1.send_text(driver, xpath=area_xpath, keys=area_value)
 
                                     print(f"[✓] Body Corporate: Entered Area/Locality: {area_value}")
                                     # fields_filled_count += 1
@@ -1213,7 +1236,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                             )
                                             
                                             # Scroll to view
-                                            scroll_to_middle(driver, jurisdiction_input)
+                                            scroll_into_view(driver, jurisdiction_input)
                                             time.sleep(0.5)
                                             
                                             # Clear and set value
@@ -1244,8 +1267,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                                     )
                                     
                                     # Scroll to the input field
-                                    if callable(globals().get('scroll_to_middle')):
-                                        scroll_to_middle(driver, phone_input)
+                                    if callable(globals().get('scroll_into_view')):
+                                        scroll_into_view(driver, phone_input)
                                     else:
                                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
 
@@ -1282,8 +1305,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             year_select_element = WebDriverWait(driver, 10).until(
                                 EC.presence_of_element_located((By.XPATH, year_xpath))
                             )
-                            if callable(globals().get('scroll_to_middle')):
-                                scroll_to_middle(driver, year_select_element)
+                            if callable(globals().get('scroll_into_view')):
+                                scroll_into_view(driver, year_select_element)
                             else:
                                 driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", year_select_element)
 
@@ -1308,8 +1331,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                             month_select_element = WebDriverWait(driver, 10).until(
                                 EC.presence_of_element_located((By.XPATH, month_xpath))
                             )
-                            if callable(globals().get('scroll_to_middle')):
-                                scroll_to_middle(driver, month_select_element)
+                            if callable(globals().get('scroll_into_view')):
+                                scroll_into_view(driver, month_select_element)
                             else:
                                 driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", month_select_element)
 

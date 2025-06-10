@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException, ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
-from function1 import scroll_to_middle, send_text, click_element, set_date_field
+from function1 import scroll_into_view, send_text, click_element, set_date_field
 from selenium.webdriver.common.action_chains import ActionChains
 import json
 from selenium.webdriver.firefox.service import Service
@@ -322,7 +322,57 @@ def handle_bodies_corporate_without_din(driver, config_data):
 
         print(f"[DEBUG] Found {len(bodies_data)} bodies corporate entries in config")
         
-        i = 10  # Initialize 'i' based on the pattern you observed
+        
+        # Safely extract DIN/DPIN values as strings, falling back to empty string if None
+        num_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN')
+        num_no_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Not having valid DIN/DPIN')
+        num_bodies = config_data.get('form_data', {}).get('fields', {}).get('Body corporates and their nominees Having valid DIN/DPIN')
+
+        num_din_str = str(num_din_raw).strip() if num_din_raw is not None else ''
+        num_no_din_str = str(num_no_din_raw).strip() if num_no_din_raw is not None else ''
+        num_bodies_str = str(num_bodies).strip() if num_bodies is not None else ''
+
+        # Convert to integers safely
+        try:
+            num_din = int(num_din_str) if num_din_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Individuals Having valid DIN/DPIN': '{num_din_str}', defaulting to 0")
+            num_din = 0
+
+        try:
+            num_no_din = int(num_no_din_str) if num_no_din_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Individuals Not having valid DIN/DPIN': '{num_no_din_str}', defaulting to 0")
+            num_no_din = 0
+        
+        try:
+            num_bodies = int(num_bodies_str) if num_bodies_str else 0
+        except ValueError:
+            print(f"[WARN] Invalid value for 'Body corporates and their nominees Having valid DIN/DPIN': '{num_bodies_str}', defaulting to 0")
+            num_bodies = 0
+
+        if num_din == 0:
+            dynamic_start_index = 4
+            i = dynamic_start_index + num_no_din + 1
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        elif num_no_din == 0:
+            dynamic_start_index = 2
+            i = dynamic_start_index + num_din + 2
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        # Calculate dynamic form index
+        elif num_din > 0 or num_no_din > 0:
+            dynamic_start_index = 2  # Where individual forms begin
+            i = dynamic_start_index + num_din + num_no_din + 1
+            print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
+        else:
+            try:
+                i = int(config_data.get('dynamic_form_index', {}).get('body_corporates_and_their_nominees_having_valid_din_dpin', 5))
+            except (ValueError, TypeError):
+                i = 5  # fallback default
+                print("[WARN] Invalid fallback index, defaulting to 5")
+            print(f"[INFO] No individual partners found. Using fallback index for body corporates with DIN/DPIN: i={i}")
+
+
             
         for idx, body in enumerate(bodies_data):
             position = idx + 1  # XPath is 1-based
@@ -361,7 +411,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll element into view before interacting
-                        scroll_to_middle(driver, corporate_type_element)
+                        scroll_into_view(driver, corporate_type_element)
 
                         # Select the value
                         select = Select(corporate_type_element)
@@ -397,7 +447,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, reg_number_input)
+                        scroll_into_view(driver, reg_number_input)
                         
                         # Clear and set value
                         reg_number_input.clear()
@@ -427,7 +477,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to view
-                        scroll_to_middle(driver, pan_input)
+                        scroll_into_view(driver, pan_input)
                         
                         # Clear and set value
                         pan_input.clear()
@@ -457,7 +507,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, name_input)
+                        scroll_into_view(driver, name_input)
                         
                         # Clear and set value
                         name_input.clear()
@@ -487,7 +537,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, address1_input)
+                        scroll_into_view(driver, address1_input)
                         
                         # Clear and set value
                         address1_input.clear()
@@ -517,7 +567,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to view
-                        scroll_to_middle(driver, address2_input)
+                        scroll_into_view(driver, address2_input)
                         
                         # Clear and set value
                         address2_input.clear()
@@ -550,8 +600,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, country_select)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, country_select)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", country_select)
                         
@@ -596,7 +646,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, pincode_input)
+                        scroll_into_view(driver, pincode_input)
                         
                         # Clear and set value
                         pincode_input.clear()
@@ -627,7 +677,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, area_input)
+                        scroll_into_view(driver, area_input)
                         
                         # Clear and set value
                         time.sleep(2)
@@ -660,7 +710,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, jurisdiction_input)
+                        scroll_into_view(driver, jurisdiction_input)
                         
                         # Clear and set value
                         jurisdiction_input.clear()
@@ -694,7 +744,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, phone_input)
+                        scroll_into_view(driver, phone_input)
                         
                         # Clear and set value
                         phone_input.clear()
@@ -725,7 +775,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, mobile_input)
+                        scroll_into_view(driver, mobile_input)
                         
                         # Clear and set value
                         mobile_input.clear()
@@ -755,7 +805,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, fax_input)
+                        scroll_into_view(driver, fax_input)
                         
                         # Clear and set value
                         fax_input.clear()
@@ -785,7 +835,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, email_input)
+                        scroll_into_view(driver, email_input)
                         
                         # Clear and set value
                         email_input.clear()
@@ -817,7 +867,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, form_select)
+                        scroll_into_view(driver, form_select)
                         
                         # Select value
                         select = Select(form_select)
@@ -848,7 +898,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                             )
                             
                             # Scroll to view
-                            scroll_to_middle(driver, other_specify_input)
+                            scroll_into_view(driver, other_specify_input)
                             
                             # Clear and set value
                             other_specify_input.clear()
@@ -878,7 +928,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, value_input)
+                        scroll_into_view(driver, value_input)
                         
                         # Clear and set value
                         value_input.clear()
@@ -908,7 +958,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, llp_count_input)
+                        scroll_into_view(driver, llp_count_input)
                         
                         # Clear and set value
                         llp_count_input.clear()
@@ -938,7 +988,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view
-                        scroll_to_middle(driver, company_count_input)
+                        scroll_into_view(driver, company_count_input)
                         
                         # Clear and set value
                         company_count_input.clear()
@@ -974,8 +1024,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, first_name_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, first_name_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", first_name_input)
 
@@ -1016,8 +1066,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, middle_name_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, middle_name_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", middle_name_input)
 
@@ -1058,8 +1108,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, surname_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, surname_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", surname_input)
                         
@@ -1101,8 +1151,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, father_first_name_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, father_first_name_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", father_first_name_input)
                         
@@ -1143,8 +1193,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, father_middle_name_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, father_middle_name_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", father_middle_name_input)
                         
@@ -1183,8 +1233,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, father_surname_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, father_surname_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", father_surname_input)
                         
@@ -1224,8 +1274,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll to view    
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, gender_select)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, gender_select)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", gender_select)
                         
@@ -1256,8 +1306,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, dob_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, dob_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", dob_input)
 
@@ -1330,8 +1380,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                 )
 
                 # Scroll into view
-                if callable(globals().get('scroll_to_middle')):
-                    scroll_to_middle(driver, radio_container)
+                if callable(globals().get('scroll_into_view')):
+                    scroll_into_view(driver, radio_container)
                 else:
                     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", radio_container)
 
@@ -1406,8 +1456,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     )
 
                     # Scroll into view
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, details_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, details_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", details_input)
 
@@ -1586,8 +1636,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
                         
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, occupation_dropdown)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, occupation_dropdown)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", occupation_dropdown)
                         
@@ -1779,8 +1829,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, mobile_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, mobile_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", mobile_input)
 
@@ -1824,9 +1874,9 @@ def handle_bodies_corporate_without_din(driver, config_data):
                             EC.presence_of_element_located((By.XPATH, email_xpath))
                         )
 
-                        # Scroll into view (use your scroll_to_middle if available)
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, email_input)
+                        # Scroll into view (use your scroll_into_view if available)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, email_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", email_input)
 
@@ -1881,8 +1931,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     )
 
                     # Scroll to the element using helper function or JS fallback
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, address1_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, address1_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address1_input)
 
@@ -1923,8 +1973,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     )
 
                     # Scroll to the element
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, address2_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, address2_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", address2_input)
 
@@ -1969,8 +2019,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to the dropdown element
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, country_select_element)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, country_select_element)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", country_select_element)
 
@@ -2026,8 +2076,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to the input field
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, pincode_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, pincode_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pincode_input)
 
@@ -2073,7 +2123,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to view
-                        scroll_to_middle(driver, area_input)
+                        scroll_into_view(driver, area_input)
                         
                         # Clear and set value
                         time.sleep(2)
@@ -2108,8 +2158,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll to the input field
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, police_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, police_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", police_input)
 
@@ -2156,8 +2206,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                         )
 
                         # Scroll into view
-                        if callable(globals().get('scroll_to_middle')):
-                            scroll_to_middle(driver, phone_input)
+                        if callable(globals().get('scroll_into_view')):
+                            scroll_into_view(driver, phone_input)
                         else:
                             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
 
@@ -2306,8 +2356,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                                 )
 
                                 # Scroll to the input field
-                                if callable(globals().get('scroll_to_middle')):
-                                    scroll_to_middle(driver, pincode1_input)
+                                if callable(globals().get('scroll_into_view')):
+                                    scroll_into_view(driver, pincode1_input)
                                 else:
                                     driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", pincode1_input)
 
@@ -2381,7 +2431,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     #                 )
                                     
                     #                 # Scroll to view
-                    #                 scroll_to_middle(driver, jurisdiction_input)
+                    #                 scroll_into_view(driver, jurisdiction_input)
                     #                 time.sleep(0.5)
                                     
                     #                 # Clear and set value
@@ -2412,8 +2462,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                             )
                             
                             # Scroll to the input field
-                            if callable(globals().get('scroll_to_middle')):
-                                scroll_to_middle(driver, phone_input)
+                            if callable(globals().get('scroll_into_view')):
+                                scroll_into_view(driver, phone_input)
                             else:
                                 driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", phone_input)
 
@@ -2450,8 +2500,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     year_select_element = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.XPATH, year_xpath))
                     )
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, year_select_element)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, year_select_element)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", year_select_element)
 
@@ -2476,8 +2526,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     month_select_element = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.XPATH, month_xpath))
                     )
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, month_select_element)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, month_select_element)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", month_select_element)
 
@@ -2583,8 +2633,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     )
 
                     # Scroll into view
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, proof_number_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, proof_number_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", proof_number_input)
 
@@ -2619,8 +2669,8 @@ def handle_bodies_corporate_without_din(driver, config_data):
                     )
 
                     # Scroll into view
-                    if callable(globals().get('scroll_to_middle')):
-                        scroll_to_middle(driver, proof_number_input)
+                    if callable(globals().get('scroll_into_view')):
+                        scroll_into_view(driver, proof_number_input)
                     else:
                         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", proof_number_input)
 
