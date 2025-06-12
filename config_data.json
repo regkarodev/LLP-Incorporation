@@ -8,9 +8,7 @@
       "first_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
       "second_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
       "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "fifth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "sixth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+      "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
     },
 
 
@@ -28,10 +26,10 @@
       "Fax": "1101234567",
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
-      "Individuals Having valid DIN/DPIN": "0",
-      "Individuals Not having valid DIN/DPIN": "0",
-      "Body corporates and their nominees Having valid DIN/DPIN": "2",
-      "Body corporates and their nominee not having valid DIN/DPIN": "2",
+      "Individuals Having valid DIN/DPIN": "2",
+      "Individuals Not having valid DIN/DPIN": "2",
+      "Body corporates and their nominees Having valid DIN/DPIN": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN": "0",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
@@ -46,9 +44,14 @@
       "PAN Area code1": "W",
       "PAN Area code2": "R",
       "PAN AO type": "W",
+      "PAN AO type1": "",
       "PAN Range code": "5",
       "PAN Range code1": "3",
+      "PAN Range code2": "",
       "PAN AO No.": "3",
+      "PAN AO No1": "",
+      "PAN AO No2": "",
+      "PAN AO No3": "",
       "TAN Area code1": "N",
       "TAN Area code2": "W",
       "TAN Area code3": "R",
@@ -63,8 +66,8 @@
       "TAN AO No3": "",
       "Income Source": "Capital Gains",
       "DIN/DPIN/PAN of designated partner": "10290759",
-      "Enter Name": "ghj",
-      "Enter Father's Name": "XYZ",
+      "Enter Name": "Ashish",
+      "Enter Father's Name": "Aashish",
       "partnership and my membership number": "228798"
     },
 
@@ -78,91 +81,22 @@
     "designated_partners": [
       {
         "Designated partner identification number (DIN/DPIN)": "10290759",
-        "Whether resident of India": {
-          "Yes": "true",
-          "No": "false"
-        },
         "Form of contribution": "Cash",
+        "If 'Other than cash' selected, please specify": "",
         "Monetary value of contribution (in INR) (in figures)": "1000000",
         "Number of LLP(s) in which he/ she is a partner": "2",
         "Number of company(s) in which he/ she is a director": "1"
       },
       {
         "Designated partner identification number (DIN/DPIN)": "00000001",
-        "Whether resident of India": {
-          "Yes": "false",
-          "No": "true"
-        },
-        "Number of shares held": "200",
-        "Paid up value of shares held (in INR)": "100000",
-        "Form of contribution": "Other than cash",
-        "If 'Other than cash' selected, please specify": "Land",
+        "Form of contribution": "Cash",
+        "If 'Other than cash' selected, please specify": "",
         "Monetary value of contribution (in INR) (in figures)": "2000000",
         "Number of LLP(s) in which he/ she is a partner": "1",
         "Number of company(s) in which he/ she is a director": "2"
       }
     ]
   },
-
-
-
-
-  "options": {
-    "already_approved": {
-      "yes": "True",
-      "no": "False"
-    },
-    "type_of_incorporation": {
-      "Type of incorporation": "True",
-      "Conversion of firm into LLP": "False",
-      "Conversion of private company/unlisted public company into LLP": "False"
-    },
-    "Resident_of_India": {
-      "Yes": "True",
-      "No": "False"
-    },
-    "Income-tax PAN/Passport number": {
-      "PAN": "True",
-      "Passport number": "False"
-    },
-    "Citizenship": {
-      "Yes": "True",
-      "No": "False"
-    }
-  },
-  "file_uploads": {
-    "certificate": {
-      "path": "C:\\Users\\Admin\\Downloads\\certificate.pdf",
-      "selector": "#file-upload-certificate",
-      "selector_type": "css"
-    },
-    "identity_proof": {
-      "path": "C:\\Users\\Admin\\Downloads\\id_proof.pdf",
-      "selector": "//input[@type='file' and contains(@id, 'identity')]",
-      "selector_type": "xpath"
-    }
-  },
-  "document_uploads": {
-    "identity_document": {
-      "path": "C:\\Users\\Admin\\Downloads\\id_document.pdf",
-      "selector": "#identity-upload",
-      "selector_type": "css"
-    },
-    "address_proof": {
-      "path": "C:\\Users\\Admin\\Downloads\\address_proof.pdf",
-      "selector": "#address-upload",
-      "selector_type": "css"
-    }
-  },
-  "final_uploads": {
-    "final_certificate": {
-      "path": "C:\\Users\\Admin\\Downloads\\final_certificate.pdf",
-      "selector": "#final-upload",
-      "selector_type": "css"
-    }
-  },
-
-
   
     "partners_without_din": [
       {
@@ -310,19 +244,19 @@
     "bodies_corporate_with_din": [
     {
       "Type of body corporate": "Company",
-      "CIN/FCRN": "ACD-1540",
+      "CIN/FCRN": "U43302UP2025OPC222131",
       "PAN": "NVAPS9384F",
       "Name of the body corporate": "R&J DRAFTING CONSULTING LLP",
-      "Address Line I": "3rd",
-      "Address Line II": "Street No 3",
-      "Country": "India",
-      "Pin code": "122016",
-      "Area/ Locality": "Industrial Complex Dhundahera",
+      "Address Line I": "",
+      "Address Line II": "",
+      "Country": "",
+      "Pin code": "",
+      "Area/ Locality": "Noida",
       "Jurisdiction of Police Station": "Gurugram",
       "Phone (with STD/ISD code)": "91",
       "Mobile No": "9354886960",
       "Fax": "1101234567",
-      "Email ID": "shagun@registerkaro.in",
+      "Email ID": "",
       "Form of contribution": "Cash",
       "Monetary value of contribution (in INR) (in figures)": "100",
       "Number of LLP(s) in which it is a partner": "2",
@@ -345,8 +279,8 @@
       "Address Line II": "",
       "Country": "",
       "Pin code": "",
-      "Area/ Locality": "",
-      "Jurisdiction of Police Station": "",
+      "Area/ Locality": "Prem Nagar",
+      "Jurisdiction of Police Station": "Gurugram",
       "Phone (with STD/ISD code)": "91",
       "Mobile No": "9354886960",
       "Fax": "1101234567",

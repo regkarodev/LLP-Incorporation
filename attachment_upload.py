@@ -27,8 +27,7 @@ def handle_file_uploads(driver, config_data):
     choose_file_buttons = driver.find_elements(By.XPATH, "//button[contains(@class, 'guide-fu-attach-button')]")
     print(f"Found {len(choose_file_buttons)} Choose File buttons")
     
-    # FIRST FILE UPLOAD - Direct approach with file inputs
-    
+
     # SECOND FILE UPLOAD - Use the exact XPath provided
     upload_first_file_last_section(driver, file1_path)
 
@@ -44,7 +43,7 @@ def upload_first_file_last_section(driver, file_path):
     print("\n---DOUBLE FILE UPLOAD OF LAST SECTION ---")
     try:
         # Use the exact XPath provided for the Choose File button
-        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]/button"
+        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]/input[1]"
         print(f"Using exact XPath for Choose File button: {exact_xpath}")
         
         # Find the button using the exact XPath

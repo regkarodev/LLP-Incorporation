@@ -405,13 +405,13 @@ def handle_bodies_corporate_with_din(driver, config_data):
             print(f"[WARN] Invalid value for 'Individuals Not having valid DIN/DPIN': '{num_no_din_str}', defaulting to 0")
             num_no_din = 0
         
-        if num_no_din == 0:
+        if num_din > 0 and num_din == 0:
             dynamic_start_index = 2
-            i = dynamic_start_index + num_din + 3
+            i = dynamic_start_index + num_din + 2
             print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
-        elif  num_din == 0:
+        elif num_no_din > 0 and num_din == 0:
             dynamic_start_index = 4
-            i = dynamic_start_index + num_no_din + 1
+            i = dynamic_start_index + num_no_din
             print(f"[INFO] Using dynamic form index for body corporates with DIN/DPIN: i={i}")
         # Calculate dynamic form index
         elif num_din > 0 or num_no_din > 0:
@@ -898,7 +898,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     phone_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[10]/div/div/div/div[1]/div/div[1]/div/div/div[2]/input"
 
                     try:
-                        phone_input = WebDriverWait(driver, 10).until(
+                        phone_input = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.XPATH, phone_xpath))
                         )
 
@@ -944,7 +944,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     mobile_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[10]/div/div/div/div[1]/div/div[2]/div/div/div[2]/input"
                     
                     try:
-                        mobile_input = WebDriverWait(driver, 10).until(
+                        mobile_input = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.XPATH, mobile_xpath))
                         )
 
@@ -990,7 +990,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     fax_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[10]/div/div/div/div[1]/div/div[3]/div/div/div[2]/input"
 
                     try:
-                        fax_input = WebDriverWait(driver, 10).until(
+                        fax_input = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.XPATH, fax_xpath))
                         )
 
@@ -1041,7 +1041,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                     
 
                     try:
-                        email_input = WebDriverWait(driver, 10).until(
+                        email_input = WebDriverWait(driver, 20).until(
                             EC.presence_of_element_located((By.XPATH, email_xpath))
                         )
 

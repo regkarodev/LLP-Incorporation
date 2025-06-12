@@ -1,5 +1,8 @@
-selenium>=4.15.2
-webdriver-manager>=4.0.1
+flask==2.0.1
+werkzeug==2.0.3
+flask-swagger-ui==3.36.0
+selenium==4.1.0
+webdriver-manager==3.5.2
 python-dotenv>=1.0.0
 requests>=2.31.0
 pandas>=2.1.0

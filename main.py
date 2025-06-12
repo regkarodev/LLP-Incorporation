@@ -9,10 +9,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.service import Service
 from dotenv import load_dotenv
 from selenium.webdriver.firefox.service import Service
 import function1
 import automate1
+import logging
+
 
 # Get the absolute path to the directory containing this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,6 +75,7 @@ def solve_captcha(captcha_img):
     # Return the solved captcha text
     return resp.json().get("result", "").strip()
 
+
 def initialize_browser(firefox_profile_path):
     """
     Initialize Firefox browser with specified profile path
@@ -83,17 +88,27 @@ def initialize_browser(firefox_profile_path):
     firefox_options = Options()
     if os.path.exists(firefox_profile_path):
         print(f"Using existing Firefox profile: {firefox_profile_path}")
-        # This is the way to set profile in newer Selenium versions
         firefox_options.add_argument('-profile')
         firefox_options.add_argument(firefox_profile_path)
     else:
         print(f"Profile not found at {firefox_profile_path}")
         print("Using a new profile instead.")
     
-    # Initialize the driver
-    driver = webdriver.Firefox(options=firefox_options)
-    driver.maximize_window()
-    return driver
+    # Automatically download and set up geckodriver
+    try:
+        print("Setting up geckodriver using webdriver-manager...")
+        driver_path = GeckoDriverManager().install()
+        print(f"Geckodriver installed at: {driver_path}")
+        
+        # Initialize the driver with the Service object
+        service = Service(driver_path)
+        driver = webdriver.Firefox(service=service, options=firefox_options)
+        driver.maximize_window()
+        return driver
+    except Exception as e:
+        print(f"Error setting up geckodriver: {e}")
+        raise
+
 
 def perform_login(driver=None, close_after_login=False):
     """
@@ -107,7 +122,7 @@ def perform_login(driver=None, close_after_login=False):
     """
     own_driver = driver is None
     try:
-        # Load profile path from config.json
+        # Load profile path from config_data.json
         with open("config_data.json", "r") as f:
             config = json.load(f)
         
@@ -411,7 +426,7 @@ def main():
     
     # Step 1: Load configuration
     try:
-        with open("config.json", "r") as f:
+        with open("config_data.json", "r") as f:
             config = json.load(f)
         print("Configuration loaded successfully")
     except Exception as e:
@@ -422,7 +437,7 @@ def main():
                                               "AppData", "Roaming", "Mozilla", "Firefox", "Profiles"),
             "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html"
         }
-        with open("config.json", "w") as f:
+        with open("config_data.json", "w") as f:
             json.dump(config, f, indent=4)
     
     # Step 2: Perform login

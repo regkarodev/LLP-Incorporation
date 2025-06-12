@@ -11,7 +11,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 import json
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
-from webdriver_manager.firefox import GeckoDriverManager
 
 
 
@@ -353,15 +352,15 @@ def handle_bodies_corporate_without_din(driver, config_data):
 
 
         
-        if num_no_din == 0:
+        if num_din > 0 and num_no_din == 0 and bodies_cor_with_din == 0:
             dynamic_start_index = 2
             i = dynamic_start_index + num_din + 4
             print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
-        elif num_din == 0:
+        elif num_no_din > 0 and num_din == 0 and bodies_cor_with_din == 0:
             dynamic_start_index = 4
             i = dynamic_start_index + num_no_din + 2
             print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")
-        elif bodies_cor_with_din == 0:
+        elif bodies_cor_with_din > 0 and num_din == 0 and num_no_din == 0:
             dynamic_start_index = 6
             i = dynamic_start_index + bodies_cor_with_din 
             print(f"[INFO] Using dynamic form index for body corporates without DIN/DPIN: i={i}")

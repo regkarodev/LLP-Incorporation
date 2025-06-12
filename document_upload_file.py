@@ -41,9 +41,9 @@ def handle_file_uploads(driver, config_data):
 def upload_identity_file(driver, file_path):
 
     """
-    Upload the second file
+    Upload the first document file
     """
-    print("\n--- SECOND FILE UPLOAD ---")
+    print("\n--- First Document FILE UPLOAD ---")
     try:
         # Use the exact XPath provided for the second Choose File button
         exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"
@@ -187,7 +187,7 @@ def upload_file(driver, file_path):
     """
     Upload file with enhanced input element detection
     """
-    print("\n--- FILE UPLOAD ---")
+    print("\n--- Second Document FILE UPLOAD ---")
     try:
         # Use the exact XPath provided for the Choose File button
         exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"

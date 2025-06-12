@@ -171,7 +171,7 @@ def upload_residential_proof_dynamic(driver, config_data):
             print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
 
 
-def handle_partners_without_din(driver, config_data, config_selectors):
+def handle_partners_without_din(driver, config_data):
     """
     Handle the section for partners without DIN/DPIN in the MCA LLP form.
     
@@ -290,7 +290,10 @@ def handle_partners_without_din(driver, config_data, config_selectors):
             else:
                 print(f"[!] Gender '{gender}' not valid or missing.")
 
+
+
             # Date of Birth - Using robust approach
+            time.sleep(3)
             try:
                 # Try multiple strategies to find the date input field
                 dob_input = None
@@ -302,6 +305,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         # Strategy 2: Partial aria-label match
                         dob_input = driver.find_element(By.XPATH, f"(//input[contains(@aria-label, 'Date of Birth')])[{position}]")
                     except:
+                        time.sleep(1)
                         try:
                             # Strategy 3: Find by label text
                             label = driver.find_element(By.XPATH, f"(//label[contains(text(), 'Date of Birth')])[{position}]")
@@ -340,12 +344,8 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                 print(f"[FAIL] Error handling Date of Birth: {str(e)}")
                 fields_failed_count += 1
             
+
             # Nationality
-
-
-            print(f"\n[INFO] Filling details for partner {position} without DIN/DPIN")
-
-                    # --- Nationality using dynamic 'i' in XPath ---
             time.sleep(1.5)
             try:
                         nationality = partner.get('Nationality', '').strip()  # Get the nationality value
@@ -372,47 +372,50 @@ def handle_partners_without_din(driver, config_data, config_selectors):
                         print(f"[✗] Failed to select nationality using dynamic 'i' (i={i}): {e}")
                         fields_failed_count += 1
 
-                    # --- Whether resident of India using dynamic 'i' and clicking radio (dynamic IDs handled) ---
+            
+            # --- Whether resident of India using dynamic 'i' and clicking radio (dynamic IDs handled) ---
             time.sleep(1.5)
             try:
-                        is_resident_data = partner.get('Whether resident of India', {})
-                        is_resident = is_resident_data.get('Yes', 'false').lower() == 'true'
+                is_resident_data = partner.get('Whether resident of India', {})
+                is_resident = is_resident_data.get('Yes', 'false').lower() == 'true'
 
-                        # Construct XPath to the radio button container for the current partner
-                        radio_container_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[11]/div/div/div[2]"
-                        radio_container = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, radio_container_xpath))
-                        )
+                radio_container_xpath_resident = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[11]/div/div/div[2]"
+                
+                radio_container_resident = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, radio_container_xpath_resident))
+                )
 
-                        if is_resident:
-                            try:
-                                yes_radio = radio_container.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='Yes']")
-                                driver.execute_script("arguments[0].click();", yes_radio)
-                                print(f"[✓] Partner {position}: Clicked 'Yes' for Whether resident of India (i={i}).")
-                                fields_filled_count += 1
-                            except NoSuchElementException:
-                                print(f"[✗] Partner {position}: Could not find 'Yes' radio button.")
-                            except Exception as e:
-                                print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether resident of India (i={i}): {e}")
-                        else:
-                            try:
-                                no_radio = radio_container.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='No']")
-                                driver.execute_script("arguments[0].click();", no_radio)
-                                print(f"[✓] Partner {position}: Clicked 'No' for Whether resident of India (i={i}).")
-                                fields_filled_count += 1
-                            except NoSuchElementException:
-                                print(f"[✗] Partner {position}: Could not find 'No' radio button.")
-                            except Exception as e:
-                                print(f"[✗] Partner {position}: Error clicking 'No' for Whether resident of India (i={i}): {e}")
+                if is_resident:
+                    try:
+                        yes_radio = radio_container_resident.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='Yes']")
+                        driver.execute_script("arguments[0].click();", yes_radio)
+                        print(f"[✓] Partner {position}: Clicked 'Yes' for Whether resident of India (i={i}).")
+                        fields_filled_count += 1
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find 'Yes' radio button.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether resident of India (i={i}): {e}")
+                else:
+                    try:
+                        no_radio = radio_container_resident.find_element(By.XPATH, ".//input[@type='radio' and @aria-label='No']")
+                        driver.execute_script("arguments[0].click();", no_radio)
+                        print(f"[✓] Partner {position}: Clicked 'No' for Whether resident of India (i={i}).")
+                        fields_filled_count += 1
+                    except NoSuchElementException:
+                        print(f"[✗] Partner {position}: Could not find 'No' radio button.")
+                    except Exception as e:
+                        print(f"[✗] Partner {position}: Error clicking 'No' for Whether resident of India (i={i}): {e}")
+
             except TimeoutException:
-                        print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' container.")
+                print(f"[✗] Partner {position}: Timeout finding 'Whether resident of India' container.")
             except NoSuchElementException:
-                        print(f"[✗] Partner {position}: Could not find 'Whether resident of India' label/container.")
+                print(f"[✗] Partner {position}: Could not find 'Whether resident of India' label/container.")
             except Exception as e:
-                        print(f"[FAIL] Partner {position}: Error handling 'Whether resident of India' (i={i}): {e}")
-                        fields_failed_count += 1
+                print(f"[FAIL] Partner {position}: Error handling 'Whether resident of India' (i={i}): {e}")
+                fields_failed_count += 1
 
-                    # --- Income-tax PAN/Passport number type ---
+
+            # --- Income-tax PAN/Passport number type ---
             time.sleep(1.5)
             try:
                         id_type_data = partner.get('Income-tax PAN/Passport number', {})
@@ -454,7 +457,7 @@ def handle_partners_without_din(driver, config_data, config_selectors):
 
 
 
-                    # --- Income-tax PAN/Passport number details ---
+            # --- Income-tax PAN/Passport number details ---
             time.sleep(1.5)
             try:
                         pan_passport_details = partner.get('Income-tax PAN/Passport number details', '').strip()
