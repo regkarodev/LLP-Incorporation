@@ -1,0 +1,278 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "LLP Incorporation API",
+    "description": "API for handling LLP incorporation form data and file uploads",
+    "version": "1.0.0"
+  },
+  "host": "localhost:5000",
+  "basePath": "/api",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/bodies-corporate": {
+      "post": {
+        "tags": [
+          "Bodies Corporate"
+        ],
+        "summary": "Process bodies corporate data and fill the form",
+        "description": "Processes the provided bodies corporate data and fills the LLP incorporation form",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "config_data",
+            "description": "Configuration data for bodies corporate",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "form_data",
+                "bodies_corporate_with_din"
+              ],
+              "properties": {
+                "form_data": {
+                  "type": "object",
+                  "properties": {
+                    "fields": {
+                      "type": "object",
+                      "properties": {
+                        "Body corporates and their nominees Having valid DIN/DPIN": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                },
+                "bodies_corporate_with_din": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "Type of body corporate": {
+                        "type": "string"
+                      },
+                      "CIN/FCRN": {
+                        "type": "string"
+                      },
+                      "PAN": {
+                        "type": "string"
+                      },
+                      "Name of the body corporate": {
+                        "type": "string"
+                      },
+                      "Address Line I": {
+                        "type": "string"
+                      },
+                      "Address Line II": {
+                        "type": "string"
+                      },
+                      "Country": {
+                        "type": "string"
+                      },
+                      "Pin code": {
+                        "type": "string"
+                      },
+                      "Area/ Locality": {
+                        "type": "string"
+                      },
+                      "Jurisdiction of Police Station": {
+                        "type": "string"
+                      },
+                      "Phone (with STD/ISD code)": {
+                        "type": "string"
+                      },
+                      "Mobile No": {
+                        "type": "string"
+                      },
+                      "Fax": {
+                        "type": "string"
+                      },
+                      "Email ID": {
+                        "type": "string"
+                      },
+                      "Form of contribution": {
+                        "type": "string"
+                      },
+                      "Monetary value of contribution (in INR) (in figures)": {
+                        "type": "string"
+                      },
+                      "Number of LLP(s) in which entity is a partner": {
+                        "type": "string"
+                      },
+                      "Number of company(s) in which entity is a director": {
+                        "type": "string"
+                      },
+                      "DIN/DPIN": {
+                        "type": "string"
+                      },
+                      "Name": {
+                        "type": "string"
+                      },
+                      "Whether resident of India": {
+                        "type": "object",
+                        "properties": {
+                          "Yes": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "Designation and Authority in body corporate": {
+                        "type": "string"
+                      },
+                      "Copy of resolution": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully processed bodies corporate data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "success"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Successfully processed bodies corporate data"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Invalid input data"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/upload-nominee-resolution": {
+      "post": {
+        "tags": [
+          "Bodies Corporate"
+        ],
+        "summary": "Upload nominee resolution proofs",
+        "description": "Uploads nominee resolution proofs for bodies corporate",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "config_data",
+            "description": "Configuration data for nominee resolution uploads",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "bodies_corporate_with_din"
+              ],
+              "properties": {
+                "bodies_corporate_with_din": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "Copy of resolution": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully uploaded nominee resolution proofs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "success"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Successfully uploaded nominee resolution proofs"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Invalid input data"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} 

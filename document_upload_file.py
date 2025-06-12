@@ -13,6 +13,7 @@ def handle_file_uploads(driver, config_data):
     file1_path = os.path.abspath(config_data["form_data"]["file_paths"]["third_file"])
     file2_path = os.path.abspath(config_data["form_data"]["file_paths"]["fourth_file"])
     
+    
     # Check if the files exist
     if not os.path.exists(file1_path):
         print(f"Warning: File {file1_path} does not exist!")
@@ -40,12 +41,12 @@ def handle_file_uploads(driver, config_data):
 def upload_identity_file(driver, file_path):
 
     """
-    Upload the second file
+    Upload the first document file
     """
-    print("\n--- SECOND FILE UPLOAD ---")
+    print("\n--- First Document FILE UPLOAD ---")
     try:
         # Use the exact XPath provided for the second Choose File button
-        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"
+        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"
         print(f"Using exact XPath for second Choose File button: {exact_xpath}")
         
         # Find the button using the exact XPath
@@ -186,10 +187,10 @@ def upload_file(driver, file_path):
     """
     Upload file with enhanced input element detection
     """
-    print("\n--- FILE UPLOAD ---")
+    print("\n--- Second Document FILE UPLOAD ---")
     try:
         # Use the exact XPath provided for the Choose File button
-        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"
+        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"
         print(f"Using exact XPath for Choose File button: {exact_xpath}")
         
         # Find the button using the exact XPath

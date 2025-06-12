@@ -10,13 +10,10 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.firefox.service import Service
 from dotenv import load_dotenv
 from selenium.webdriver.firefox.service import Service
 import function1
 import automate1
-import logging
-
 
 # Get the absolute path to the directory containing this script
 script_dir = os.path.dirname(os.path.abspath(__file__))

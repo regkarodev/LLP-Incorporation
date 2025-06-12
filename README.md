@@ -1,110 +1,144 @@
-# MCA Automation Project
+# LLP Incorporation API
 
-This project automates various tasks related to the Ministry of Corporate Affairs (MCA) portal, including document uploads, form submissions, and other administrative tasks.
+This API provides endpoints for handling LLP incorporation form data and file uploads. It wraps the existing Selenium-based automation in a user-friendly REST API interface.
 
 ## Features
 
-- Automated login to MCA portal
-- Document upload automation
-- Form filling automation
-- Captcha solving integration
-- Firefox profile management
-- Screenshot capture for verification
-- Configurable settings via JSON
+- Process bodies corporate data and fill the LLP incorporation form
+- Upload nominee resolution proofs
+- Swagger/OpenAPI documentation
+- Error handling and validation
 
 ## Prerequisites
 
-- Python 3.x
-- Firefox browser
-- TrueCaptcha account (for captcha solving)
+- Python 3.7+
+- Chrome browser installed
+- ChromeDriver compatible with your Chrome version
 
 ## Installation
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd mca_automation
+cd <repository-directory>
 ```
 
-2. Install required Python packages:
+2. Create a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the project root with your TrueCaptcha credentials:
-```
-TRUECAPTCHA_USER=your_username_here
-TRUECAPTCHA_KEY=your_api_key_here
-```
-
-4. Configure Firefox profile path in `config.json`:
-```json
-{
-    "firefox_profile_path": "path/to/your/firefox/profile",
-    "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html"
-}
-```
-
-## Project Structure
-
-- `main.py` - Main entry point and core functionality
-- `automate1.py` - Automation utilities and helper functions
-- `function1.py` - Additional utility functions
-- `config.json` - Configuration settings
-- `config_data.json` - Additional configuration data
-- `document_upload_file.py` - Document upload functionality
-- `attachment_upload.py` - Attachment handling
-- `last_upload.py` - Last upload tracking
-- `screenshots/` - Directory for captured screenshots
-- `firefox_profile/` - Firefox profile directory
-- `extra code/` - Additional code snippets and utilities
-
 ## Usage
 
-1. Ensure your Firefox profile is properly configured in `config.json`
-
-2. Run the main script:
+1. Start the API server:
 ```bash
-python main.py
+python api.py
 ```
 
-3. The script will:
-   - Initialize the Firefox browser
-   - Log in to the MCA portal
-   - Handle captcha solving
-   - Perform the configured automation tasks
+2. Access the Swagger documentation:
+```
+http://localhost:5000/api/docs
+```
 
-## Configuration
+## API Endpoints
 
-### Firefox Profile
-The project uses a Firefox profile for persistent sessions. Configure the path in `config.json`:
+### 1. Process Bodies Corporate Data
+
+**Endpoint:** `POST /api/bodies-corporate`
+
+Processes the provided bodies corporate data and fills the LLP incorporation form.
+
+**Request Body:**
 ```json
 {
-    "firefox_profile_path": "path/to/your/firefox/profile"
+  "form_data": {
+    "fields": {
+      "Body corporates and their nominees Having valid DIN/DPIN": 1
+    }
+  },
+  "bodies_corporate_with_din": [
+    {
+      "Type of body corporate": "Company",
+      "CIN/FCRN": "L12345KA2020PTC123456",
+      "PAN": "ABCDE1234F",
+      "Name of the body corporate": "Example Corp",
+      "Address Line I": "123 Main St",
+      "Address Line II": "Suite 100",
+      "Country": "India",
+      "Pin code": "560001",
+      "Area/ Locality": "Bangalore",
+      "Jurisdiction of Police Station": "Central",
+      "Phone (with STD/ISD code)": "+91-80-12345678",
+      "Mobile No": "9876543210",
+      "Fax": "+91-80-12345679",
+      "Email ID": "contact@example.com",
+      "Form of contribution": "Cash",
+      "Monetary value of contribution (in INR) (in figures)": "100000",
+      "Number of LLP(s) in which entity is a partner": "0",
+      "Number of company(s) in which entity is a director": "0",
+      "DIN/DPIN": "1234567890",
+      "Name": "John Doe",
+      "Whether resident of India": {
+        "Yes": true
+      },
+      "Designation and Authority in body corporate": "Director",
+      "Copy of resolution": "/path/to/resolution.pdf"
+    }
+  ]
 }
 ```
 
-### TrueCaptcha Integration
-For captcha solving, create a `.env` file with your TrueCaptcha credentials:
+### 2. Upload Nominee Resolution Proofs
+
+**Endpoint:** `POST /api/upload-nominee-resolution`
+
+Uploads nominee resolution proofs for bodies corporate.
+
+**Request Body:**
+```json
+{
+  "bodies_corporate_with_din": [
+    {
+      "Copy of resolution": "/path/to/resolution.pdf"
+    }
+  ]
+}
 ```
-TRUECAPTCHA_USER=your_username_here
-TRUECAPTCHA_KEY=your_api_key_here
+
+## Response Format
+
+All endpoints return responses in the following format:
+
+**Success Response (200):**
+```json
+{
+  "status": "success",
+  "message": "Successfully processed bodies corporate data"
+}
+```
+
+**Error Response (400/500):**
+```json
+{
+  "status": "error",
+  "message": "Error message here"
+}
 ```
 
 ## Error Handling
 
-The project includes comprehensive error handling for:
-- Login failures
-- Captcha solving issues
-- Network connectivity problems
-- Browser automation errors
-
-## Screenshots
-
-The project automatically captures screenshots in the `screenshots/` directory for:
-- Captcha images
-- Error states
-- Important form submissions
+The API includes comprehensive error handling for:
+- Invalid input data
+- Missing required fields
+- File not found errors
+- Selenium automation errors
+- Server errors
 
 ## Contributing
 
@@ -116,8 +150,4 @@ The project automatically captures screenshots in the `screenshots/` directory f
 
 ## License
 
-[Specify your license here]
-
-## Support
-
-For support, please [specify contact information or support channels] 
+This project is licensed under the MIT License - see the LICENSE file for details. 
