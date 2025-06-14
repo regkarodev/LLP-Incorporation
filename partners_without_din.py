@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import send_text, click_element, scroll_into_view, set_date_field
+from function1 import send_text, click_element, scroll_into_view, set_date_field, click_button
 import function1
 
 def normalize_options_dict(options_dict):
@@ -489,23 +489,16 @@ def handle_partners_without_din(driver, config_data):
                         verify_pan_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[3]/div/div/div[1]"
                         verify_pan_xpath = f"{verify_pan_xpath_base}/button[@aria-label='Verify PAN']"
 
-                        verify_pan_button = WebDriverWait(driver, 10).until(
-                            EC.element_to_be_clickable((By.XPATH, verify_pan_xpath))
-                        )
-                        driver.execute_script("arguments[0].click();", verify_pan_button)
+                        click_button(driver, verify_pan_xpath, selector_type='xpath')
                         print(f"[SUCCESS] Partner {position}: Clicked Verify PAN button (i={i}).")
                         fields_filled_count += 1
-            except TimeoutException:
-                        print(f"[✗] Partner {position}: Timeout finding Verify PAN button.")
-            except NoSuchElementException:
-                        print(f"[✗] Partner {position}: Could not find Verify PAN button.")
             except Exception as e:
                         print(f"[✗] Partner {position}: Failed to click Verify PAN button: {e}")
                         fields_failed_count += 1
 
 
 
-                    # --- Place of Birth (State) ---
+            # --- Place of Birth (State) ---
             time.sleep(1.5)
             try:
                         birth_state = partner.get('Place of Birth (State)', '').strip()
@@ -533,7 +526,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Place of Birth (District) ---
+            # --- Place of Birth (District) ---
             time.sleep(1.5)
             try:
                         district_value = partner.get('Place of Birth (District)', '').strip()
@@ -568,7 +561,7 @@ def handle_partners_without_din(driver, config_data):
 
                 
 
-                    # --- Whether citizen of India ---
+            # --- Whether citizen of India ---
             time.sleep(1.5)
             try:
                             citizen_data = partner.get('Whether citizen of India', {})
@@ -887,7 +880,7 @@ def handle_partners_without_din(driver, config_data):
                         fields_failed_count += 1
 
 
-                    # --- Permanent Pin code ---
+            # --- Permanent Pin code ---
             time.sleep(0.5)        
             try:
                             perm_pin = partner.get('Permanent Pin code', '').strip()
@@ -910,6 +903,7 @@ def handle_partners_without_din(driver, config_data):
             except Exception as e:
                                 print(f"[✗] Partner {position}: Failed to enter Permanent Pin code: {e}")
                                 fields_failed_count += 1
+
 
             # --- Area/ Locality ---
             time.sleep(0.5)
@@ -1151,6 +1145,7 @@ def handle_partners_without_din(driver, config_data):
                         else:
                                 print(f"[INFO] Body Corporate {position}: 'Country' is empty or missing in input data. Skipping.")
 
+
                             # --- Pin code / Zip Code ---
                         try:
                                 pincode1_value = partner.get('Present Pin code', '')
@@ -1194,6 +1189,8 @@ def handle_partners_without_din(driver, config_data):
 
 
                         time.sleep(0.8)
+
+
                         # --- Area/Locality (dropdown) ---
                         time.sleep(1)
                         try:
@@ -1422,7 +1419,8 @@ def handle_partners_without_din(driver, config_data):
             residential_proof_xpath = f"(//input[@aria-label='Residential Proof No.'])[{position}]"
             driver.find_element(By.XPATH, residential_proof_xpath).send_keys(partner.get('Residential Proof No.', ''))
 
-                    # Upload proof documents
+            
+            # Upload proof documents
             try:
                             # Identity Proof Upload
                             if partner.get('Proof of identity'):
@@ -1450,11 +1448,11 @@ def handle_partners_without_din(driver, config_data):
                             fields_failed_count += 2
 
 
-                    # --- Contribution Details ---
+            # --- Contribution Details ---
             print(f"[INFO] Partner {position}: Processing Contribution Details...")
 
-                    # --- Form of contribution ---
-            time.sleep(0.5)
+            # --- Form of contribution ---
+            time.sleep(1)
             try:
                         form_of_contribution = partner.get('Form of contribution', '').strip()
                         if form_of_contribution:

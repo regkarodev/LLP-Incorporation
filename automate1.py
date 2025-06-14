@@ -14,7 +14,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import partners_without_din, bodies_corporate_with_din, bodies_corporate_without_din, document_upload_file
-from function1 import scroll_into_view, send_text, click_element
+from function1 import scroll_into_view, send_text, click_element, click_button
 
 # Global driver variable
 driver = None 
@@ -108,7 +108,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         operation_count = 0
         
         # Registrar of Companies
-        scroll_into_view(driver, '#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
         time.sleep(2)
         click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
 
@@ -120,30 +119,27 @@ def run_llp_form_sequence(webdriver_instance=None):
         click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton_1069538009__-1_widget')
 
 
-
-        scroll_into_view(driver, '#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy_copy-mca_button___widget')
         # SAVE AND CONTINUE BUTTON 
         time.sleep(2)
-        click_element(driver ,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy_copy-mca_button___widget')
+        click_button(driver, '#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy_copy-mca_button___widget')
 
         # OK POP_UP BUTTON
         time.sleep(2)
         try:
-            click_element(driver ,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')   # Increase wait time
+            click_button(driver, '#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         except Exception as e:
             print(f"[ERROR] Failed to click MCA button: {str(e)}")
             # Try alternative selector if the first one fails
             try:
-                click_element(driver ,css_selector='button[aria-label="MCA"]')
+                click_button(driver, 'button[aria-label="MCA"]')
             except Exception as e2:
                 print(f"[ERROR] Failed to click MCA button with alternative selector: {str(e2)}")
                 raise
 
         # NEXT BUTTON
         time.sleep(2)
-        click_element(driver ,css_selector='#guideContainer-rootPanel-panel-panel-panel_copy_copy_copy_1792429032-mca_button___widget')
+        click_button(driver, '#guideContainer-rootPanel-panel-panel-panel_copy_copy_copy_1792429032-mca_button___widget')
 
-        scroll_into_view(driver, '#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11___widget')
         # *Address Line I
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy_11___widget', keys=config_data['form_data']['fields']['Address Line I'])
 
@@ -161,7 +157,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_9527960___widget',keys=config_data['form_data']['fields']['Area/Locality1'] )
         
 
-        scroll_into_view(driver, '#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433___widget')
         # *Longitude
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_1045433___widget', keys=config_data['form_data']['fields']['Longitude'])
 
@@ -172,7 +167,6 @@ def run_llp_form_sequence(webdriver_instance=None):
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel-panel_702814714-panel-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Jurisdiction of Police Station'])
 
         # (b) Contact Details
-        scroll_into_view(driver, '#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-phonestdisdbox___widget')
         # Phone (with STD/ISD code)
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_417418999-panel_2000768201_cop-phonestdisdbox___widget', keys=config_data['form_data']['fields']['Phone (with STD/ISD code)'])
 
@@ -190,13 +184,67 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Upload files using JavaScript override for attachments
         time.sleep(2)
-        document_upload_file.handle_file_uploads(driver, config_data)
-        time.sleep(2)
-        document_upload_file.handle_file_uploads(driver, config_data)
+        file_path = config_data['form_data']['file_paths']['first_file']
+
+        # Locator for the hidden input type="file" element
+        file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh__"
+
+        # Call the updated send_file function
+        print("Attempting to upload file...")
+        upload_successful = document_upload_file.handle_file_upload(
+            driver,
+            file_input_element_id,
+            file_path,            
+            timeout=30
+        )
+        if upload_successful:
+            print(f"File '{file_path}' upload process initiated successfully.")
+            # Add further assertions here to validate the upload, e.g., check for success message [1]
+        else:
+            print(f"File '{file_path}' upload process failed.")
         
+        click_element(
+            driver,
+            css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+        )
+        
+
+
+
+        # ---  *Copy of the utility bills (not older than two months) ---
+        time.sleep(2)
+        file_path = config_data['form_data']['file_paths']['second_file']
+
+        # Locator for the hidden input type="file" element
+        file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh_376676005__"
+
+        # Call the updated send_file function
+        print("Attempting to upload file...")
+        upload_successful = document_upload_file.handle_file_upload(
+            driver,
+            file_input_element_id,
+            file_path,
+            timeout=30
+        )
+        if upload_successful:
+            print(f"File '{file_path}' upload process initiated successfully.")
+            # Add further assertions here to validate the upload, e.g., check for success message [1]
+        else:
+            print(f"File '{file_path}' upload process failed.")
+        
+
+        click_element(
+            driver,
+            css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+        )
+        
+
+
         #(d) *Name of the office of Registrar in whose jurisdiction the proposed LLP is to be registered
         time.sleep(0.5)        
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_2015234307-guidedropdownlist_co___widget', keys=config_data['form_data']['fields']['Name of the office of Registrar'])
+
+
 
 
         # 5 Total number of designated partners and partners of the LLP
@@ -268,13 +316,6 @@ def run_llp_form_sequence(webdriver_instance=None):
                 except Exception as e:
                     print(f"[WARNING] Could not fill DIN/DPIN for partner {position}: {str(e)}")
                     failed += 1
-                # Wait for Name to be auto-filled
-                try:
-                    wait.until(lambda d: d.find_element(By.XPATH, f"(//input[@aria-label='Name'])[{position}]").get_attribute('value').strip() != "")
-                    filled += 1
-                except Exception:
-                    failed += 1
-
 
 
                 # Form of contribution (select)
@@ -381,21 +422,21 @@ def run_llp_form_sequence(webdriver_instance=None):
         # SAVE BUTTON
         time.sleep(2)
         try:
-            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
+            click_button(driver, '#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button_copy___widget')
         except Exception as e:
             print(f"Save button not found: {str(e)}")
 
         # POPUP - OK BUTTON
         time.sleep(2)
         try:
-            click_element(driver,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+            click_button(driver, '#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         except Exception as e:
             print(f"Popup OK button not found, continuing: {str(e)}")
 
         # NEXT BUTTON
         time.sleep(2)
         try:
-            click_element(driver ,xpath='//*[@id="guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget"]')
+            click_button(driver, '#guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel_copy_copy_copy-mca_button___widget')
         except Exception as e:
             print(f"Next button not found: {str(e)}")
 
@@ -462,29 +503,81 @@ def run_llp_form_sequence(webdriver_instance=None):
         # SAVE BUTTON
         time.sleep(2)
         try:
-            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button_copy___widget')
+            click_button(driver, '#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button_copy___widget')
         except Exception as e:
             print(f"Save button not found: {str(e)}")
 
         # POPUP - OK BUTTON
         time.sleep(2)
         try:
-            click_element(driver,css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+            click_button(driver, '#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         except Exception as e:
             print(f"Popup OK button not found, continuing: {str(e)}")
 
         # NEXT BUTTON
-        time.sleep(1)
+        time.sleep(2)
         try:
-            click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button___widget')
+            click_button(driver, '#guideContainer-rootPanel-panel-panel_358466187-panel-panel_copy_copy_copy-mca_button___widget')
         except Exception as e:
             print(f"Next button not found: {str(e)}")
 
         # FINAL UPLOADS of file
+        # Upload files using JavaScript override for attachments
         time.sleep(2)
-        attachment_upload.handle_file_uploads(driver, config_data)
+        file_path = config_data['form_data']['file_paths']['third_file']
+
+        # Locator for the hidden input type="file" element
+        file_input_element_id = "guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-mca_custom_multifile__"
+
+        # Call the updated send_file function
+        print("Attempting to upload file...")
+        upload_successful = attachment_upload.handle_file_upload(
+            driver,
+            file_input_element_id,
+            file_path,            
+            timeout=30
+        )
+        if upload_successful:
+            print(f"File '{file_path}' upload process initiated successfully.")
+            # Add further assertions here to validate the upload, e.g., check for success message [1]
+        else:
+            print(f"File '{file_path}' upload process failed.")
+        
+        click_element(
+            driver,
+            css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+        )
+        
+
+
+
+        # ---  *Copy of the utility bills (not older than two months) ---
         time.sleep(2)
-        attachment_upload.handle_file_uploads(driver, config_data)
+        file_path = config_data['form_data']['file_paths']['fourth_file']
+
+        # Locator for the hidden input type="file" element
+        file_input_element_id = "guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-mca_custom_file_uplo__"
+
+        # Call the updated send_file function
+        print("Attempting to upload file...")
+        upload_successful = attachment_upload.handle_file_upload(
+            driver,
+            file_input_element_id,
+            file_path,
+            timeout=30
+        )
+        if upload_successful:
+            print(f"File '{file_path}' upload process initiated successfully.")
+            # Add further assertions here to validate the upload, e.g., check for success message [1]
+        else:
+            print(f"File '{file_path}' upload process failed.")
+        
+
+        click_element(
+            driver,
+            css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+        )
+        
 
         # Final form section - add error handling for elements that may not be present
         time.sleep(1)
@@ -531,75 +624,68 @@ def run_llp_form_sequence(webdriver_instance=None):
             # SAVE 
         time.sleep(1)        
         print("save button before clicked")
-        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel_copy_copy_copy-mca_button_copy___widget')
+        click_button(driver, '#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel_copy_copy_copy-mca_button_copy___widget')
         print("save button clicked successfully")
             
         # POP-UP
         time.sleep(1)   
-        click_element(driver, css_selector='#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
+        click_button(driver, '#guideContainer-rootPanel-modal_container_copy-panel_86338280-panel-mca_button___widget')
         print("popup button clicked successfully")
 
         # NEXT
         time.sleep(1)   
-        click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel_copy_copy_copy-mca_button___widget')
+        click_button(driver, '#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel_copy_copy_copy-mca_button___widget')
         print("Next button clicked successfully")
 
 
         # Proceed to Form 9
-        # time.sleep(3)
-        # click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel_1448122692-panel_copy_copy_copy-mca_button___widget')
-        # print("Proceed to Form 9 button clicked successfully")
-
-
-        def click_mca_button(driver, timeout=15):
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.common.action_chains import ActionChains
-            from selenium.webdriver.support.ui import WebDriverWait
-            from selenium.webdriver.support import expected_conditions as EC
-            from selenium.common.exceptions import (
-                TimeoutException, ElementClickInterceptedException,
-                ElementNotInteractableException, NoSuchElementException
+        try:
+            # Wait for the button to be present and clickable
+            wait = WebDriverWait(driver, 15)
+            button = wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '#guideContainer-rootPanel-panel-panel_1448122692-panel_copy_copy_copy-mca_button___widget'))
             )
-            wait = WebDriverWait(driver, timeout)
-            button_id = "guideContainer-rootPanel-panel-panel_1448122692-panel_copy_copy_copy-mca_button___widget"
-
+            
+            # Ensure button is in view
+            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", button)
+            time.sleep(2)
+            
+            # Try multiple click methods
             try:
-                # CASE 1: Wait for and handle modal overlay
+                # Method 1: Regular click
+                button.click()
+                print("[✓] Proceed to Form 9 button clicked using regular click")
+            except Exception as click_error:
+                print(f"[DEBUG] Regular click failed, trying JavaScript click: {str(click_error)}")
                 try:
-                    wait.until(EC.invisibility_of_element_located((By.ID, "imgModalPopup")))
-                    print("[✓] Case 1 handled: Modal popup disappeared")
-                except TimeoutException:
-                    print("[!] No modal popup or it didn't disappear")
-
-                # CASE 3: Wait for button to be visible and clickable
-                button = wait.until(EC.presence_of_element_located((By.ID, button_id)))
-                wait.until(EC.visibility_of(button))
-                wait.until(EC.element_to_be_clickable((By.ID, button_id)))
-                print("[✓] Case 3 handled: Button is visible and clickable")
-
-                # CASE 4: Scroll to button and attempt click
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
-                try:
-                    ActionChains(driver).move_to_element(button).click().perform()
-                    print("[✓] Case 4 handled: Clicked via ActionChains")
-                except (ElementClickInterceptedException, ElementNotInteractableException) as e:
-                    print(f"[!] Standard click failed: {e}. Trying JavaScript click...")
-
-                    # CASE 5: JavaScript click fallback
+                    # Method 2: JavaScript click
                     driver.execute_script("arguments[0].click();", button)
-                    print("[✓] Case 5 handled: Clicked via JavaScript")
+                    print("[✓] Proceed to Form 9 button clicked using JavaScript")
+                except Exception as js_error:
+                    print(f"[DEBUG] JavaScript click failed, trying Actions: {str(js_error)}")
+                    try:
+                        # Method 3: Actions click
+                        actions = ActionChains(driver)
+                        actions.move_to_element(button).pause(0.5).click().perform()
+                        print("[✓] Proceed to Form 9 button clicked using Actions")
+                    except Exception as actions_error:
+                        print(f"[DEBUG] Actions click failed: {str(actions_error)}")
+                        # Method 4: Force enable and click
+                        try:
+                            driver.execute_script("""
+                                arguments[0].disabled = false;
+                                arguments[0].style.pointerEvents = 'auto';
+                                arguments[0].style.opacity = '1';
+                                arguments[0].click();
+                            """, button)
+                            print("[✓] Proceed to Form 9 button clicked using force enable")
+                        except Exception as force_error:
+                            print(f"[✗] All click methods failed: {str(force_error)}")
+                            raise
+        except Exception as e:
+            print(f"[✗] Failed to click Proceed to Form 9 button: {e}")
+            print("Please try clicking the button manually")
 
-                # Return to main content if iframe was used
-                driver.switch_to.default_content()
-
-            except TimeoutException:
-                print("[✗] Failed: Button not found or not clickable in time.")
-            except Exception as e:
-                print(f"[✗] Unexpected error during click: {e}")
-
-    # -- Function Over Here 
-    # -- Function Call 
-        click_mca_button(driver)
             
     except Exception as e:
         print(f"[AUTOMATE1] Error in LLP form sequence: {e}")

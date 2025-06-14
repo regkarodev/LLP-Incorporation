@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import scroll_into_view, send_text, click_element
+from function1 import scroll_into_view, send_text, click_element, click_button
 from selenium.webdriver.common.action_chains import ActionChains
 import json
 
@@ -1009,7 +1009,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", fax_input)
                         driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", fax_input)
 
-                        # Optionally simulate typing via send_text
+                        # Optionally simulate typing via sexecend_text
                         send_text(driver, xpath=fax_xpath, keys=fax_value)
 
                         print(f"[✓] Body Corporate {position}: Entered Fax: {fax_value}")

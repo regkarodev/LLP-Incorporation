@@ -5,15 +5,15 @@
   "user_password": "Plushie0w0!",
   "form_data": {
     "file_paths": {
-      "first_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "second_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-      "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+      "first_file": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "second_file": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "third_file": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+      "fourth_file": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf"
     },
 
 
     "fields": {
-      "Service Request Number": "M28055632",
+      "Service Request Number": "M30095053",
       "Address Line I": "3rd",
       "Address Line II": "Street No 3",
       "PIN CODE": "122016",
@@ -34,12 +34,6 @@
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
       "Body corporates and their nominee not having valid DIN/DPIN1": "0",
-      "Designated partner identification number (DIN/DPIN)": "10290759",
-      "Form of contribution": "Cash",
-      "Monetary value of contribution (in INR) (in figures)": "100000000",
-      "Monetary value of contribution (in words)": "Ten crore",
-      "Number of LLP(s) in which he/ she is a partner": "2",
-      "Number of company(s) in which he/ she is a director": "2",
       "PAN Area code": "N",
       "PAN Area code1": "W",
       "PAN Area code2": "R",
@@ -84,16 +78,16 @@
         "Form of contribution": "Cash",
         "If 'Other than cash' selected, please specify": "",
         "Monetary value of contribution (in INR) (in figures)": "1000000",
-        "Number of LLP(s) in which he/ she is a partner": "2",
-        "Number of company(s) in which he/ she is a director": "1"
+        "Number of LLP(s) in which he/ she is a partner": "0",
+        "Number of company(s) in which he/ she is a director": "0"
       },
       {
         "Designated partner identification number (DIN/DPIN)": "00000001",
         "Form of contribution": "Cash",
         "If 'Other than cash' selected, please specify": "",
         "Monetary value of contribution (in INR) (in figures)": "2000000",
-        "Number of LLP(s) in which he/ she is a partner": "1",
-        "Number of company(s) in which he/ she is a director": "2"
+        "Number of LLP(s) in which he/ she is a partner": "0",
+        "Number of company(s) in which he/ she is a director": "0"
       }
     ]
   },
@@ -135,9 +129,6 @@
         "Permanent Country": "India",
         "Permanent Pin code": "400001",
         "Permanent Area/Locality": "Bazargate",
-        "Permanent City": "Mumbai",
-        "Permanent District": "Mumbai",
-        "Permanent State": "Maharashtra",
         "Permanent Police Station": "Andheri Police Station",
         "Permanent Phone": "91",
         
@@ -159,8 +150,8 @@
         "Residential Proof": "Electricity Bill",
         "Identity Proof No.": "826851933417",
         "Residential Proof No.": "QUT030055A0AA",
-        "Proof of identity": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-        "Residential proof": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+        "Proof of identity": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+        "Residential proof": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
         
         "Form of contribution": "Cash",
         "Monetary value": "100000",
@@ -178,8 +169,8 @@
             "Date of Birth": "18/02/2004",
             "Nationality": "India",
             "Whether resident of India": {
-              "Yes": "false",
-              "No": "true"
+              "Yes": "true",
+              "No": "false"
             },
             "Income-tax PAN/Passport number": {
               "PAN": "true",
@@ -189,8 +180,8 @@
             "Place of Birth (State)": "Maharashtra",
             "Place of Birth (District)": "Mumbai",
             "Whether citizen of India": {
-              "Yes": "false",
-              "No": "true"
+              "Yes": "true",
+              "No": "false"
             },
             "Occupation type": "Business",
             "Area of Occupation": "Student",
@@ -203,9 +194,6 @@
             "Permanent Country": "India",
             "Permanent Pin code": "400001",
             "Permanent Area/Locality": "Bazargate",
-            "Permanent City": "Mumbai",
-            "Permanent District": "Mumbai",
-            "Permanent State": "Maharashtra",
             "Permanent Police Station": "Andheri Police Station",
             "Permanent Phone": "91",
 
@@ -217,10 +205,10 @@
             "Present Address Line I": "456 Street",
             "Present Address Line II": "Flat 5C",
             "Present Country": "India",
-            "Present Pin code": "400001",
-            "Present Area/Locality": "Bazargate",
+            "Present Pin code": "110071",
+            "Present Area/Locality": "Chhawla",
             "Present Phone": "91",
-            "Present Jurisdiction": "Bazargate Police Station",
+            "Present Jurisdiction": "Chhawla Police Station",
             "Duration Years": "2",
             "Duration Months": "6",
             
@@ -228,8 +216,8 @@
             "Residential Proof": "Electricity Bill",
             "Identity Proof No.": "826851933417",
             "Residential Proof No.": "QUT030055A0AA",
-            "Proof of identity": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "Residential proof": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "Proof of identity": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "Residential proof": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
             
             "Form of contribution": "Cash",
             "Monetary value": "100000",
@@ -261,7 +249,7 @@
       "Monetary value of contribution (in INR) (in figures)": "100",
       "Number of LLP(s) in which it is a partner": "2",
       "Number of company(s) in which it is a director": "1",
-      "DIN/DPIN": "M28055632",
+      "DIN/DPIN": "M30095053",
       "Name": "Ashish",
       "Whether resident of India": {
           "Yes": true,
@@ -289,14 +277,14 @@
       "Monetary value of contribution (in INR) (in figures)": "100",
       "Number of LLP(s) in which it is a partner": "2",
       "Number of company(s) in which it is a director": "1",
-      "DIN/DPIN": "M28055632",
+      "DIN/DPIN": "M30095053",
       "Name": "Ashish",
       "Whether resident of India": {
           "Yes": true,
           "No": false
         },
       "Designation and Authority in body corporate": "Director",
-      "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+      "Copy of resolution": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf"
     }
   ],
 
@@ -357,7 +345,7 @@
           "education": "Bachelor's Degree",
           "education_other": "",
           "mobile": "9876543210",
-          "email": "ravi.sharma@example.com"
+          "email": "ashishmehra@registerkaro.in"
         },
         "permanent_address": {
             "line1": "Flat 101",
@@ -394,9 +382,9 @@
             "number": "EB123456789"
           },
           "uploads": {
-            "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+            "identity_proof_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "residential_proof_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "resolution_copy_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf"
           }
         },
       
@@ -480,9 +468,9 @@
             "number": "EB123456789"
           },
           "uploads": {
-            "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+            "identity_proof_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "residential_proof_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "resolution_copy_path": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf"
           }
           
         }
