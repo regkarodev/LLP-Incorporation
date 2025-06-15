@@ -36,7 +36,7 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
             attach_button = parent_div.find_element(By.CSS_SELECTOR, "button.guide-fu-attach-button")
         except Exception as e:
             print(f"[WARNING] Attach button not found via CSS inside parent_div: {e}")
-            fallback_xpath = "/html/body/.../div[1]/button"  # Keep your full fallback XPath here
+            fallback_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"  # Keep your full fallback XPath here
             attach_button = WebDriverWait(driver, timeout).until(
                 EC.presence_of_element_located((By.XPATH, fallback_xpath))
             )
@@ -100,6 +100,101 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
         return False
 
 
+
+
+def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5):
+    """
+    Handles file uploads dynamically for partner/nominee identity proofs using index-based dynamic parent div ID
+    and static input XPath for fallback.
+    """
+    print(f"[DEBUG] Uploading file for index={i}")
+
+    try:
+        # Re-fetch parent_div in case DOM has refreshed
+        parent_div = WebDriverWait(driver, timeout + 5).until(
+            EC.presence_of_element_located((By.XPATH, parent_div))
+        )
+        print(f"[DEBUG] Fresh parent_div resolved: {parent_div.get_attribute('id')}")
+
+        # Try to get the attach button reliably
+        try:
+            attach_button = WebDriverWait(parent_div, timeout + 5).until(
+                lambda d: d.find_element(By.XPATH, ".//button[contains(@class, 'guide-fu-attach-button')]")
+            )
+        except Exception as e:
+            print(f"[WARNING] Attach button not found via parent_div: {e}")
+            fallback_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"
+            attach_button = WebDriverWait(driver, timeout + 5).until(
+                EC.element_to_be_clickable((By.XPATH, fallback_xpath))
+            )
+
+        # Scroll and click the button
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
+        time.sleep(1)
+        try:
+            attach_button.click()
+        except:
+            try:
+                driver.execute_script("arguments[0].click();", attach_button)
+            except:
+                ActionChains(driver).move_to_element(attach_button).click().perform()
+
+        time.sleep(2)
+
+        # Type file path using keyboard
+        normalized_path = os.path.normpath(file_path)
+        keyboard = Controller()
+        driver.switch_to.window(driver.current_window_handle)
+
+        print(f"[DEBUG] Typing path: {normalized_path}")
+        for char in normalized_path:
+            keyboard.press(char)
+            keyboard.release(char)
+            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+
+        time.sleep(1)
+        keyboard.press(Key.enter)
+        keyboard.release(Key.enter)
+        time.sleep(2)
+
+        # Optional success dialog handling
+        try:
+            ok_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'ok-button') or @id='okSuccessModalBtn']"))
+            )
+            driver.execute_script("arguments[0].click();", ok_button)
+            print("[AGILE PRO] Clicked OK on upload success dialog.")
+        except TimeoutException:
+            print("[INFO] No success dialog found.")
+        except Exception as e:
+            print(f"[WARNING] Error closing upload dialog: {e}")
+
+        # Re-fetch parent_div again if needed
+        parent_div = WebDriverWait(driver, timeout + 3).until(
+            EC.presence_of_element_located((By.XPATH, parent_div))
+        )
+
+        # Confirm upload success by checking file item list
+        try:
+            file_list = WebDriverWait(parent_div, timeout + 5).until(
+                lambda d: d.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
+            )
+            if file_list.find_elements(By.TAG_NAME, "li"):
+                print("[AGILE PRO] File appears in upload list.")
+                return True
+            else:
+                print("[WARNING] Upload list found but no file item.")
+                return False
+        except Exception as e:
+            print(f"[INFO] Upload list not found or empty: {e}")
+            return False
+
+    except Exception as e:
+        print(f"[ERROR] Upload failed for index={i}: {e}")
+        return False
+
+
+
 def handle_partners_without_din(driver, config_data):
     """
     Handle the section for partners without DIN/DPIN in the MCA LLP form.
@@ -109,6 +204,7 @@ def handle_partners_without_din(driver, config_data):
         config_data: Dictionary containing form data
         config_selectors: Dictionary containing CSS selectors
     """
+    time.sleep(2)
     try:
         # Get the number of partners without DIN from config
         num_partners = int(config_data['form_data']['fields'].get('Individuals Not having valid DIN/DPIN', 0))
@@ -1360,8 +1456,27 @@ def handle_partners_without_din(driver, config_data):
                         print(f" {i} document uploaded successfully.")
                     else:
                         print(f" {i} document upload failed.")
+                
+                click_element(
+                driver,
+                css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+                )
 
                 # Residential Proof Upload
+                parent_div_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[3]/div/div/div[2]"
+
+                if partner.get('Residential proof'):
+                        file_path = partner.get('Residential proof')
+                        success = handle_dynamic_residency_upload(driver, parent_div_xpath, file_path, i)
+                        if success:
+                            print(f" {i} document uploaded successfully.")
+                        else:
+                            print(f" {i} document upload failed.")
+
+                click_element(
+                driver,
+                css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+                )
                 
             except Exception as e:
                 print(f"[ERROR] Failed to handle file uploads: {e}")

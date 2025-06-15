@@ -27,9 +27,9 @@
       "Email ID": "shagun@registerkaro.in",
       "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
       "Individuals Having valid DIN/DPIN": "0",
-      "Individuals Not having valid DIN/DPIN": "2",
+      "Individuals Not having valid DIN/DPIN": "0",
       "Body corporates and their nominees Having valid DIN/DPIN": "0",
-      "Body corporates and their nominee not having valid DIN/DPIN": "0",
+      "Body corporates and their nominee not having valid DIN/DPIN": "2",
       "Individuals Having valid DIN/DPIN1": "0",
       "Individuals Not having valid DIN/DPIN1": "0",
       "Body corporates and their nominees Having valid DIN/DPIN1": "0",
@@ -256,7 +256,7 @@
           "No": false
         },
       "Designation and Authority in body corporate": "Director",
-      "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+      "Copy of resolution": "C:/\\Users\\Admin\\Downloads\\dummypdf.pdf"
     },
     {
       "Type of body corporate": "Company",
