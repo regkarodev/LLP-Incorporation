@@ -45,7 +45,7 @@ def handle_file_upload(driver, parent_div_id, file_path, timeout=20):
 
         # Short delay to wait for file dialog to open
         time.sleep(2)
-
+        
         # Bring browser window to focus
         try:
             hwnd = win32gui.GetForegroundWindow()
@@ -71,11 +71,11 @@ def handle_file_upload(driver, parent_div_id, file_path, timeout=20):
                 print(f"[ERROR] Failed to type character {char}: {e}")
 
         # Press Enter to submit
-        time.sleep(1)
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
+        time.sleep(2)
+        
         # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
