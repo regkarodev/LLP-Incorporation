@@ -1,325 +1,107 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException
 import time
 import os
-import json
+from pynput.keyboard import Controller, Key
+import win32gui
+import win32con
 
-def handle_file_uploads(driver, config_data):
-    """
-    Handle file uploads in the attachments page
-    """
-    print("Handling file uploads...")
+def handle_file_upload(driver, parent_div_id, file_path, timeout=20):
+    """Handles file uploads via keyboard automation and verifies success"""
+    print(f"[DEBUG] Starting file upload for {parent_div_id}")
     
-    # File paths from config
-    file1_path = os.path.abspath(config_data["form_data"]["file_paths"]["third_file"])
-    file2_path = os.path.abspath(config_data["form_data"]["file_paths"]["fourth_file"])
-    
-    
-    # Check if the files exist
-    if not os.path.exists(file1_path):
-        print(f"Warning: File {file1_path} does not exist!")
-        raise Exception(f"First file not found: {file1_path}")
-    if not os.path.exists(file2_path):
-        print(f"Warning: File {file2_path} does not exist!")
-        raise Exception(f"Second file not found: {file2_path}")
-    
-    print(f"Using files:\n{file1_path}\n{file2_path}")
-    
-    # Get all the Choose File buttons
-    choose_file_buttons = driver.find_elements(By.XPATH, "//button[contains(@class, 'guide-fu-attach-button')]")
-    print(f"Found {len(choose_file_buttons)} Choose File buttons")
-    
-    # FIRST FILE UPLOAD - Direct approach with file inputs
-    # upload_first_file(driver, file1_path, choose_file_buttons)
-    
-    # SECOND FILE UPLOAD - Use the exact XPath provided
-    upload_identity_file(driver, file1_path)
-    # Upload first file
-    upload_file(driver, file2_path)
-
-
-
-def upload_identity_file(driver, file_path):
-
-    """
-    Upload the first document file
-    """
-    print("\n--- First Document FILE UPLOAD ---")
     try:
-        # Use the exact XPath provided for the second Choose File button
-        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"
-        print(f"Using exact XPath for second Choose File button: {exact_xpath}")
+        # Locate the parent div
+        parent_div = WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.ID, parent_div_id))
+        )
         
-        # Find the button using the exact XPath
+        # Try to find attach button by class name
         try:
-            upload_button = driver.find_element(By.XPATH, exact_xpath)
-            print("Found upload button using exact XPath")
-            
-            
-            # Find the associated file input
-            # First, get the parent container that contains both button and input
-            parent_container = upload_button.find_element(By.XPATH, "./ancestor::div[contains(@class, 'guideFieldWidget afFileUpload fileUpload')]")
-            print("Found parent container")
-            
-            # Now find the input element within this container
-            file_input = parent_container.find_element(By.XPATH, ".//input[@type='file']")
-            print("Found file input element")
-            
-            # Make the file input visible and enabled
-            print("Making file input visible and enabled...")
-            driver.execute_script("""
-                arguments[0].style.display = 'block';
-                arguments[0].style.visibility = 'visible';
-                arguments[0].style.opacity = '1';
-                arguments[0].disabled = false;
-                arguments[0].setAttribute('class', 'visible');
-            """, file_input)
-            time.sleep(2)  # Give more time for the element to become interactive
-            
-            # Send the file path
-            print(f"Sending file path: {file_path}")
-            file_input.send_keys(file_path)
-            print("File path sent to input element")
-            time.sleep(3)
-            
-            # Verify upload by checking for filename in UI
-            try:
-                # Extract just the filename from the path for verification
-                filename = os.path.basename(file_path)
-                
-                # Look for the filename text
-                filename_element = driver.find_element(By.XPATH, f"//*[contains(text(), '{filename}')]")
-                print("SUCCESS: Second file appears to have uploaded successfully")
-            except:
-                print("WARNING: Second file may not have uploaded - no confirmation in UI")
-                
-                # Try a more direct approach
-                print("Trying alternative approach...")
-                
-                # Try to directly get all file inputs and use the second one
-                file_inputs = driver.find_elements(By.XPATH, "//input[@type='file']")
-                print(f"Found {len(file_inputs)} file input elements")
-                
-                if len(file_inputs) >= 2:
-                    # Try with the second file input
-                    second_input = file_inputs[1]
-                    
-                    # Make it visible and enabled
-                    driver.execute_script("""
-                        arguments[0].style.display = 'block';
-                        arguments[0].style.visibility = 'visible';
-                        arguments[0].style.opacity = '1';
-                        arguments[0].disabled = false;
-                        arguments[0].setAttribute('class', 'visible');
-                    """, second_input)
-                    time.sleep(2)
-                    
-                    # Send file path
-                    second_input.send_keys(file_path)
-                    print("File path sent using alternative approach")
-                    time.sleep(3)
-                    
-                    # Check if it worked
-                    try:
-                        filename_element = driver.find_element(By.XPATH, f"//*[contains(text(), '{filename}')]")
-                        print("SUCCESS: Second file uploaded with alternative approach")
-                    except:
-                        print("WARNING: Alternative approach also failed")
-                        print("Please manually upload the second file")
-                        input("Press Enter after manually uploading the second file...")
-                else:
-                    print("Not enough file input elements found")
-                    print("Please manually upload the second file")
-                    input("Press Enter after manually uploading the second file...")
+            attach_button = parent_div.find_element(By.CSS_SELECTOR, "button.guide-fu-attach-button")
         except Exception as e:
-            print(f"Error with XPath approach: {e}")
-            
-            # Try a completely different approach - JavaScript execution
-            print("Trying JavaScript approach...")
+            print(f"[WARNING] Could not find attach button by class: {e}")
+            # Fallback to known absolute XPaths
+            id_proof_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/input[1]"
+            address_proof_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/input[1]"
+            button_xpath = id_proof_xpath if "cop_72059460" in parent_div_id else address_proof_xpath
+            attach_button = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, button_xpath))
+            )
+
+        # Scroll and click
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
+        time.sleep(2)
+        try:
+            attach_button.click()
+        except:
             try:
-                # Use JavaScript to find and interact with the file input
-                script = """
-                // Find all file inputs
-                var fileInputs = document.querySelectorAll('input[type="file"]');
-                
-                // Make sure we have at least 2 file inputs
-                if (fileInputs.length >= 2) {
-                    // Get the second file input
-                    var secondInput = fileInputs[1];
-                    
-                    // Make it visible and enabled
-                    secondInput.style.display = 'block';
-                    secondInput.style.visibility = 'visible';
-                    secondInput.style.opacity = '1';
-                    secondInput.disabled = false;
-                    
-                    // Return the element so we can use it
-                    return secondInput;
-                }
-                return null;
-                """
-                
-                # Execute the script
-                file_input = driver.execute_script(script)
-                
-                if file_input:
-                    print("Found file input using JavaScript")
-                    
-                    # Send the file path
-                    file_input.send_keys(file_path)
-                    print("File path sent using JavaScript approach")
-                    time.sleep(3)
-                else:
-                    print("JavaScript approach failed to find file input")
-                    print("Please manually upload the second file")
-                    input("Press Enter after manually uploading the second file...")
-            except Exception as js_error:
-                print(f"JavaScript approach failed: {js_error}")
-                print("Please manually upload the second file")
-                input("Press Enter after manually uploading the second file...")
-    except Exception as e:
-        print(f"Error with second file upload: {e}")
-        print("Please manually upload the second file")
-        input("Press Enter after manually uploading the second file...") 
+                driver.execute_script("arguments[0].click();", attach_button)
+            except:
+                ActionChains(driver).move_to_element(attach_button).click().perform()
 
-
-
-def upload_file(driver, file_path):
-    """
-    Upload file with enhanced input element detection
-    """
-    print("\n--- Second Document FILE UPLOAD ---")
-    try:
-        # Use the exact XPath provided for the Choose File button
-        exact_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"
-        print(f"Using exact XPath for Choose File button: {exact_xpath}")
+        # Short delay to wait for file dialog to open
+        time.sleep(2)
         
-        # Find the button using the exact XPath
+        # Bring browser window to focus
         try:
-            upload_button = driver.find_element(By.XPATH, exact_xpath)
-            print("Found upload button using exact XPath")
-            
-            # Find the associated file input
-            # First, get the parent container that contains both button and input
-            parent_container = upload_button.find_element(By.XPATH, "./ancestor::div[contains(@class, 'guideFieldWidget afFileUpload fileUpload')]")
-            print("Found parent container")
-            
-            # Now find the input element within this container
-            file_input = parent_container.find_element(By.XPATH, ".//input[@type='file']")
-            print("Found file input element")
-            
-            # Get the input element's ID
-            input_id = file_input.get_attribute('id')
-            print(f"Found input element ID: {input_id}")
-            
-            # Make the file input visible and enabled
-            print("Making file input visible and enabled...")
-            driver.execute_script("""
-                arguments[0].style.display = 'block';
-                arguments[0].style.visibility = 'visible';
-                arguments[0].style.opacity = '1';
-                arguments[0].disabled = false;
-                arguments[0].setAttribute('class', 'visible');
-            """, file_input)
-            time.sleep(2)  # Give more time for the element to become interactive
-            
-            # Send the file path
-            print(f"Sending file path: {file_path}")
-            file_input.send_keys(file_path)
-            print("File path sent to input element")
-            time.sleep(3)
-            
-            # Verify upload by checking for filename in UI
-            try:
-                # Extract just the filename from the path for verification
-                filename = os.path.basename(file_path)
-                
-                # Look for the filename text
-                filename_element = driver.find_element(By.XPATH, f"//*[contains(text(), '{filename}')]")
-                print("SUCCESS: File appears to have uploaded successfully")
-            except:
-                print("WARNING: File may not have uploaded - no confirmation in UI")
-                
-                # Try a more direct approach using the ID we found
-                print("Trying alternative approach with ID...")
-                try:
-                    # Try to find the input using its ID
-                    input_by_id = driver.find_element(By.ID, input_id)
-                    print(f"Found input element by ID: {input_id}")
-                    
-                    # Make it visible and enabled
-                    driver.execute_script("""
-                        arguments[0].style.display = 'block';
-                        arguments[0].style.visibility = 'visible';
-                        arguments[0].style.opacity = '1';
-                        arguments[0].disabled = false;
-                        arguments[0].setAttribute('class', 'visible');
-                    """, input_by_id)
-                    time.sleep(2)
-                    
-                    # Send file path
-                    input_by_id.send_keys(file_path)
-                    print("File path sent using ID-based approach")
-                    time.sleep(3)
-                    
-                    # Check if it worked
-                    try:
-                        filename_element = driver.find_element(By.XPATH, f"//*[contains(text(), '{filename}')]")
-                        print("SUCCESS: File uploaded with ID-based approach")
-                    except:
-                        print("WARNING: ID-based approach also failed")
-                        print("Please manually upload the file")
-                        input("Press Enter after manually uploading the file...")
-                except Exception as id_error:
-                    print(f"Error with ID-based approach: {id_error}")
-                    print("Please manually upload the file")
-                    input("Press Enter after manually uploading the file...")
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
         except Exception as e:
-            print(f"Error with XPath approach: {e}")
-            
-            # Try a completely different approach - JavaScript execution
-            print("Trying JavaScript approach...")
+            print(f"[WARNING] Could not focus browser window: {e}")
+
+        # Type file path using pynput
+        keyboard = Controller()
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
+        for char in normalized_path:
             try:
-                # Use JavaScript to find and interact with the file input
-                script = """
-                // Find all file inputs
-                var fileInputs = document.querySelectorAll('input[type="file"]');
-                
-                // Make sure we have at least one file input
-                if (fileInputs.length >= 1) {
-                    // Get the first file input
-                    var input = fileInputs[0];
-                    
-                    // Make it visible and enabled
-                    input.style.display = 'block';
-                    input.style.visibility = 'visible';
-                    input.style.opacity = '1';
-                    input.disabled = false;
-                    
-                    // Return the element so we can use it
-                    return input;
-                }
-                return null;
-                """
-                
-                # Execute the script
-                file_input = driver.execute_script(script)
-                
-                if file_input:
-                    print("Found file input using JavaScript")
-                    
-                    # Send the file path
-                    file_input.send_keys(file_path)
-                    print("File path sent using JavaScript approach")
-                    time.sleep(3)
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
                 else:
-                    print("JavaScript approach failed to find file input")
-                    print("Please manually upload the file")
-                    input("Press Enter after manually uploading the file...")
-            except Exception as js_error:
-                print(f"JavaScript approach failed: {js_error}")
-                print("Please manually upload the file")
-                input("Press Enter after manually uploading the file...")
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
+
+        # Press Enter to submit
+        time.sleep(2)
+        keyboard.press(Key.enter)
+        keyboard.release(Key.enter)
+        time.sleep(2)
+        
+        # Handle success popup
+        try:
+            ok_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
+            )
+            driver.execute_script("arguments[0].click();", ok_button)
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
+        except TimeoutException:
+            print("[INFO] No success dialog found, assuming upload completed")
+        except Exception as e:
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
+
+        # Check uploaded file list
+        try:
+            file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+            if file_list.find_elements(By.TAG_NAME, "li"):
+                print("[AGILE PRO] File upload verified in list")
+                return True
+            else:
+                print("[WARNING] File upload may have failed: no file found in list")
+                return False
+        except Exception as e:
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
+
     except Exception as e:
-        print(f"Error with file upload: {e}")
-        print("Please manually upload the file")
-        input("Press Enter after manually uploading the file...") 
+        print(f"[ERROR] File upload failed for {parent_div_id}: {e}")
+        return False

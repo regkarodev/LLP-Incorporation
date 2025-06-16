@@ -6,169 +6,193 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import send_text, click_element, scroll_into_view, set_date_field
+from function1 import send_text, click_element, scroll_into_view, set_date_field, click_button
 import function1
-
-def normalize_options_dict(options_dict):
-    """Convert string 'True'/'False' to boolean True/False in options_dict."""
-    normalized = {}
-    for k, v in options_dict.items():
-        if isinstance(v, dict):
-            normalized[k] = {opt: (val is True or (isinstance(val, str) and val.lower() == "true")) for opt, val in v.items()}
-        else:
-            normalized[k] = v
-    return normalized
+import platform
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from pynput.keyboard import Controller, Key
 
 
-def upload_proof_of_identity_dynamic(driver, config_data):
+def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
     """
-    Uploads 'Proof of identity' for each partner without DIN based on their subform position.
-
-    Args:
-        driver: Selenium WebDriver instance.
-        config_data (dict): Parsed JSON config with 'partners_without_din' list.
-
-    Returns:
-        None. Prints status logs.
+    Handles file uploads dynamically for partner/nominee identity proofs using index-based dynamic parent div ID
+    and static input XPath for fallback.
     """
-    partners = config_data.get('partners_without_din', [])
+    print(f"[DEBUG] Uploading file for index={i}")
 
-    for idx, partner in enumerate(partners):
-        partner_position = idx + 1  # XPath is 1-based
-        file_path = partner.get("Proof of identity", "").strip()
+    try:
+        # If parent_div is given as XPath string, resolve it
+        if isinstance(parent_div, str):
+            parent_div_xpath = parent_div
+            parent_div = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, parent_div_xpath))
+            )
 
-        print(f"\n=== Partner #{partner_position}: Uploading Proof of Identity ===")
+        print(f"[DEBUG] Found dynamic parent div: {parent_div.get_attribute('id')}")
 
-        if not file_path:
-            print(f"[SKIP] No file path provided for partner #{partner_position}.")
-            continue
-
-        file_path = os.path.abspath(file_path)
-        if not os.path.exists(file_path):
-            print(f"[ERROR] File does not exist: {file_path}")
-            continue
-
+        # Now find the attach button
         try:
-            label_xpath = f"(//label[normalize-space(text())='Proof of identity'])[{partner_position}]"
-            print(f"[DEBUG] Searching label with XPath: {label_xpath}")
-
-            identity_label = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, label_xpath))
-            )
-
-            field_container = identity_label.find_element(
-                By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
-            )
-            print(f"[SUCCESS] Located upload container for partner #{partner_position}")
-
-            file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
-
-            # Make it visible using JavaScript
-            driver.execute_script("""
-                arguments[0].style.display = 'block';
-                arguments[0].style.visibility = 'visible';
-                arguments[0].style.opacity = '1';
-                arguments[0].removeAttribute('disabled');
-                arguments[0].removeAttribute('hidden');
-            """, file_input)
-            time.sleep(1)
-
-            file_input.send_keys(file_path)
-            print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
-
-            # Optional: wait for filename to appear in UI
-            time.sleep(2)
-            try:
-                attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-                WebDriverWait(attached_files_list, 5).until(
-                    EC.text_to_be_present_in_element((By.XPATH, ".//li"), os.path.basename(file_path))
-                )
-                print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
-            except Exception:
-                print(f"[WARNING] UI verification failed for partner #{partner_position}. File may still be uploaded.")
-
-        except TimeoutException as e:
-            print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
-        except NoSuchElementException as e:
-            print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
+            attach_button = parent_div.find_element(By.CSS_SELECTOR, "button.guide-fu-attach-button")
         except Exception as e:
-            print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
+            print(f"[WARNING] Attach button not found via CSS inside parent_div: {e}")
+            fallback_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]/button"  # Keep your full fallback XPath here
+            attach_button = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, fallback_xpath))
+            )
 
-
-def upload_residential_proof_dynamic(driver, config_data):
-    """
-    Uploads 'Residential proof' for each partner without DIN based on their subform position.
-
-    Args:
-        driver: Selenium WebDriver instance.
-        config_data (dict): Parsed JSON config with 'partners_without_din' list.
-
-    Returns:
-        None. Prints status logs.
-    """
-
-    partners = config_data.get('partners_without_din', [])
-
-    for idx, partner in enumerate(partners):
-        partner_position = idx + 1  # XPath is 1-based
-        file_path = partner.get("Residential proof", "").strip()
-
-        print(f"\n=== Partner #{partner_position}: Uploading Residential Proof ===")
-
-        if not file_path:
-            print(f"[SKIP] No file path provided for partner #{partner_position}.")
-            continue
-
-        file_path = os.path.abspath(file_path)
-        if not os.path.exists(file_path):
-            print(f"[ERROR] File does not exist: {file_path}")
-            continue
-
+        # Scroll and click
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
+        time.sleep(2)
         try:
-            label_xpath = f"(//label[normalize-space(text())='Residential proof'])[{partner_position}]"
-            print(f"[DEBUG] Searching label with XPath: {label_xpath}")
-
-            identity_label = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, label_xpath))
-            )
-
-            field_container = identity_label.find_element(
-                By.XPATH, "./ancestor::div[contains(@class, 'guideFieldNode') and contains(@class, 'guideFileUpload')]"
-            )
-            print(f"[SUCCESS] Located upload container for partner #{partner_position}")
-
-            file_input = field_container.find_element(By.XPATH, ".//input[@type='file']")
-
-            # Make it visible using JavaScript
-            driver.execute_script("""
-                arguments[0].style.display = 'block';
-                arguments[0].style.visibility = 'visible';
-                arguments[0].style.opacity = '1';
-                arguments[0].removeAttribute('disabled');
-                arguments[0].removeAttribute('hidden');
-            """, file_input)
-            time.sleep(1)
-
-            file_input.send_keys(file_path)
-            print(f"[SUCCESS] Uploaded: {os.path.basename(file_path)}")
-
-            # Optional: wait for filename to appear in UI
-            time.sleep(2)
+            attach_button.click()
+        except:
             try:
-                attached_files_list = field_container.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-                WebDriverWait(attached_files_list, 5).until(
-                    EC.text_to_be_present_in_element((By.XPATH, ".//li"), os.path.basename(file_path))
-                )
-                print(f"[VERIFIED] File listed in UI for partner #{partner_position}")
-            except Exception:
-                print(f"[WARNING] UI verification failed for partner #{partner_position}. File may still be uploaded.")
+                driver.execute_script("arguments[0].click();", attach_button)
+            except:
+                ActionChains(driver).move_to_element(attach_button).click().perform()
 
-        except TimeoutException as e:
-            print(f"[ERROR] Timeout locating upload field for partner #{partner_position}: {e}")
-        except NoSuchElementException as e:
-            print(f"[ERROR] Element not found for partner #{partner_position}: {e}")
+        time.sleep(2)
+
+        # Type file path via keyboard
+        normalized_path = os.path.normpath(file_path)
+        keyboard = Controller()
+        driver.switch_to.window(driver.current_window_handle)
+
+        print(f"[DEBUG] Typing path: {normalized_path}")
+        for char in normalized_path:
+            keyboard.press(char)
+            keyboard.release(char)
+            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+
+        time.sleep(1)
+        keyboard.press(Key.enter)
+        keyboard.release(Key.enter)
+        time.sleep(1)
+
+        # Success dialog handling
+        try:
+            ok_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
+            )
+            driver.execute_script("arguments[0].click();", ok_button)
+            print("[AGILE PRO] Clicked OK on upload success dialog.")
+        except TimeoutException:
+            print("[INFO] No success dialog found.")
         except Exception as e:
-            print(f"[ERROR] Unexpected error for partner #{partner_position}: {type(e).__name__} - {e}")
+            print(f"[WARNING] Error closing upload dialog: {e}")
+
+        # Upload verification
+        try:
+            file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+            if file_list.find_elements(By.TAG_NAME, "li"):
+                print("[AGILE PRO] File appears in upload list.")
+                return True
+            else:
+                print("[WARNING] No file found in upload list.")
+                return False
+        except Exception as e:
+            print(f"[INFO] Upload list not found: {e}")
+            return True  # assume success if not verifiable
+
+    except Exception as e:
+        print(f"[ERROR] Upload failed for index={i}: {e}")
+        return False
+
+
+
+
+def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5):
+    """
+    Handles file uploads dynamically for partner/nominee identity proofs using index-based dynamic parent div ID
+    and static input XPath for fallback.
+    """
+    print(f"[DEBUG] Uploading file for index={i}")
+
+    try:
+        # Re-fetch parent_div in case DOM has refreshed
+        parent_div = WebDriverWait(driver, timeout + 5).until(
+            EC.presence_of_element_located((By.XPATH, parent_div))
+        )
+        print(f"[DEBUG] Fresh parent_div resolved: {parent_div.get_attribute('id')}")
+
+        # Try to get the attach button reliably
+        try:
+            attach_button = WebDriverWait(parent_div, timeout + 5).until(
+                lambda d: d.find_element(By.XPATH, ".//button[contains(@class, 'guide-fu-attach-button')]")
+            )
+        except Exception as e:
+            print(f"[WARNING] Attach button not found via parent_div: {e}")
+            fallback_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[3]/div/div/div[2]/div[1]/button"
+            attach_button = WebDriverWait(driver, timeout + 5).until(
+                EC.element_to_be_clickable((By.XPATH, fallback_xpath))
+            )
+
+        # Scroll and click the button
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
+        time.sleep(1)
+        try:
+            attach_button.click()
+        except:
+            try:
+                driver.execute_script("arguments[0].click();", attach_button)
+            except:
+                ActionChains(driver).move_to_element(attach_button).click().perform()
+
+        time.sleep(2)
+
+        # Type file path using keyboard
+        normalized_path = os.path.normpath(file_path)
+        keyboard = Controller()
+        driver.switch_to.window(driver.current_window_handle)
+
+        print(f"[DEBUG] Typing path: {normalized_path}")
+        for char in normalized_path:
+            keyboard.press(char)
+            keyboard.release(char)
+            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+
+        time.sleep(1)
+        keyboard.press(Key.enter)
+        keyboard.release(Key.enter)
+        time.sleep(2)
+
+        # Optional success dialog handling
+        try:
+            ok_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'ok-button') or @id='okSuccessModalBtn']"))
+            )
+            driver.execute_script("arguments[0].click();", ok_button)
+            print("[AGILE PRO] Clicked OK on upload success dialog.")
+        except TimeoutException:
+            print("[INFO] No success dialog found.")
+        except Exception as e:
+            print(f"[WARNING] Error closing upload dialog: {e}")
+
+        # Re-fetch parent_div again if needed
+        parent_div = WebDriverWait(driver, timeout + 3).until(
+            EC.presence_of_element_located((By.XPATH, parent_div))
+        )
+
+        # Confirm upload success by checking file item list
+        try:
+            file_list = WebDriverWait(parent_div, timeout + 5).until(
+                lambda d: d.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
+            )
+            if file_list.find_elements(By.TAG_NAME, "li"):
+                print("[AGILE PRO] File appears in upload list.")
+                return True
+            else:
+                print("[WARNING] Upload list found but no file item.")
+                return False
+        except Exception as e:
+            print(f"[INFO] Upload list not found or empty: {e}")
+            return False
+
+    except Exception as e:
+        print(f"[ERROR] Upload failed for index={i}: {e}")
+        return False
+
 
 
 def handle_partners_without_din(driver, config_data):
@@ -180,6 +204,7 @@ def handle_partners_without_din(driver, config_data):
         config_data: Dictionary containing form data
         config_selectors: Dictionary containing CSS selectors
     """
+    time.sleep(2)
     try:
         # Get the number of partners without DIN from config
         num_partners = int(config_data['form_data']['fields'].get('Individuals Not having valid DIN/DPIN', 0))
@@ -489,23 +514,16 @@ def handle_partners_without_din(driver, config_data):
                         verify_pan_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[3]/div/div/div[1]"
                         verify_pan_xpath = f"{verify_pan_xpath_base}/button[@aria-label='Verify PAN']"
 
-                        verify_pan_button = WebDriverWait(driver, 10).until(
-                            EC.element_to_be_clickable((By.XPATH, verify_pan_xpath))
-                        )
-                        driver.execute_script("arguments[0].click();", verify_pan_button)
+                        click_button(driver, verify_pan_xpath, selector_type='xpath')
                         print(f"[SUCCESS] Partner {position}: Clicked Verify PAN button (i={i}).")
                         fields_filled_count += 1
-            except TimeoutException:
-                        print(f"[✗] Partner {position}: Timeout finding Verify PAN button.")
-            except NoSuchElementException:
-                        print(f"[✗] Partner {position}: Could not find Verify PAN button.")
             except Exception as e:
                         print(f"[✗] Partner {position}: Failed to click Verify PAN button: {e}")
                         fields_failed_count += 1
 
 
 
-                    # --- Place of Birth (State) ---
+            # --- Place of Birth (State) ---
             time.sleep(1.5)
             try:
                         birth_state = partner.get('Place of Birth (State)', '').strip()
@@ -533,7 +551,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Place of Birth (District) ---
+            # --- Place of Birth (District) ---
             time.sleep(1.5)
             try:
                         district_value = partner.get('Place of Birth (District)', '').strip()
@@ -568,7 +586,7 @@ def handle_partners_without_din(driver, config_data):
 
                 
 
-                    # --- Whether citizen of India ---
+            # --- Whether citizen of India ---
             time.sleep(1.5)
             try:
                             citizen_data = partner.get('Whether citizen of India', {})
@@ -809,7 +827,7 @@ def handle_partners_without_din(driver, config_data):
                             fields_failed_count += 1
 
 
-                    # --- Permanent Address - Address Line I ---
+            # --- Permanent Address - Address Line I ---
             time.sleep(1.5)
             try:
                             perm_address1 = partner.get('Permanent Address Line I', '').strip()
@@ -887,7 +905,7 @@ def handle_partners_without_din(driver, config_data):
                         fields_failed_count += 1
 
 
-                    # --- Permanent Pin code ---
+            # --- Permanent Pin code ---
             time.sleep(0.5)        
             try:
                             perm_pin = partner.get('Permanent Pin code', '').strip()
@@ -910,6 +928,7 @@ def handle_partners_without_din(driver, config_data):
             except Exception as e:
                                 print(f"[✗] Partner {position}: Failed to enter Permanent Pin code: {e}")
                                 fields_failed_count += 1
+
 
             # --- Area/ Locality ---
             time.sleep(0.5)
@@ -1016,7 +1035,7 @@ def handle_partners_without_din(driver, config_data):
                                 fields_failed_count += 1
 
 
-                        # --- Whether present residential address same as permanent ---
+            # --- Whether present residential address same as permanent ---
             time.sleep(0.5)
             try:
                                 same_address_data = partner.get('Whether present residential address same as permanent', {})
@@ -1151,6 +1170,7 @@ def handle_partners_without_din(driver, config_data):
                         else:
                                 print(f"[INFO] Body Corporate {position}: 'Country' is empty or missing in input data. Skipping.")
 
+
                             # --- Pin code / Zip Code ---
                         try:
                                 pincode1_value = partner.get('Present Pin code', '')
@@ -1194,6 +1214,8 @@ def handle_partners_without_din(driver, config_data):
 
 
                         time.sleep(0.8)
+
+
                         # --- Area/Locality (dropdown) ---
                         time.sleep(1)
                         try:
@@ -1384,8 +1406,7 @@ def handle_partners_without_din(driver, config_data):
                         fields_failed_count += 1
 
 
-                    # (v) Residential Proof
-                        
+                    # (v) Residential Proof    
             try:
                         residential_proof_value = partner.get('Residential Proof', '').strip()
 
@@ -1422,39 +1443,50 @@ def handle_partners_without_din(driver, config_data):
             residential_proof_xpath = f"(//input[@aria-label='Residential Proof No.'])[{position}]"
             driver.find_element(By.XPATH, residential_proof_xpath).send_keys(partner.get('Residential Proof No.', ''))
 
-                    # Upload proof documents
+            
+            # Upload proof documents
             try:
-                            # Identity Proof Upload
-                            if partner.get('Proof of identity'):
-                                try:
-                                    # Call the upload function for identity proof
-                                    upload_proof_of_identity_dynamic(driver, config_data)
-                                    print(f"[SUCCESS] Uploaded identity proof file for partner {position}")
-                                    fields_filled_count += 1
-                                except Exception as e:
-                                    print(f"[ERROR] Failed to upload identity proof file: {e}")
-                                    fields_failed_count += 1
+                # Identity Proof Upload
+                parent_div_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[2]/div/div/div[2]/div[1]"
 
-                            # Residential Proof Upload
-                            if partner.get('Residential proof'):
-                                try:
-                                    # Call the upload function for residential proof
-                                    upload_residential_proof_dynamic(driver, config_data)
-                                    print(f"[SUCCESS] Uploaded residential proof file for partner {position}")
-                                    fields_filled_count += 1
-                                except Exception as e:
-                                    print(f"[ERROR] Failed to upload residential proof file: {e}")
-                                    fields_failed_count += 1
+                if partner.get('Proof of identity'):
+                    file_path = partner.get('Proof of identity')
+                    success = handle_dynamic_identity_upload(driver, parent_div_xpath, file_path, i)
+                    if success:
+                        print(f" {i} document uploaded successfully.")
+                    else:
+                        print(f" {i} document upload failed.")
+                
+                click_element(
+                driver,
+                css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+                )
+
+                # Residential Proof Upload
+                parent_div_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[15]/div/div/div/div[1]/div/div[3]/div/div/div[2]"
+
+                if partner.get('Residential proof'):
+                        file_path = partner.get('Residential proof')
+                        success = handle_dynamic_residency_upload(driver, parent_div_xpath, file_path, i)
+                        if success:
+                            print(f" {i} document uploaded successfully.")
+                        else:
+                            print(f" {i} document upload failed.")
+
+                click_element(
+                driver,
+                css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+                )
+                
             except Exception as e:
-                            print(f"[ERROR] Failed to handle file uploads: {e}")
-                            fields_failed_count += 2
+                print(f"[ERROR] Failed to handle file uploads: {e}")
+                fields_failed_count += 2
 
-
-                    # --- Contribution Details ---
+            # --- Contribution Details ---
             print(f"[INFO] Partner {position}: Processing Contribution Details...")
 
-                    # --- Form of contribution ---
-            time.sleep(0.5)
+            # --- Form of contribution ---
+            time.sleep(1)
             try:
                         form_of_contribution = partner.get('Form of contribution', '').strip()
                         if form_of_contribution:
@@ -1518,7 +1550,7 @@ def handle_partners_without_din(driver, config_data):
                         fields_failed_count += 1
 
 
-                    # --- Number of LLP(s) in which he/ she is a partner ---
+            # --- Number of LLP(s) in which he/ she is a partner ---
             time.sleep(0.5)
             try:
                         num_llps = partner.get('Number of LLPs', '').strip()
@@ -1545,7 +1577,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Number of company(s) in which he/ she is a director ---
+            # --- Number of company(s) in which he/ she is a director ---
             time.sleep(0.5)
             try:
                         num_companies = partner.get('Number of companies', '').strip()

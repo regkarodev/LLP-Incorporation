@@ -6,10 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from function1 import scroll_into_view, send_text, click_element
+from function1 import scroll_into_view, send_text, click_element, click_button
 from selenium.webdriver.common.action_chains import ActionChains
 import json
-
+from pynput.keyboard import Controller, Key
 
 def validate_file_paths(file_paths):
     """Validate that all file paths exist."""
@@ -17,336 +17,93 @@ def validate_file_paths(file_paths):
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
-def upload_nominee_resolution_proofs_form3c(driver, config, max_wait=10):
-    """
-    Uploads 'Copy of resolution' files for entities in 'bodies_corporate_with_din' section in Form 3 (C).
-    Uses stable selectors to handle dynamic IDs and verifies uploads.
-    """
-    entities = config.get('bodies_corporate_with_din', [])
-    file_paths = [entity.get("Copy of resolution", "").strip() for entity in entities]
-    file_paths = [path for path in file_paths if path]  # Filter out empty paths
 
-    if not file_paths:
-        print("[WARNING] No valid file paths provided in config for Copy of resolution in Form 3 (C).")
-        return
+def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
+    """
+    Handles file uploads dynamically for partner/nominee identity proofs using index-based dynamic parent div ID
+    and static input XPath for fallback.
+    """
+    print(f"[DEBUG] Uploading file for index={i}")
 
     try:
-        # Validate file paths
-        validate_file_paths(file_paths)
-
-        # Find all file input fields with uniquename="BodyCorporate6c"
-        file_inputs = driver.find_elements(By.CSS_SELECTOR, 'input[uniquename="BodyCorporate6c"][type="file"]')
-        print(f"[INFO] Found {len(file_inputs)} 'Copy of resolution' file input fields in Form 3 (C).")
-
-        if not file_inputs:
-            raise Exception("No Copy of resolution file inputs found in Form 3 (C).")
-
-        # Check if enough files are provided
-        if len(file_paths) < len(file_inputs):
-            print(f"[WARNING] {len(file_paths)} files provided, but {len(file_inputs)} fields found. Using available files.")
-
-        # Upload files to the detected fields
-        for i, (file_input, file_path) in enumerate(zip(file_inputs[:len(file_paths)], file_paths)):
-            file_path = os.path.abspath(file_path)
-            try:
-                # Ensure the file input is interactable
-                driver.execute_script("""
-                    arguments[0].style.display = 'block';
-                    arguments[0].style.visibility = 'visible';
-                    arguments[0].style.opacity = 1;
-                    arguments[0].removeAttribute('disabled');
-                    arguments[0].removeAttribute('hidden');
-                """, file_input)
-
-                # Scroll to the element to ensure visibility
-                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", file_input)
-                time.sleep(0.5)  # Brief pause for stability
-
-                # Upload the file
-                file_input.send_keys(file_path)
-                print(f"[SUCCESS] Uploaded file to field {i+1}: {os.path.basename(file_path)}")
-
-                # Verify the upload by checking the file list
-                try:
-                    container = file_input.find_element(By.XPATH, "./ancestor::div[contains(@class, 'fileUpload')]")
-                    file_list = container.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
-                    WebDriverWait(driver, max_wait).until(
-                        EC.text_to_be_present_in_element(
-                            (By.CSS_SELECTOR, "ul.guide-fu-fileItemList li"),
-                            os.path.basename(file_path)
-                        )
-                    )
-                    print(f"[VERIFIED] File appears in UI list for field {i+1}")
-                except TimeoutException:
-                    print(f"[WARNING] File may not have appeared in UI list for field {i+1}")
-                except NoSuchElementException:
-                    print(f"[WARNING] File list not found for field {i+1}")
-
-                # Check for validation errors
-                try:
-                    error = container.find_element(By.CSS_SELECTOR, ".guideFieldError")
-                    if error.is_displayed() and "This Field is a required field." in error.text:
-                        print(f"[ERROR] Validation error in field {i+1}: {error.text}")
-                except NoSuchElementException:
-                    pass  # No error found, which is good
-
-            except NoSuchElementException:
-                print(f"[ERROR] File input not interactable for field {i+1}")
-            except Exception as e:
-                print(f"[ERROR] Failed to upload file to field {i+1}: {type(e).__name__} - {e}")
-
-        if len(file_paths) > len(file_inputs):
-            print(f"[WARNING] {len(file_paths)} files provided, but only {len(file_inputs)} fields found. Excess files ignored.")
-
-        print(f"[INFO] Completed uploading to {min(len(file_inputs), len(file_paths))} fields.")
-
-    except FileNotFoundError as e:
-        print(f"[ERROR] {e}")
-    except Exception as e:
-        print(f"[FATAL] Unexpected error: {type(e).__name__} - {e}")
-
-def upload_proof_of_identity_bodies_corporate(driver, config_data):
-    """
-    For each body corporate with DIN:
-    - Upload the 'Proof of Identity' file using fixed XPath pattern.
-
-    Args:
-        driver: Selenium WebDriver instance.
-        config_data: dict with 'bodies_corporate_with_din' list.
-    """
-    partners = config_data.get('bodies_corporate_with_din', [])
-    uploads_successful = 0
-    uploads_failed = 0
-
-    for i, partner in enumerate(partners, start=1):
-        print(f"\n=== Partner {i}: Uploading Copy of resolution ===")
-
-        time.sleep(0.5)
-        file_path = partner.get("Copy of resolution", "").strip()
-        if not file_path:
-            print(f"[SKIP] Partner {i}: No file path provided.")
-            continue
-
-        file_path = os.path.abspath(file_path)
-        if not os.path.exists(file_path):
-            print(f"[ERROR] Partner {i}: File does not exist: {file_path}")
-            uploads_failed += 1
-            continue
-
-        try:
-            # First, scroll to the section containing the upload button
-            section_xpath = f"(//div[contains(@class, 'guideFieldNode')]//label[contains(text(), 'Copy of resolution')])[{i}]"
-            try:
-                section = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, section_xpath))
-                )
-                # Scroll section into view
-                driver.execute_script("arguments[0].scrollIntoView(true);", section)
-                time.sleep(1)
-            except:
-                print(f"[DEBUG] Could not find section for Partner {i}, continuing with button search")
-
-            # Try multiple XPath patterns to find the file input
-            file_input_xpath_patterns = [
-                # Original XPath
-                f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[18]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]/button",
-                # Alternative XPath using aria-label
-                f"(//button[contains(@aria-label, 'Copy of resolution')])[{i}]",
-                # Alternative XPath using class and text
-                f"(//div[contains(@class, 'guideFieldNode')]//button[contains(text(), 'Upload')])[{i}]",
-                # Alternative XPath using parent structure
-                f"(//div[contains(@class, 'guideFieldNode')]//label[contains(text(), 'Copy of resolution')]/following::button)[{i}]"
-            ]
-
-            file_input = None
-            for xpath in file_input_xpath_patterns:
-                try:
-                    # Wait for element to be present
-                    file_input = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.XPATH, xpath))
-                    )
-                    
-                    # Force the element to be visible using multiple methods
-                    driver.execute_script("""
-                        var element = arguments[0];
-                        // Remove any overlays or hidden parents
-                        var parent = element.parentElement;
-                        while (parent) {
-                            if (parent.style.overflow === 'hidden') {
-                                parent.style.overflow = 'visible';
-                            }
-                            if (parent.style.position === 'fixed') {
-                                parent.style.position = 'relative';
-                            }
-                            parent = parent.parentElement;
-                        }
-                        
-                        // Make the element itself visible
-                        element.style.display = 'block';
-                        element.style.visibility = 'visible';
-                        element.style.opacity = '1';
-                        element.style.position = 'relative';
-                        element.style.zIndex = '9999';
-                        element.removeAttribute('disabled');
-                        element.removeAttribute('hidden');
-                        
-                        // Ensure it's not covered by other elements
-                        element.style.pointerEvents = 'auto';
-                        element.style.cursor = 'pointer';
-                    """, file_input)
-                    
-                    # Scroll the element into view with multiple attempts
-                    for _ in range(3):  # Try scrolling 3 times
-                        try:
-                            # Scroll to element
-                            driver.execute_script("arguments[0].scrollIntoView({block: 'center', behavior: 'smooth'});", file_input)
-                            time.sleep(0.5)
-                            
-                            # Additional scroll adjustment
-                            driver.execute_script("window.scrollBy(0, -100);")
-                            time.sleep(0.5)
-                            
-                            # Check if element is clickable
-                            if file_input.is_enabled() and file_input.is_displayed():
-                                print(f"[DEBUG] Found and made visible file input using XPath: {xpath}")
-                                break
-                        except:
-                            continue
-                    
-                    # Final visibility check
-                    is_visible = driver.execute_script("""
-                        var elem = arguments[0];
-                        var rect = elem.getBoundingClientRect();
-                        var style = window.getComputedStyle(elem);
-                        return (
-                            rect.top >= 0 &&
-                            rect.left >= 0 &&
-                            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                            rect.right <= (window.innerWidth || document.documentElement.clientWidth) &&
-                            style.display !== 'none' &&
-                            style.visibility !== 'hidden' &&
-                            style.opacity !== '0'
-                        );
-                    """, file_input)
-                    
-                    if is_visible:
-                        break
-                    else:
-                        print(f"[DEBUG] Element found but not visible, trying next XPath")
-                        continue
-                        
-                except Exception as e:
-                    print(f"[DEBUG] Error with XPath {xpath}: {str(e)}")
-                    continue
-
-            if not file_input:
-                print(f"[✗] Partner {i}: Could not find file input using any XPath pattern")
-                uploads_failed += 1
-                continue
-
-            # Additional wait to ensure element is fully visible
-            time.sleep(1)
-
-            # Try multiple click methods
-            click_success = False
-            click_methods = [
-                # Method 1: JavaScript click
-                lambda: driver.execute_script("arguments[0].click();", file_input),
-                # Method 2: Actions click
-                lambda: ActionChains(driver).move_to_element(file_input).click().perform(),
-                # Method 3: Direct click
-                lambda: file_input.click()
-            ]
-
-            for click_method in click_methods:
-                try:
-                    click_method()
-                    time.sleep(1)
-                    # Verify click worked by checking for file input
-                    try:
-                        WebDriverWait(driver, 3).until(
-                            EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
-                        )
-                        click_success = True
-                        break
-                    except:
-                        continue
-                except:
-                    continue
-
-            if not click_success:
-                print(f"[✗] Partner {i}: Could not click the upload button")
-                uploads_failed += 1
-                continue
-
-            # Find and prepare the file input element
-            file_input_element = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+        # If parent_div is given as XPath string, resolve it
+        if isinstance(parent_div, str):
+            parent_div_xpath = parent_div
+            parent_div = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, parent_div_xpath))
             )
 
-            # Make sure the file input is visible and enabled
-            driver.execute_script("""
-                var element = arguments[0];
-                element.style.display = 'block';
-                element.style.visibility = 'visible';
-                element.style.opacity = '1';
-                element.removeAttribute('disabled');
-                element.removeAttribute('hidden');
-                element.style.position = 'relative';
-                element.style.zIndex = '9999';
-            """, file_input_element)
+        print(f"[DEBUG] Found dynamic parent div: {parent_div.get_attribute('id')}")
 
-            # Send the file path
-            file_input_element.send_keys(file_path)
-            time.sleep(2)  # Wait for upload to complete
-
-            # Verify upload success
-            try:
-                success_message = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'success') or contains(@class, 'uploaded')]"))
-                )
-                print(f"[✓] Partner {i}: Uploaded file: {os.path.basename(file_path)}")
-                uploads_successful += 1
-            except:
-                print(f"[WARNING] Partner {i}: File uploaded but success message not found")
-                uploads_successful += 1
-
-        except TimeoutException:
-            print(f"[✗] Partner {i}: Timeout locating file input.")
-            uploads_failed += 1
-        except NoSuchElementException:
-            print(f"[✗] Partner {i}: File input element not found.")
-            uploads_failed += 1
+        # Now find the attach button
+        try:
+            attach_button = parent_div.find_element(By.CSS_SELECTOR, "button.guide-fu-attach-button")
         except Exception as e:
-            print(f"[✗] Partner {i}: Unexpected error: {e}")
-            uploads_failed += 1
+            print(f"[WARNING] Attach button not found via CSS inside parent_div: {e}")
+            fallback_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[18]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]/button"  # Keep your full fallback XPath here
+            attach_button = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, fallback_xpath))
+            )
 
-    print(f"\nUpload Summary: {uploads_successful} successful, {uploads_failed} failed.")
+        # Scroll and click
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
+        time.sleep(2)
+        try:
+            attach_button.click()
+        except:
+            try:
+                driver.execute_script("arguments[0].click();", attach_button)
+            except:
+                ActionChains(driver).move_to_element(attach_button).click().perform()
 
-def fill_section_field(driver, section_label, field_label, value):
-    """
-    Fill a field within a specific section by section and field label.
-    """
+        time.sleep(2)
 
-    try:
-        # Find the section by its label (case-insensitive, partial match)
-        section_xpath = f"//div[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{section_label.lower()}')]"
-        section = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, section_xpath))
-        )
-        # Find the field within the section
-        field_xpath = f".//label[contains(text(), '{field_label}')]/following::input[1]"
-        field = section.find_element(By.XPATH, field_xpath)
-        # Remove readonly/disabled and set value
-        driver.execute_script("arguments[0].removeAttribute('readonly'); arguments[0].removeAttribute('disabled');", field)
-        field.clear()
-        field.send_keys(value)
-        driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true })); arguments[0].dispatchEvent(new Event('change', { bubbles: true })); arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", field)
-        print(f"[✓] Filled '{field_label}' in '{section_label}' with '{value}'")
-        return True
+        # Type file path via keyboard
+        normalized_path = os.path.normpath(file_path)
+        keyboard = Controller()
+        driver.switch_to.window(driver.current_window_handle)
+
+        print(f"[DEBUG] Typing path: {normalized_path}")
+        for char in normalized_path:
+            keyboard.press(char)
+            keyboard.release(char)
+            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+
+        time.sleep(1)
+        keyboard.press(Key.enter)
+        keyboard.release(Key.enter)
+        time.sleep(1)
+
+        # Success dialog handling
+        try:
+            ok_button = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
+            )
+            driver.execute_script("arguments[0].click();", ok_button)
+            print("[AGILE PRO] Clicked OK on upload success dialog.")
+        except TimeoutException:
+            print("[INFO] No success dialog found.")
+        except Exception as e:
+            print(f"[WARNING] Error closing upload dialog: {e}")
+
+        # Upload verification
+        try:
+            file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
+            if file_list.find_elements(By.TAG_NAME, "li"):
+                print("[AGILE PRO] File appears in upload list.")
+                return True
+            else:
+                print("[WARNING] No file found in upload list.")
+                return False
+        except Exception as e:
+            print(f"[INFO] Upload list not found: {e}")
+            return True  # assume success if not verifiable
+
     except Exception as e:
-        print(f"[✗] Error filling '{field_label}' in '{section_label}': {e}")
+        print(f"[ERROR] Upload failed for index={i}: {e}")
         return False
+
+
 
 def handle_bodies_corporate_with_din(driver, config_data):
     """
@@ -1009,7 +766,7 @@ def handle_bodies_corporate_with_din(driver, config_data):
                         driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", fax_input)
                         driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", fax_input)
 
-                        # Optionally simulate typing via send_text
+                        # Optionally simulate typing via sexecend_text
                         send_text(driver, xpath=fax_xpath, keys=fax_value)
 
                         print(f"[✓] Body Corporate {position}: Entered Fax: {fax_value}")
@@ -1546,20 +1303,26 @@ def handle_bodies_corporate_with_din(driver, config_data):
             print(f"\n[INFO] Finished filling details for body corporate {position}. Fields Filled: {fields_filled_count}, Fields Failed: {fields_failed_count}")
 
 
-                # Load configuration
+            # Copy of resolution
             try:
-                with open("config_data.json", "r") as f:
-                    config_data = json.load(f)
-            except FileNotFoundError:
-                print("[ERROR] config_data.json not found.")
-                return
-            except json.JSONDecodeError:
-                print("[ERROR] Invalid JSON in config_data.json.")
-                return
-            upload_nominee_resolution_proofs_form3c(driver, config_data)
+                # SRN
+                parent_div_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[18]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]"
 
-            # Add a small delay between bodies corporate
-            time.sleep(1)
+                if body.get('Copy of resolution'):
+                    file_path = body.get('Copy of resolution')
+                    success = handle_dynamic_identity_upload(driver, parent_div_xpath, file_path, i)
+                    if success:
+                        print(f" {i} document uploaded successfully.")
+                    else:
+                        print(f" {i} document upload failed.")
+                
+                click_element(
+                driver,
+                css_selector="#guideContainer-rootPanel-modal_container_131700874-guidebutton___widget"
+                )
+            except Exception as e:
+                            print(f"[ERROR] Failed to handle file uploads: {e}")
+                            fields_failed_count += 2
 
         print("[SUCCESS] Completed processing all bodies corporate with DIN/DPIN")
 

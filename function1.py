@@ -337,3 +337,71 @@ def upload_proof_of_identity(driver, file_path, partner_position=1):
     except Exception as e:
         print(f"[ERROR] An unexpected error occurred during 'Proof of identity' file upload: {type(e).__name__} - {e}")
         return False
+
+def click_button(driver, selector, selector_type='css', wait_time=10, max_retries=3):
+    """
+    Robust button clicking function with multiple fallback mechanisms.
+    
+    Args:
+        driver: WebDriver instance
+        selector: The selector to find the button
+        selector_type: Type of selector ('css', 'xpath', 'id')
+        wait_time: Maximum time to wait for button
+        max_retries: Maximum number of retry attempts
+    """
+    for attempt in range(max_retries):
+        try:
+            # Wait for button to be present
+            wait = WebDriverWait(driver, wait_time)
+            
+            # Convert selector type to By
+            by_type = {
+                'css': By.CSS_SELECTOR,
+                'xpath': By.XPATH,
+                'id': By.ID
+            }.get(selector_type, By.CSS_SELECTOR)
+            
+            # Wait for button to be clickable
+            button = wait.until(EC.element_to_be_clickable((by_type, selector)))
+            
+            # Scroll button into view
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+            time.sleep(0.5)  # Wait for scroll to complete
+            
+            # Try multiple click methods
+            try:
+                # Method 1: Regular click
+                button.click()
+                print(f"[✓] Successfully clicked button using regular click: {selector}")
+                return True
+            except Exception as click_error:
+                print(f"[DEBUG] Regular click failed, trying JavaScript click: {str(click_error)}")
+                
+                try:
+                    # Method 2: JavaScript click
+                    driver.execute_script("arguments[0].click();", button)
+                    print(f"[✓] Successfully clicked button using JavaScript: {selector}")
+                    return True
+                except Exception as js_error:
+                    print(f"[DEBUG] JavaScript click failed, trying Actions: {str(js_error)}")
+                    
+                    try:
+                        # Method 3: Actions click
+                        actions = ActionChains(driver)
+                        actions.move_to_element(button).pause(0.5).click().perform()
+                        print(f"[✓] Successfully clicked button using Actions: {selector}")
+                        return True
+                    except Exception as actions_error:
+                        print(f"[DEBUG] Actions click failed: {str(actions_error)}")
+                        raise
+                        
+        except TimeoutException:
+            if attempt < max_retries - 1:
+                print(f"[INFO] Attempt {attempt + 1} failed, retrying...")
+                time.sleep(2)  # Wait before retry
+            else:
+                print(f"[✗] Failed to click button after {max_retries} attempts: {selector}")
+                raise
+        except Exception as e:
+            print(f"[✗] Error clicking button: {str(e)}")
+            raise
