@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+geckodriver.log
+automation.log
+
+# Local development settings
+.env
+.env.local
+config_data.json
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Project specific
+screenshots/
+firefox_profile/
+static/
+extra code/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+testing.ipynb
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Cache directories
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database
+*.db
+*.sqlite3
+
+# Credentials and secrets
+*.pem
+*.key
+*.cert

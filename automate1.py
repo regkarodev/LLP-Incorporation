@@ -25,15 +25,6 @@ def setup_driver(webdriver_instance):
     driver = webdriver_instance
     return driver
 
-def log_terminal_output(message, level="info"):
-    """Helper function for logging"""
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] [{level.upper()}] {message}")
-
-def log_message(message):
-    """Simple logging function"""
-    print(f"[AUTOMATE1] {message}")
-
 def check_driver_session():
     """Check if the driver session is still active"""
     global driver
@@ -639,54 +630,25 @@ def run_llp_form_sequence(webdriver_instance=None):
 
 
         # Proceed to Form 9
-        try:
-            # Wait for the button to be present and clickable
-            wait = WebDriverWait(driver, 15)
-            button = wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '#guideContainer-rootPanel-panel-panel_1448122692-panel_copy_copy_copy-mca_button___widget'))
-            )
-            
-            # Ensure button is in view
-            driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", button)
-            time.sleep(2)
-            
-            # Try multiple click methods
-            try:
-                # Method 1: Regular click
-                button.click()
-                print("[✓] Proceed to Form 9 button clicked using regular click")
-            except Exception as click_error:
-                print(f"[DEBUG] Regular click failed, trying JavaScript click: {str(click_error)}")
-                try:
-                    # Method 2: JavaScript click
-                    driver.execute_script("arguments[0].click();", button)
-                    print("[✓] Proceed to Form 9 button clicked using JavaScript")
-                except Exception as js_error:
-                    print(f"[DEBUG] JavaScript click failed, trying Actions: {str(js_error)}")
-                    try:
-                        # Method 3: Actions click
-                        actions = ActionChains(driver)
-                        actions.move_to_element(button).pause(0.5).click().perform()
-                        print("[✓] Proceed to Form 9 button clicked using Actions")
-                    except Exception as actions_error:
-                        print(f"[DEBUG] Actions click failed: {str(actions_error)}")
-                        # Method 4: Force enable and click
-                        try:
-                            driver.execute_script("""
-                                arguments[0].disabled = false;
-                                arguments[0].style.pointerEvents = 'auto';
-                                arguments[0].style.opacity = '1';
-                                arguments[0].click();
-                            """, button)
-                            print("[✓] Proceed to Form 9 button clicked using force enable")
-                        except Exception as force_error:
-                            print(f"[✗] All click methods failed: {str(force_error)}")
-                            raise
-        except Exception as e:
-            print(f"[✗] Failed to click Proceed to Form 9 button: {e}")
-            print("Please try clicking the button manually")
+        click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel_1448122692-panel_copy_copy_copy-mca_button___widget')
+        
+        # --- Form 9 ---
+        time.sleep(1)
+        click_button(driver, '#guideContainer-rootPanel-modal_container-panel-guidebutton___widget')
 
-            
+        time.sleep(1)
+        click_button(driver, '#guideContainer-rootPanel-panel-mca_button___widget')
+
+        time.sleep(1)
+        click_button(driver, '#guideContainer-rootPanel-panel_1029056258-mca_button_814968004___widget')
+
+
+
+
+
+
+
+
     except Exception as e:
         print(f"[AUTOMATE1] Error in LLP form sequence: {e}")
         traceback.print_exc()
