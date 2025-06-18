@@ -1,144 +1,114 @@
-# LLP Incorporation API
+# LLP Incorporation Automation
 
-This API provides endpoints for handling LLP incorporation form data and file uploads. It wraps the existing Selenium-based automation in a user-friendly REST API interface.
+This project automates the process of LLP (Limited Liability Partnership) incorporation by handling form filling, document uploads, and data processing through browser automation.
 
 ## Features
 
-- Process bodies corporate data and fill the LLP incorporation form
-- Upload nominee resolution proofs
-- Swagger/OpenAPI documentation
-- Error handling and validation
+- Automated form filling for LLP incorporation
+- Document upload handling
+- Partner and corporate body data processing
+- Browser automation with Firefox
+- API server for handling automation requests
+- Comprehensive logging and error handling
+
+## Project Structure
+
+```
+├── api_main.py              # Main API server implementation
+├── automation_worker.py     # Core automation logic
+├── automate1.py            # Form filling automation
+├── function1.py            # Utility functions
+├── main.py                 # Main execution script
+├── config_data.json        # Configuration data
+├── requirements.txt        # Project dependencies
+└── README.md              # This file
+```
 
 ## Prerequisites
 
-- Python 3.7+
-- Chrome browser installed
-- ChromeDriver compatible with your Chrome version
+- Python 3.x
+- Firefox browser
+- GeckoDriver (automatically installed by webdriver-manager)
 
 ## Installation
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd <repository-directory>
+cd LLP_incorporation
 ```
 
-2. Create a virtual environment (optional but recommended):
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
+## Configuration
+
+1. Update `config_data.json` with your specific data:
+   - Form field values
+   - File paths
+   - URLs
+   - Other configuration parameters
+
 ## Usage
 
-1. Start the API server:
+### Running the API Server
+
 ```bash
-python api.py
+python api_main.py
 ```
 
-2. Access the Swagger documentation:
-```
-http://localhost:5000/api/docs
-```
+The API server will start and listen for automation requests.
 
-## API Endpoints
+### Running Automation Directly
 
-### 1. Process Bodies Corporate Data
-
-**Endpoint:** `POST /api/bodies-corporate`
-
-Processes the provided bodies corporate data and fills the LLP incorporation form.
-
-**Request Body:**
-```json
-{
-  "form_data": {
-    "fields": {
-      "Body corporates and their nominees Having valid DIN/DPIN": 1
-    }
-  },
-  "bodies_corporate_with_din": [
-    {
-      "Type of body corporate": "Company",
-      "CIN/FCRN": "L12345KA2020PTC123456",
-      "PAN": "ABCDE1234F",
-      "Name of the body corporate": "Example Corp",
-      "Address Line I": "123 Main St",
-      "Address Line II": "Suite 100",
-      "Country": "India",
-      "Pin code": "560001",
-      "Area/ Locality": "Bangalore",
-      "Jurisdiction of Police Station": "Central",
-      "Phone (with STD/ISD code)": "+91-80-12345678",
-      "Mobile No": "9876543210",
-      "Fax": "+91-80-12345679",
-      "Email ID": "contact@example.com",
-      "Form of contribution": "Cash",
-      "Monetary value of contribution (in INR) (in figures)": "100000",
-      "Number of LLP(s) in which entity is a partner": "0",
-      "Number of company(s) in which entity is a director": "0",
-      "DIN/DPIN": "1234567890",
-      "Name": "John Doe",
-      "Whether resident of India": {
-        "Yes": true
-      },
-      "Designation and Authority in body corporate": "Director",
-      "Copy of resolution": "/path/to/resolution.pdf"
-    }
-  ]
-}
+```bash
+python main.py
 ```
 
-### 2. Upload Nominee Resolution Proofs
+This will execute the automation process directly without going through the API server.
 
-**Endpoint:** `POST /api/upload-nominee-resolution`
+## Components
 
-Uploads nominee resolution proofs for bodies corporate.
+### API Server (api_main.py)
+- Handles automation requests
+- Manages browser sessions
+- Provides status updates
+- Implements error handling
 
-**Request Body:**
-```json
-{
-  "bodies_corporate_with_din": [
-    {
-      "Copy of resolution": "/path/to/resolution.pdf"
-    }
-  ]
-}
-```
+### Automation Worker (automation_worker.py)
+- Core automation logic
+- Browser session management
+- Profile handling
+- Error recovery
 
-## Response Format
+### Form Automation (automate1.py)
+- Form filling sequence
+- Document upload handling
+- Partner data processing
+- Corporate body handling
 
-All endpoints return responses in the following format:
-
-**Success Response (200):**
-```json
-{
-  "status": "success",
-  "message": "Successfully processed bodies corporate data"
-}
-```
-
-**Error Response (400/500):**
-```json
-{
-  "status": "error",
-  "message": "Error message here"
-}
-```
+### Utility Functions (function1.py)
+- Common automation functions
+- Element interaction helpers
+- Wait and retry mechanisms
 
 ## Error Handling
 
-The API includes comprehensive error handling for:
-- Invalid input data
-- Missing required fields
-- File not found errors
-- Selenium automation errors
-- Server errors
+The system implements comprehensive error handling:
+- Browser session recovery
+- Form submission retries
+- Document upload validation
+- API request validation
+
+## Logging
+
+The system uses Python's logging module for:
+- Automation progress tracking
+- Error reporting
+- Debug information
+- Session management
 
 ## Contributing
 
@@ -150,4 +120,8 @@ The API includes comprehensive error handling for:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+[Specify your license here]
+
+## Support
+
+For support, please [specify contact information or support channels] 

@@ -119,37 +119,37 @@ class AutomationWorker:
             logger.info("Starting main workflow...")
             # Pass the existing driver to main.py
             main.perform_login(driver=self.driver, close_after_login=False)
-            
+
             # After login, run the automation sequence
             if self.driver:
                 # Initialize automate1 with our driver
-                automate1.setup_driver(self.driver)
+            automate1.setup_driver(self.driver)
                 success = automate1.run_llp_form_sequence(self.driver)
-                
+            
                 if success:
-                    logger.info("Automation completed successfully")
-                    return {
-                        "status": "success",
-                        "message": "Automation completed successfully",
-                        "details": {
-                            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
-                        }
+                logger.info("Automation completed successfully")
+                return {
+                    "status": "success",
+                    "message": "Automation completed successfully",
+                    "details": {
+                        "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
                     }
-                else:
-                    logger.error("Automation failed during form sequence execution")
-                    return {
-                        "status": "error",
-                        "message": "Automation failed during form sequence execution",
-                        "details": {
-                            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
-                        }
-                    }
+                }
             else:
+                logger.error("Automation failed during form sequence execution")
                 return {
                     "status": "error",
-                    "message": "Browser session lost after login",
-                    "details": {}
+                    "message": "Automation failed during form sequence execution",
+                    "details": {
+                        "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
+                    }
                 }
+            else:
+            return {
+                "status": "error",
+                    "message": "Browser session lost after login",
+                "details": {}
+            }
 
         except Exception as e:
             logger.error(f"Unexpected error during automation: {str(e)}")
