@@ -80,15 +80,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-2">
-                            <h2 class="font-semibold text-blue-800 mb-2">2 Particulars of the proposed or approved name
-                </h2>
-                            <label class="block font-medium text-gray-700 mb-1">(a) <span
-                                    class="text-red-500">*</span>Proposed or approved name</label>
-                            <input type="text"
-                                class="mt-1 block rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 px-3 py-2 w-[260px]"
-                                placeholder="Enter Here" name="proposedName" required>
-                        </div>
                         <div id="partAError" class="text-red-600 text-sm mt-2 hidden">Please fill all required fields.
                         </div>
                         <div class="flex justify-end mt-4">
@@ -310,19 +301,6 @@
                                                     class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block font-medium text-gray-700 mb-1">*Name of the office of
-                                            Registrar in whose jurisdiction the proposed LLP is to be registered</label>
-                                        <select
-                                            class="block rounded-lg border border-blue-200 shadow-sm px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out bg-white text-gray-700 w-[600px]"
-                                            name="registrarOffice" required>
-                                            <option value="" disabled selected>Select here</option>
-                                            <option
-                                                value="Registrar of Companies, National Capital Territory of Delhi and Haryana">
-                                                Registrar of Companies, National Capital Territory of Delhi and Haryana
-                                            </option>
-                                        </select>
                                     </div>
                                 </form>
                 </div>
@@ -602,7 +580,7 @@
                                         <div>
                                             <label class="block font-medium text-gray-700 mb-1">First Name</label>
                                             <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="firstName" />
-                                        </div>
+            </div>
                                         <div>
                                             <label class="block font-medium text-gray-700 mb-1">Middle Name</label>
                                             <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="middleName" />
@@ -932,18 +910,17 @@
                                     </div>
                                 </form>
                             </template>
-                        </div>
-                    </div>
+        </div>
+    </div>
 
 
 
-                    <!-- (C) Particulars of bodies corporate and their nominees as designated partners having DIN/DPIN -->
+                    <!-- (C) Body corporates and their nominees Having valid DIN/DPIN -->
                     <div class="mb-2">
                         <button type="button"
                             class="w-full flex justify-between items-center px-4 py-2 bg-blue-200 rounded-t focus:outline-none"
                             onclick="toggleAccordion('subAccordionCIndiv', 'subArrowCIndiv')">
-                            <span class="font-medium text-blue-900">(C) Body corporates and their nominees
-                                Having valid DIN/DPIN</span>
+                            <span class="font-medium text-blue-900">(C) Body corporates and their nominees Having valid DIN/DPIN</span>
                             <svg id="subArrowCIndiv" class="w-4 h-4 text-blue-700 transition-transform duration-200"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -951,287 +928,193 @@
                             </svg>
                         </button>
                         <div id="subAccordionCIndiv" class="px-4 py-3 bg-blue-50 hidden rounded-b">
-                            <!-- Content for (C) -->
-                            <form id="bodyCorporateWithDinForm" class="space-y-8">
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(i) Particulars of body corporate
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Type of body
-                                            corporate</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="typeOfBodyCorporate" required>
-                                            <option value="">Select here</option>
-                                            <option value="Company">Company</option>
-                                            <option value="LLP">LLP</option>
-                                            <option value="Foreign Company">Foreign Company</option>
-                                            <option value="Foreign LLP">Foreign LLP</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Corporate Identity
-                                            Number(CIN) or Foreign Company Registration Number(FCRN) or Limited
-                                            Liability Partnership Identification Number(LLPIN) or Foreign Limited
-                                            Liability Partnership Identification number(FLLPIN) or any other
-                                            registration number</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="corporateIdNumber" placeholder="Enter here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">PAN</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="pan" placeholder="Enter here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Name of body
-                                            corporate</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nameOfBodyCorporate" placeholder="Enter here" required />
-                                    </div>
-                                </div>
-                                <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Registered office
-                                    address or Principal place of business in India or Principal place of business
-                                    outside India</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="addressLine1Corp" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="addressLine2Corp" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Country</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="countryCorp" required>
-                                            <option value="">Select Here</option>
-                                            <option value="India">India</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="pincodeCorp" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="areaLocalityCorp" required>
-                                            <option value="">Select here</option>
-                                            <option value="Area1">Area1</option>
-                                            <option value="Area2">Area2</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">City</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="cityCorp" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">District</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="districtCorp" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">State / UT</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="stateUTCorp" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police
-                                            Station</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="jurisdictionPoliceCorp" placeholder="Enter Here" required />
-                                    </div>
-                                </div>
-                                <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Contact
-                                    details</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD
-                                            code)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="phoneCorp" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="mobileNoCorp" value="+91" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Fax</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="faxCorp" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Email ID</label>
-                                        <input type="email"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="emailCorp" placeholder="Enter Here" />
-                                    </div>
-                                </div>
-                                <label class="block text-blue-700 font-semibold mb-2 mt-4">In case of company seeking
-                                    conversion</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of shares
-                                            held</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="numSharesHeldNoDin" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Paid up value of shares
-                                                held (in INR)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="paidUpValueSharesNoDin" readonly />
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(ii) Description of contribution
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Form of contribution</label>
-                                        <select id="formOfContributionCorp" name="formOfContributionCorp"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Conversion">Conversion</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Other than Cash">Other than Cash</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">If 'Other than cash'
-                                            selected, please specify</label>
-                                        <input type="text" id="otherThanCashSpecifyCorp" name="otherThanCashSpecifyCorp"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                                            placeholder="Enter here" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Monetary value of
-                                            contribution (in INR) (in figures)</label>
-                                        <input type="text" id="contributionInrCorp" name="contributionInrCorp"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Monetary value of
-                                            contribution (in words)</label>
-                                        <input type="text" id="contributionWordsCorp" name="contributionWordsCorp"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                                            placeholder="Enter here" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of LLP(s) in which
-                                            entity is a partner</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="numLlpsCorp" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of company(s) in
-                                            which entity is a director</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="numCompaniesCorp" />
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(iii) Particulars of the person /
-                                    designated partner signing on behalf of the body corporate as nominee</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Designated partner
-                                            Identification number (DIN/DPIN)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeDinDpin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Name</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeName" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Whether resident of
-                                            India</label>
-                                        <div class="flex items-center space-x-4 mt-2">
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeResidentIndia" value="yes" />
-                                                <span class="ml-2">Yes</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeResidentIndia" value="no" />
-                                                <span class="ml-2">No</span>
-                                            </label>
+                            <div id="bodyCorporateWithDinContainer"></div>
+                            <template id="bodyCorporateWithDinFormTemplate">
+                                <form class="space-y-8 bg-blue-50 p-4 rounded-lg mb-4">
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(i) Particulars of body corporate</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Type of body corporate</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="typeOfBodyCorporate" required>
+                                                <option value="">Select here</option>
+                                                <option value="Company">Company</option>
+                                                <option value="LLP">LLP</option>
+                                                <option value="Foreign Company">Foreign Company</option>
+                                                <option value="Foreign LLP">Foreign LLP</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Corporate Identity Number(CIN) or Foreign Company Registration Number(FCRN) or Limited Liability Partnership Identification Number(LLPIN) or Foreign Limited Liability Partnership Identification number(FLLPIN) or any other registration number</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="corporateIdNumber" placeholder="Enter here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">PAN</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="pan" placeholder="Enter here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Name of body corporate</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nameOfBodyCorporate" placeholder="Enter here" required />
                                         </div>
                                     </div>
-                                    <div class="col-span-2">
-                                        <label class="block font-medium text-gray-700 mb-1">Designation and Authority in
-                                            body corporate</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="designationAuthorityCorp" placeholder="Enter here" />
+                                    <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Registered office address or Principal place of business in India or Principal place of business outside India</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="addressLine1Corp" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="addressLine2Corp" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Country</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="countryCorp" required>
+                                                <option value="">Select Here</option>
+                                                <option value="India">India</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="pincodeCorp" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="areaLocalityCorp" required>
+                                                <option value="">Select here</option>
+                                                <option value="Area1">Area1</option>
+                                                <option value="Area2">Area2</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">City</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="cityCorp" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">District</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="districtCorp" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">State / UT</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="stateUTCorp" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police Station</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="jurisdictionPoliceCorp" placeholder="Enter Here" required />
+                                        </div>
                                     </div>
-                                    <div class="col-span-3">
-                                        <label class="block font-medium text-gray-700 mb-1">Copy of resolution on the
-                                            letterhead of such body corporate to become a partner in the proposed LLP
-                                            and a copy of resolution/ authorization of such body corporate also on a
-                                            letterhead mentioning the name and address of an individual nominated to act
-                                            as nominee/designated partner on its behalf</label>
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex-1 flex items-center space-x-4">
-                                                <input type="file" class="hidden" id="resolutionCorpInput"
-                                                    name="resolutionCorp"
-                                                    onchange="handleResolutionCorpUpload('resolutionCorpInput', 'resolutionCorpName', 'resolutionCorpCut')">
-                                                <label for="resolutionCorpInput"
-                                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
-                                                    file</label>
-                                                <span id="resolutionCorpName"
-                                                    class="ml-2 text-gray-700 truncate max-w-xs"></span>
-                                                <button id="resolutionCorpCut" type="button"
-                                                    onclick="removeFile('resolutionCorpInput', 'resolutionCorpName', 'resolutionCorpCut')"
-                                                    class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                    <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Contact details</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD code)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="phoneCorp" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="mobileNoCorp" value="+91" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Fax</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="faxCorp" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Email ID</label>
+                                            <input type="email" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="emailCorp" placeholder="Enter Here" />
+                                        </div>
+                                    </div>
+                                    <label class="block text-blue-700 font-semibold mb-2 mt-4">In case of company seeking conversion</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of shares held</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="numSharesHeldCorp" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Paid up value of shares held (in INR)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="paidUpValueSharesCorp" placeholder="Enter here" readonly />
+                                        </div>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(ii) Description of contribution</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Form of contribution</label>
+                                            <select name="formOfContributionCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Conversion">Conversion</option>
+                                                <option value="Cash">Cash</option>
+                                                <option value="Other than Cash">Other than Cash</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">If 'Other than cash' selected, please specify</label>
+                                            <input type="text" name="otherThanCashSpecifyCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Monetary value of contribution (in INR) (in figures)</label>
+                                            <input type="text" name="contributionInrCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Monetary value of contribution (in words)</label>
+                                            <input type="text" name="contributionWordsCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of LLP(s) in which entity is a partner</label>
+                                            <input type="text" name="numLlpsCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of company(s) in which entity is a director</label>
+                                            <input type="text" name="numCompaniesCorp" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(iii) Particulars of the person / designated partner signing on behalf of the body corporate as nominee</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Designated partner Identification number (DIN/DPIN)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeDinDpin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Name</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeName" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Whether resident of India</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeResidentIndia" value="yes" />
+                                                    <span class="ml-2">Yes</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeResidentIndia" value="no" />
+                                                    <span class="ml-2">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="block font-medium text-gray-700 mb-1">Designation and Authority in body corporate</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="designationAuthorityCorp" placeholder="Enter here" />
+                                        </div>
+                                        <div class="col-span-3">
+                                            <label class="block font-medium text-gray-700 mb-1">Copy of resolution on the letterhead of such body corporate to become a partner in the proposed LLP and a copy of resolution/ authorization of such body corporate also on a letterhead mentioning the name and address of an individual nominated to act as nominee/designated partner on its behalf</label>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex-1 flex items-center space-x-4">
+                                                    <input type="file" class="hidden" name="resolutionCorp" />
+                                                    <label class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose file</label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </template>
                         </div>
                     </div>
 
 
-                    <!-- (D) Particulars of bodies corporate and their nominees as designated partners not having DIN/DPIN -->
+                    <!-- (D) Body corporates and their nominee not having valid DIN/DPIN -->
                     <div class="mb-2">
                         <button type="button"
                             class="w-full flex justify-between items-center px-4 py-2 bg-blue-200 rounded-t focus:outline-none"
                             onclick="toggleAccordion('subAccordionDIndiv', 'subArrowDIndiv')">
-                            <span class="font-medium text-blue-900">(D) Body corporates and their nominee not
-                                having valid DIN/DPIN</span>
+                            <span class="font-medium text-blue-900">(D) Body corporates and their nominee not having valid DIN/DPIN</span>
                             <svg id="subArrowDIndiv" class="w-4 h-4 text-blue-700 transition-transform duration-200"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1239,526 +1122,365 @@
                             </svg>
                         </button>
                         <div id="subAccordionDIndiv" class="px-4 py-3 bg-blue-50 hidden rounded-b">
-                            <!-- Content for (D) -->
-                            <form id="bodyCorporateWithoutDinForm" class="space-y-8">
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(i) Particulars of body corporate
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Type of body
-                                            corporate</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="typeOfBodyCorporateNoDin" required>
-                                            <option value="">Select here</option>
-                                            <option value="Company">Company</option>
-                                            <option value="LLP">LLP</option>
-                                            <option value="Foreign Company">Foreign Company</option>
-                                            <option value="Foreign LLP">Foreign LLP</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Corporate Identity
-                                            Number(CIN) or Foreign Company Registration Number(FCRN) or Limited
-                                            Liability Partnership Identification Number(LLPIN) or Foreign Limited
-                                            Liability Partnership Identification number(FLLPIN) or any other
-                                            registration number</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="corporateIdNumberNoDin" placeholder="Enter here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">PAN</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="panNoDin" placeholder="Enter here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Name of body
-                                            corporate</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nameOfBodyCorporateNoDin" placeholder="Enter here" required />
-                                    </div>
-                                </div>
-                                <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Registered office
-                                    address or Principal place of business in India or Principal place of business
-                                    outside India</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="addressLine1CorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="addressLine2CorpNoDin" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Country</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="countryCorpNoDin" required>
-                                            <option value="">Select here</option>
-                                            <option value="India">India</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="pincodeCorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
-                                        <select
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="areaLocalityCorpNoDin" required>
-                                            <option value="">Select here</option>
-                                            <option value="Area1">Area1</option>
-                                            <option value="Area2">Area2</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">City</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="cityCorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">District</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="districtCorpNoDin" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">State / UT</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="stateUTCorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police
-                                            Station</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="jurisdictionPoliceCorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                </div>
-                                <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Contact
-                                    details</label>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD
-                                            code)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="phoneCorpNoDin" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="mobileNoCorpNoDin" value="+91" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Fax</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="faxCorpNoDin" placeholder="Enter Here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">*Email ID</label>
-                                        <input type="email"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="emailCorpNoDin" placeholder="Enter Here" required />
-                                    </div>
-                                </div>
-                                <label class="block text-blue-700 font-semibold mb-2 mt-4">In case of company seeking
-                                    conversion</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of shares
-                                            held</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="numSharesHeldCorpNoDin" placeholder="Enter here" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Paid up value of shares held
-                                            (in INR)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="paidUpValueSharesCorpNoDin" placeholder="Enter here" readonly />
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(ii) Description of contribution
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Form of contribution</label>
-                                        <select id="formOfContributionCorpNoDin" name="formOfContributionCorpNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Conversion">Conversion</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Other than Cash">Other than Cash</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">If 'Other than cash'
-                                            selected, please specify</label>
-                                        <input type="text" id="otherThanCashSpecifyCorpNoDin"
-                                            name="otherThanCashSpecifyCorpNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                                            placeholder="Enter here" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Monetary value of
-                                            contribution (in INR) (in figures)</label>
-                                        <input type="text" id="contributionInrCorpNoDin" name="contributionInrCorpNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Monetary value of
-                                            contribution (in words)</label>
-                                        <input type="text" id="contributionWordsCorpNoDin"
-                                            name="contributionWordsCorpNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                                            placeholder="Enter here" readonly />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of LLP(s) in which
-                                            entity is a partner</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="numLlpsCorpNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Number of company(s) in
-                                            which entity is a director</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="numCompaniesCorpNoDin" />
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-semibold text-blue-700 mb-2">(iii) Particulars of the person
-                                    signing on behalf of the body corporate as nominee</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">First Name</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeFirstNameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Middle Name</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeMiddleNameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Surname</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeSurnameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Father's First Name</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeFatherFirstNameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Father's Middle Name</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeFatherMiddleNameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Father's Surname</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeFatherSurnameNoDin" placeholder="Enter here" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Gender</label>
-                                        <select name="nomineeGenderNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Date of Birth</label>
-                                        <input type="date"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            name="nomineeDobNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Nationality</label>
-                                        <select name="nomineeNationalityNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Indian">Indian</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Whether resident in
-                                            India</label>
-                                        <div class="flex items-center space-x-4 mt-2">
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeResidentIndiaNoDin" value="yes" />
-                                                <span class="ml-2">Yes</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeResidentIndiaNoDin" value="no" />
-                                                <span class="ml-2">No</span>
-                                            </label>
+                            <div id="bodyCorporateWithoutDinContainer"></div>
+                            <template id="bodyCorporateWithoutDinFormTemplate">
+                                <form class="space-y-8 bg-blue-50 p-4 rounded-lg mb-4">
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(i) Particulars of body corporate</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Type of body corporate</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="typeOfBodyCorporateNoDin" required>
+                                                <option value="">Select here</option>
+                                                <option value="Company">Company</option>
+                                                <option value="LLP">LLP</option>
+                                                <option value="Foreign Company">Foreign Company</option>
+                                                <option value="Foreign LLP">Foreign LLP</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Corporate Identity Number(CIN) or Foreign Company Registration Number(FCRN) or Limited Liability Partnership Identification Number(LLPIN) or Foreign Limited Liability Partnership Identification number(FLLPIN) or any other registration number</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="corporateIdNumberNoDin" placeholder="Enter here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">PAN</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="panNoDin" placeholder="Enter here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Name of body corporate</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nameOfBodyCorporateNoDin" placeholder="Enter here" required />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Income-tax PAN/Passport
-                                            number</label>
-                                        <div class="flex items-center space-x-4 mt-2">
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeIdTypeNoDin" value="PAN" />
-                                                <span class="ml-2">PAN</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeIdTypeNoDin" value="Passport" />
-                                                <span class="ml-2">Passport number</span>
-                                            </label>
+                                    <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Registered office address or Principal place of business in India or Principal place of business outside India</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="addressLine1CorpNoDin" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="addressLine2CorpNoDin" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Country</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="countryCorpNoDin" required>
+                                                <option value="">Select here</option>
+                                                <option value="India">India</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="pincodeCorpNoDin" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
+                                            <select class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="areaLocalityCorpNoDin" required>
+                                                <option value="">Select here</option>
+                                                <option value="Area1">Area1</option>
+                                                <option value="Area2">Area2</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">City</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="cityCorpNoDin" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">District</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="districtCorpNoDin" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">State / UT</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="stateUTCorpNoDin" placeholder="Enter Here" required />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police Station</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="jurisdictionPoliceCorpNoDin" placeholder="Enter Here" required />
                                         </div>
                                     </div>
-                                    <div class="flex items-end">
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeIdDetailsNoDin" />
-                                        <button type="button"
-                                            class="ml-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded">Verify
-                                            PAN</button>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Place of Birth
-                                            (State)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeBirthStateNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Place of Birth
-                                            (District)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeBirthDistrictNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Whether citizen of
-                                            India</label>
-                                        <div class="flex items-center space-x-4 mt-2">
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeCitizenIndiaNoDin" value="yes" />
-                                                <span class="ml-2">Yes</span>
-                                            </label>
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" class="form-radio text-blue-600"
-                                                    name="nomineeCitizenIndiaNoDin" value="no" />
-                                                <span class="ml-2">No</span>
-                                            </label>
+                                    <label class="block font-semibold text-md text-gray-800 mb-2 mt-4">Contact details</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD code)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="phoneCorpNoDin" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="mobileNoCorpNoDin" value="+91" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Fax</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="faxCorpNoDin" placeholder="Enter Here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Email ID</label>
+                                            <input type="email" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="emailCorpNoDin" placeholder="Enter Here" />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Occupation type</label>
-                                        <select name="nomineeOccupationTypeNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Professional">Professional</option>
-                                            <option value="Business">Business</option>
-                                            <option value="Service">Service</option>
-                                            <option value="Student">Student</option>
-                                            <option value="Others">Others</option>
-                                        </select>
+                                    <label class="block text-blue-700 font-semibold mb-2 mt-4">In case of company seeking conversion</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of shares held</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="numSharesHeldCorpNoDin" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Paid up value of shares held (in INR)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="paidUpValueSharesCorpNoDin" placeholder="Enter here" readonly />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Description of
-                                            others</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeDescOthersNoDin" />
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(ii) Description of contribution</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Form of contribution</label>
+                                            <select name="formOfContributionCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Conversion">Conversion</option>
+                                                <option value="Cash">Cash</option>
+                                                <option value="Other than Cash">Other than Cash</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">If 'Other than cash' selected, please specify</label>
+                                            <input type="text" name="otherThanCashSpecifyCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Monetary value of contribution (in INR) (in figures)</label>
+                                            <input type="text" name="contributionInrCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Monetary value of contribution (in words)</label>
+                                            <input type="text" name="contributionWordsCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of LLP(s) in which entity is a partner</label>
+                                            <input type="text" name="numLlpsCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Number of company(s) in which entity is a director</label>
+                                            <input type="text" name="numCompaniesCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Educational
-                                            qualification</label>
-                                        <select name="nomineeEducationNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select Here</option>
-                                            <option value="Graduate">Graduate</option>
-                                            <option value="Post Graduate">Post Graduate</option>
-                                            <option value="Doctorate">Doctorate</option>
-                                            <option value="Other">Other</option>
-                                        </select>
+                                    <h3 class="text-lg font-semibold text-blue-700 mb-2">(iii) Particulars of the person signing on behalf of the body corporate as nominee</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">First Name</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeFirstNameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Middle Name</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeMiddleNameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Surname</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeSurnameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Father's First Name</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeFatherFirstNameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Father's Middle Name</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeFatherMiddleNameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Father's Surname</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeFatherSurnameNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Gender</label>
+                                            <select name="nomineeGenderNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Date of Birth</label>
+                                            <input type="date" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeDobNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Nationality</label>
+                                            <select name="nomineeNationalityNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Indian">Indian</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Whether resident in India</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeResidentIndiaNoDin" value="yes" />
+                                                    <span class="ml-2">Yes</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeResidentIndiaNoDin" value="no" />
+                                                    <span class="ml-2">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Income-tax PAN/Passport number</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeIdTypeNoDin" value="PAN" />
+                                                    <span class="ml-2">PAN</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeIdTypeNoDin" value="Passport" />
+                                                    <span class="ml-2">Passport number</span>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-end mt-2">
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeIdDetailsNoDin" />
+                                                <button type="button" class="ml-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded">Verify PAN</button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Whether citizen of India</label>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeCitizenIndiaNoDin" value="yes" />
+                                                    <span class="ml-2">Yes</span>
+                                                </label>
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" class="form-radio text-blue-600" name="nomineeCitizenIndiaNoDin" value="no" />
+                                                    <span class="ml-2">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (State)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeBirthStateNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (District)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeBirthDistrictNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Occupation type</label>
+                                            <select name="nomineeOccupationTypeNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Professional">Professional</option>
+                                                <option value="Business">Business</option>
+                                                <option value="Service">Service</option>
+                                                <option value="Student">Student</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Description of others</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeDescOthersNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Educational qualification</label>
+                                            <select name="nomineeEducationNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select Here</option>
+                                                <option value="Graduate">Graduate</option>
+                                                <option value="Post Graduate">Post Graduate</option>
+                                                <option value="Doctorate">Doctorate</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">If 'Others' selected, please specify</label>
+                                            <input type="text" name="nomineeOthersSpecifyNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" placeholder="Enter here" readonly />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" value="+91" name="nomineeMobileNoNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Email ID</label>
+                                            <input type="email" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeEmailNoDin" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">If 'Others' selected, please
-                                            specify</label>
-                                        <input type="text" name="nomineeOthersSpecifyNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                                            placeholder="Enter here" readonly />
+                                    <h3 class="text-md font-semibold text-blue-700 mt-4 mb-2">Permanent address</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeAddressLine1NoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeAddressLine2NoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Country</label>
+                                            <select name="nomineeCountryNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="India">India</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineePincodeNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
+                                            <select name="nomineeAreaLocalityNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Area1">Area1</option>
+                                                <option value="Area2">Area2</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">City</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeCityNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">District</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeDistrictNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">State / UT</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeStateUTNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police Station</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineeJurisdictionPoliceNoDin" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD code)</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter here" name="nomineePhoneNoDin" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Mobile No.</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            value="+91" name="nomineeMobileNoNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Email ID</label>
-                                        <input type="email"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeEmailNoDin" />
-                                    </div>
-                                </div>
-                                <h3 class="text-md font-semibold text-blue-700 mt-4 mb-2">Permanent address</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeAddressLine1NoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeAddressLine2NoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Country</label>
-                                        <select name="nomineeCountryNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="India">India</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineePincodeNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
-                                        <select name="nomineeAreaLocalityNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Area1">Area1</option>
-                                            <option value="Area2">Area2</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">City</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeCityNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">District</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeDistrictNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">State / UT</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeStateUTNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police
-                                            Station</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeJurisdictionPoliceNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD
-                                            code)</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineePhoneNoDin" />
-                                    </div>
-                                </div>
-                                <div class="mt-8">
-                                    <label class="block font-semibold text-lg text-gray-800 mb-2">(iv) Whether present
-                                        residential address same as permanent residential address</label>
+                                    <h3 class="text-md font-semibold text-blue-700 mt-4 mb-2">(iv) Whether present residential address same as permanent residential address</h3>
                                     <div class="flex items-center space-x-6 mb-4">
                                         <label class="inline-flex items-center">
-                                            <input type="radio" class="form-radio text-blue-600"
-                                                name="nomineeSameAsPermanentNoDin" value="yes" checked />
+                                            <input type="radio" class="form-radio text-blue-600" name="nomineeSameAsPermanentNoDin" value="yes" checked onchange="toggleNomineePresentAddressSectionNoDin(this)" />
                                             <span class="ml-2">Yes</span>
                                         </label>
                                         <label class="inline-flex items-center">
-                                            <input type="radio" class="form-radio text-blue-600"
-                                                name="nomineeSameAsPermanentNoDin" value="no" />
+                                            <input type="radio" class="form-radio text-blue-600" name="nomineeSameAsPermanentNoDin" value="no" onchange="toggleNomineePresentAddressSectionNoDin(this)" />
                                             <span class="ml-2">No</span>
                                         </label>
                                     </div>
-                                    <div id="nomineePresentAddressSectionNoDin"
-                                        class="bg-blue-50 p-4 rounded-lg mb-6 hidden">
-                                        <label class="block font-semibold text-md text-gray-800 mb-2">Present
-                                            address</label>
+                                    <!-- Present address section: always visible, fields toggle readonly -->
+                                    <div class="nomineePresentAddressSectionNoDin">
+                                        <div class="font-semibold text-md text-gray-800 mb-2">Present address</div>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Address Line
-                                                    I</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentAddressLine1NoDin" />
+                                                <label class="block font-medium text-gray-700 mb-1">Address Line I</label>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentAddressLine1CorpNoDin" readonly />
                                             </div>
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Address Line
-                                                    II</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentAddressLine2NoDin" />
+                                                <label class="block font-medium text-gray-700 mb-1">Address Line II</label>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentAddressLine2CorpNoDin" readonly />
                                             </div>
                                             <div>
                                                 <label class="block font-medium text-gray-700 mb-1">Country</label>
-                                                <select name="nomineePresentCountryNoDin"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                                    <option value="">Select here</option>
-                                                    <option value="India">India</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100" value="India" readonly name="presentCountryCorpNoDin" />
                                             </div>
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Pin code / Zip
-                                                    Code</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentPincodeNoDin" />
+                                                <label class="block font-medium text-gray-700 mb-1">Pin code / Zip Code</label>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentPincodeCorpNoDin" readonly />
                                             </div>
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Area/
-                                                    Locality</label>
-                                                <select name="nomineePresentAreaLocalityNoDin"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <label class="block font-medium text-gray-700 mb-1">Area/ Locality</label>
+                                                <select name="presentAreaLocalityCorpNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" disabled>
                                                     <option value="">Select here</option>
                                                     <option value="Area1">Area1</option>
                                                     <option value="Area2">Area2</option>
@@ -1766,43 +1488,30 @@
                                             </div>
                                             <div>
                                                 <label class="block font-medium text-gray-700 mb-1">City</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentCityNoDin" />
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentCityCorpNoDin" readonly />
                                             </div>
                                             <div>
                                                 <label class="block font-medium text-gray-700 mb-1">District</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentDistrictNoDin" />
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentDistrictCorpNoDin" readonly />
                                             </div>
                                             <div>
                                                 <label class="block font-medium text-gray-700 mb-1">State / UT</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentStateUTNoDin" />
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentStateUTCorpNoDin" readonly />
                                             </div>
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Jurisdiction of
-                                                    Police Station</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here"
-                                                    name="nomineePresentJurisdictionPoliceNoDin" />
+                                                <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police Station</label>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentJurisdictionPoliceCorpNoDin" readonly />
                                             </div>
                                             <div>
-                                                <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD
-                                                    code)</label>
-                                                <input type="text"
-                                                    class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                                    placeholder="Enter here" name="nomineePresentPhoneNoDin" />
+                                                <label class="block font-medium text-gray-700 mb-1">Phone (with STD/ISD code)</label>
+                                                <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" placeholder="Enter here" name="presentPhoneCorpNoDin" readonly />
                                             </div>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                             <div>
-                                                <label class="block font-medium text-blue-700 mb-1">Duration of stay at
-                                                    present address</label>
+                                                <label class="block font-medium text-blue-700 mb-1">Duration of stay at present address</label>
                                                 <div class="flex space-x-2">
-                                                    <select name="nomineePresentStayYearsNoDin"
-                                                        class="rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    <select name="presentStayYearsCorpNoDin" class="w-1/2 rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" disabled>
                                                         <option value="">Years</option>
                                                         <option value="1">1</option>
                                                         <option value="2">2</option>
@@ -1815,8 +1524,7 @@
                                                         <option value="9">9</option>
                                                         <option value="10+">10+</option>
                                                     </select>
-                                                    <select name="nomineePresentStayMonthsNoDin"
-                                                        class="rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                    <select name="presentStayMonthsCorpNoDin" class="w-1/2 rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500 present-address-field" disabled>
                                                         <option value="">Months</option>
                                                         <option value="0">0</option>
                                                         <option value="1">1</option>
@@ -1835,111 +1543,68 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">(v) Identity Proof</label>
-                                        <select name="nomineeIdentityProofTypeNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Aadhaar">Aadhaar</option>
-                                            <option value="Passport">Passport</option>
-                                            <option value="Voter ID">Voter ID</option>
-                                            <option value="Other">Other</option>
-                                        </select>
+                                    <h3 class="text-md font-semibold text-blue-700 mt-4 mb-2">(v) Identity Proof</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Identity Proof</label>
+                                            <select name="nomineeIdentityProofNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Aadhaar">Aadhaar</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Residential Proof</label>
+                                            <select name="nomineeResidentialProofNoDin" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                                <option value="">Select here</option>
+                                                <option value="Electricity Bill">Electricity Bill</option>
+                                                <option value="Water Bill">Water Bill</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Identity Proof No.</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeIdentityProofNoNoDin" placeholder="Enter here" />
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-gray-700 mb-1">Residential Proof No.</label>
+                                            <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" name="nomineeResidentialProofNoNoDin" placeholder="Enter here" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Residential Proof</label>
-                                        <select name="nomineeResidentialProofTypeNoDin"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Select here</option>
-                                            <option value="Electricity Bill">Electricity Bill</option>
-                                            <option value="Telephone Bill">Telephone Bill</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Identity Proof No.</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeIdentityProofNoNoDin" />
-                                    </div>
-                                    <div>
-                                        <label class="block font-medium text-gray-700 mb-1">Residential Proof
-                                            No.</label>
-                                        <input type="text"
-                                            class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="Enter here" name="nomineeResidentialProofNoNoDin" />
-                                    </div>
-                                </div>
-                                <div class="mt-8">
-                                    <label class="block text-blue-700 font-semibold mb-2">Submit a copy of the proof of
-                                        identity and proof of address</label>
+                                    <label class="block text-blue-700 font-semibold mb-2">Submit a copy of the proof of identity and proof of address</label>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Proof of
-                                                identity</label>
+                                            <label class="block font-medium text-gray-700 mb-1">Proof of identity</label>
                                             <div class="flex items-center justify-between">
                                                 <div class="flex-1 flex items-center space-x-4">
-                                                    <input type="file" class="hidden" id="proofIdentityCorpNoDinInput"
-                                                        name="proofIdentityCorpNoDin"
-                                                        onchange="handleProofCorpNoDinUpload('proofIdentityCorpNoDinInput', 'proofIdentityCorpNoDinName', 'proofIdentityCorpNoDinCut')">
-                                                    <label for="proofIdentityCorpNoDinInput"
-                                                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
-                                                        file</label>
-                                                    <span id="proofIdentityCorpNoDinName"
-                                                        class="ml-2 text-gray-700 truncate max-w-xs"></span>
-                                                    <button id="proofIdentityCorpNoDinCut" type="button"
-                                                        onclick="removeFile('proofIdentityCorpNoDinInput', 'proofIdentityCorpNoDinName', 'proofIdentityCorpNoDinCut')"
-                                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                                    <input type="file" class="hidden" name="nomineeProofIdentityNoDin" />
+                                                    <label class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose file</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Residential
-                                                proof</label>
+                                            <label class="block font-medium text-gray-700 mb-1">Residential proof</label>
                                             <div class="flex items-center justify-between">
                                                 <div class="flex-1 flex items-center space-x-4">
-                                                    <input type="file" class="hidden"
-                                                        id="residentialProofCorpNoDinInput"
-                                                        name="residentialProofCorpNoDin"
-                                                        onchange="handleProofCorpNoDinUpload('residentialProofCorpNoDinInput', 'residentialProofCorpNoDinName', 'residentialProofCorpNoDinCut')">
-                                                    <label for="residentialProofCorpNoDinInput"
-                                                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
-                                                        file</label>
-                                                    <span id="residentialProofCorpNoDinName"
-                                                        class="ml-2 text-gray-700 truncate max-w-xs"></span>
-                                                    <button id="residentialProofCorpNoDinCut" type="button"
-                                                        onclick="removeFile('residentialProofCorpNoDinInput', 'residentialProofCorpNoDinName', 'residentialProofCorpNoDinCut')"
-                                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                                    <input type="file" class="hidden" name="nomineeResidentialProofNoDin" />
+                                                    <label class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose file</label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-span-3">
-                                    <label class="block font-medium text-gray-700 mb-1">Copy of resolution on the
-                                        letterhead of such body corporate to become a partner in the proposed LLP and a
-                                        copy of resolution/ authorization of such body corporate also on a letterhead
-                                        mentioning the name and address of an individual nominated to act as
-                                        nominee/designated partner on its behalf</label>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex-1 flex items-center space-x-4">
-                                            <input type="file" class="hidden" id="resolutionCorpNoDinInput"
-                                                name="resolutionCorpNoDin"
-                                                onchange="handleResolutionCorpNoDinUpload('resolutionCorpNoDinInput', 'resolutionCorpNoDinName', 'resolutionCorpNoDinCut')">
-                                            <label for="resolutionCorpNoDinInput"
-                                                class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
-                                                file</label>
-                                            <span id="resolutionCorpNoDinName"
-                                                class="ml-2 text-gray-700 truncate max-w-xs"></span>
-                                            <button id="resolutionCorpNoDinCut" type="button"
-                                                onclick="removeFile('resolutionCorpNoDinInput', 'resolutionCorpNoDinName', 'resolutionCorpNoDinCut')"
-                                                class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                    <div class="mt-4">
+                                        <label class="block font-medium text-gray-800 mb-2">Copy of resolution on the letterhead of such body corporate to become a partner in the proposed LLP and a copy of resolution/ authorization of such body corporate also on a letterhead mentioning the name and address of an individual nominated to act as nominee/designated partner on its behalf</label>
+                                        <div class="flex items-center space-x-4">
+                                            <input type="file" class="hidden" name="resolutionCorpNoDin" id="resolutionCorpNoDinInput" onchange="displayFileNameForResolutionNoDin(this, 'resolutionCorpNoDinName', 'resolutionCorpNoDinCut', true)">
+                                            <label for="resolutionCorpNoDinInput" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition choose-file-label">Choose file</label>
+                                            <span class="ml-2 text-gray-700 truncate max-w-xs" id="resolutionCorpNoDinName"></span>
+                                            <button type="button" class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden" id="resolutionCorpNoDinCut" onclick="removeFileForResolutionNoDin(this, 'resolutionCorpNoDinName', 'resolutionCorpNoDinCut', 'resolutionCorpNoDinInput')">&times;</button>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </template>
                         </div>
                         <div class="flex justify-end mt-4">
                             <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -1983,6 +1648,357 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- PAN/TAN Information Accordion -->
+            <div class="w-full mb-4 my-8">
+                <div class="border border-gray-300 rounded-lg shadow">
+                    <button type="button"
+                        class="w-full flex justify-between items-center px-4 py-3 bg-blue-100 rounded-t-lg focus:outline-none"
+                        onclick="toggleAccordion('panTanAccordion', 'panTanArrow')">
+                        <span class="font-semibold text-lg text-blue-900">9. PAN/ TAN Information</span>
+                        <svg id="panTanArrow" class="w-5 h-5 text-blue-700 transition-transform duration-200"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div id="panTanAccordion" class="px-6 py-4 bg-blue-50 hidden">
+                        <div class="mb-4 text-blue-800 font-medium">
+                            Additional Information for applying Permanent Account Number (PAN) and Tax Deduction Account
+                            Number (TAN)
+                        </div>
+                        <div class="mb-2 font-semibold text-blue-800">Information specific to PAN</div>
+                        <form id="panTanForm" autocomplete="off">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-2">
+                                <!-- Area code -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*Area code</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-area"
+                                            name="panArea1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-area"
+                                            name="panArea2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-area"
+                                            name="panArea3" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-area"
+                                            name="panArea4" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm pan-area-error hidden">Please enter correct PAN
+                                        Area code.</div>
+                                </div>
+                                <!-- AO type -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*AO type</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-type"
+                                            name="panAoType1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-type"
+                                            name="panAoType2" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm pan-ao-type-error hidden">At least one block is
+                                        mandatory</div>
+                                </div>
+                                <!-- Range code -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*Range code</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-range"
+                                            name="panRange1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-range"
+                                            name="panRange2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-range"
+                                            name="panRange3" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm pan-range-error hidden">At least one block is
+                                        mandatory</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-2">
+                                <!-- AO No. -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*AO No.</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-no"
+                                            name="panAoNo1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-no"
+                                            name="panAoNo2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-no"
+                                            name="panAoNo3" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 pan-ao-no"
+                                            name="panAoNo4" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm pan-ao-no-error hidden">Please enter correct PAN AO
+                                        code, AO Type, Range Code & AO No from the downloaded Excel Sheet.</div>
+                                </div>
+                            </div>
+                            <div class="mb-6"></div>
+                            <div class="mb-2 font-semibold text-blue-800">Information specific to TAN</div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-2">
+                                <!-- TAN Area code -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*Area code</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-area"
+                                            name="tanArea1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-area"
+                                            name="tanArea2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-area"
+                                            name="tanArea3" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-area"
+                                            name="tanArea4" required />
+                                    </div>
+                                </div>
+                                <!-- TAN AO type -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*AO type</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-type"
+                                            name="tanAoType1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-type"
+                                            name="tanAoType2" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm tan-ao-type-error hidden">At least one block is
+                                        mandatory</div>
+                                </div>
+                                <!-- TAN Range code -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*Range code</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-range"
+                                            name="tanRange1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-range"
+                                            name="tanRange2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-range"
+                                            name="tanRange3" required />
+                                    </div>
+                                    <div class="text-red-600 text-sm tan-range-error hidden">At least one block is
+                                        mandatory</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-2">
+                                <!-- TAN AO No. -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*AO No.</label>
+                                    <div class="flex space-x-2 mb-1">
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-no"
+                                            name="tanAoNo1" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-no"
+                                            name="tanAoNo2" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-no"
+                                            name="tanAoNo3" required />
+                                        <input maxlength="1"
+                                            class="w-10 h-12 text-center rounded border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 tan-ao-no"
+                                            name="tanAoNo4" required />
+                                    </div>
+                                </div>
+                                <!-- Source of Income -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">*Source of Income</label>
+                                    <select
+                                        class="block rounded-lg border border-blue-200 shadow-sm px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out bg-white text-gray-700 w-full"
+                                        name="sourceOfIncome" required>
+                                        <option value="" disabled selected>Select here</option>
+                                        <option value="Salary">Salary</option>
+                                        <option value="Business/Profession">Business/Profession</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="flex justify-end mt-4">
+                            <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                onclick="showSuccessModal()">SAVE</button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+            <!-- Attachments Accordion -->
+            <div class="w-full mb-4 my-8">
+                <div class="border border-gray-300 rounded-lg shadow">
+                    <button type="button"
+                        class="w-full flex justify-between items-center px-4 py-3 bg-blue-100 rounded-t-lg focus:outline-none"
+                        onclick="toggleAccordion('attachmentsAccordion', 'attachmentsArrow')">
+                        <span class="font-semibold text-lg text-blue-900">Attachments</span>
+                        <svg id="attachmentsArrow" class="w-5 h-5 text-blue-700 transition-transform duration-200"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div id="attachmentsAccordion" class="px-6 py-4 bg-blue-50 hidden">
+                        <div class="mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                                <!-- 10(b) Optional attachment(s) (if any) -->
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">10(b) Optional attachment(s) (if
+                                        any)</label>
+                                    <div class="flex items-center space-x-4">
+                                        <input type="file" class="hidden" id="optionalAttachmentsInput"
+                                            name="optionalAttachments" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                            onchange="handleAttachmentUpload('optionalAttachmentsInput', 'optionalAttachmentsName', 'optionalAttachmentsCut', 5)">
+                                        <label for="optionalAttachmentsInput"
+                                            class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition">Choose
+                                            file</label>
+                                        <span id="optionalAttachmentsName"
+                                            class="ml-2 text-gray-700 truncate max-w-xs"></span>
+                                        <button id="optionalAttachmentsCut" type="button"
+                                            onclick="removeFile('optionalAttachmentsInput', 'optionalAttachmentsName', 'optionalAttachmentsCut')"
+                                            class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                    </div>
+                                    <div class="text-gray-500 text-sm mt-1">Max 5 files</div>
+                                </div>
+                            </div>
+                            <div class="mb-8">
+                                <div class="font-semibold text-gray-800 mb-2">Consent by Designated partners/Partners
+                                </div>
+                                <div class="text-gray-700 mb-2">We, the several partners whose names are subscribed
+                                    below, are desirous of being formed into a LLP for carrying on a lawful business
+                                    with a view to earn profit and have entered or agreed to enter into a LLP agreement
+                                    in writing.</div>
+                                <div class="text-gray-700 mb-2">We respectively agree to contribute money or other
+                                    property or other benefit or to perform services for the LLP in accordance with the
+                                    LLP agreement, the particulars of which are stated against our respective names.
+                                </div>
+                                <div class="text-gray-700 mb-2">We hereby give our consent to become a partner /
+                                    designated partner/ nominee/ nominee & designated partner of the LLP pursuant to
+                                    section 7(4) / 25(3)(c) of the Limited Liability Partnership Act, 2008.(format as an
+                                    attachment)</div>
+                                <div class="text-gray-700 mb-2">To the best of my knowledge and belief, the information
+                                    given in this form and its attachments is correct and complete. I further confirm
+                                    that the proposed name is not undesirable, identical or too nearly resembles to that
+                                    of any other partnership firm or limited liability partnership or body corporate or
+                                    a registered trade mark or a trade mark which is subject of an application for
+                                    registration of any other person under the Trade Marks Act, 1999.</div>
+                                <div class="font-semibold text-gray-800 mt-4 mb-2">Subscribers' sheet including consent.
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <input type="file" class="hidden" id="subscribersSheetInput" name="subscribersSheet"
+                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                        onchange="handleAttachmentUpload('subscribersSheetInput', 'subscribersSheetName', 'subscribersSheetCut', 1)">
+                                    <label for="subscribersSheetInput"
+                                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition">Choose
+                                        file</label>
+                                    <span id="subscribersSheetName" class="ml-2 text-gray-700 truncate max-w-xs"></span>
+                                    <button id="subscribersSheetCut" type="button"
+                                        onclick="removeFile('subscribersSheetInput', 'subscribersSheetName', 'subscribersSheetCut')"
+                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
+                                </div>
+                                <div class="text-gray-500 text-sm mt-1">Max. 2 MB</div>
+                            </div>
+                        </div>
+                        <!-- START: Part B Statement and Professional Certification -->
+                        <div class="mb-10 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                            <h2 class="font-bold text-lg text-gray-900 mb-2">Part B: Statement</h2>
+                            <div class="font-semibold text-gray-800 mb-2">Declaration by designated partner</div>
+                            <div class="text-gray-700 mb-4">
+                                I, the designated partner of the LLP do state that<br>
+                                <div class="ml-4">
+                                    (i) am a person named in the incorporation document as a designated partner/partner of the limited liability partnership;<br>
+                                    (ii) the designated partner(s)/partner(s) have given their prior consent to act as designated partner(s)/partner(s);<br>
+                                    (iii) all the requirements of the Limited Liability Partnership Act, 2008 and the rules made thereunder in respect of Designated Partner Identification Number (DIN/DPIN), registration of the LLP and matters precedent or incidental thereto have been complied with;<br>
+                                    (iv) I make this statement conscientiously believing the same to be true.
+                                </div>
+                            </div>
+                            <div class="font-semibold text-gray-900 mb-2">To be digitally signed by a designated partner</div>
+                        </div>
+                        <div class="mb-10 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                            <h2 class="font-bold text-lg text-blue-800 mb-2">Declaration and certification by professional</h2>
+                            <form class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-1">Name</label>
+                                        <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2" placeholder="Enter Name" />
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-6">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="relationType" value="son" />
+                                            <span class="ml-2">Son</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="relationType" value="daughter" />
+                                            <span class="ml-2">Daughter</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-1">of</label>
+                                        <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2" placeholder="Enter Name" />
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="text-gray-700">do state that I am</span>
+                                    <div class="flex flex-wrap gap-6 mt-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="profType" value="Advocate" />
+                                            <span class="ml-2">Advocate</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="profType" value="CS" />
+                                            <span class="ml-2">Company Secretary in whole time practice</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="profType" value="CA" />
+                                            <span class="ml-2">Chartered Accountant in whole time practice</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" class="form-radio text-blue-600" name="profType" value="CMA" />
+                                            <span class="ml-2">Cost Accountant in whole time practice</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-1">Engaged in the formation of the limited liability partnership and my membership number or certificate of practice number with</label>
+                                        <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2" placeholder="Enter Name" />
+                                    </div>
+                                    <div>
+                                        <label class="block font-medium text-gray-700 mb-1">(Name of regulatory body) is</label>
+                                        <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2" placeholder="Enter Membership or Practice no" />
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="flex justify-end mt-4">
+                                <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    onclick="showSuccessModal()">SAVE</button>
+                            </div>
+                        </div>
+                        <!-- END: Part B Statement and Professional Certification -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-4">
+                <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    onclick="showSuccessModal()">SAVE</button>
+            </div>
+
 
             <!-- Add script for PAN/TAN accordion input focus and validation -->
     <script>
@@ -2619,9 +2635,119 @@
                 str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) : '';
                 return str.trim();
             }
+
+            const bodyCorpNomValidDINInput = document.querySelector('[name="bodyCorpNomValidDIN"]');
+            const bodyCorporateWithDinContainer = document.getElementById('bodyCorporateWithDinContainer');
+            const bodyCorporateWithDinFormTemplate = document.getElementById('bodyCorporateWithDinFormTemplate');
+
+            function renderBodyCorporateWithDinForms(n) {
+                bodyCorporateWithDinContainer.innerHTML = '';
+                for (let i = 0; i < n; i++) {
+                    const clone = bodyCorporateWithDinFormTemplate.content.cloneNode(true);
+                    // Add a heading for each partner
+                    const heading = document.createElement('div');
+                    heading.className = "font-bold text-blue-800 mb-2";
+                    heading.textContent = `Body Corporate Partner (DIN) ${i + 1}`;
+                    bodyCorporateWithDinContainer.appendChild(heading);
+                    bodyCorporateWithDinContainer.appendChild(clone);
+                }
+            }
+
+            if (bodyCorpNomValidDINInput && bodyCorporateWithDinContainer && bodyCorporateWithDinFormTemplate) {
+                bodyCorpNomValidDINInput.addEventListener('input', function () {
+                    let n = parseInt(this.value) || 0;
+                    if (n > 0) {
+                        renderBodyCorporateWithDinForms(n);
+                    } else {
+                        bodyCorporateWithDinContainer.innerHTML = '';
+                    }
+                });
+                // Initial render if value is already present
+                let n = parseInt(bodyCorpNomValidDINInput.value) || 0;
+                if (n > 0) {
+                    renderBodyCorporateWithDinForms(n);
+                }
+            }
+
+            const bodyCorpNomNotValidDINInput = document.querySelector('[name="bodyCorpNomNotValidDIN"]');
+            const bodyCorporateWithoutDinContainer = document.getElementById('bodyCorporateWithoutDinContainer');
+            const bodyCorporateWithoutDinFormTemplate = document.getElementById('bodyCorporateWithoutDinFormTemplate');
+
+            function renderBodyCorporateWithoutDinForms(n) {
+                bodyCorporateWithoutDinContainer.innerHTML = '';
+                for (let i = 0; i < n; i++) {
+                    const clone = bodyCorporateWithoutDinFormTemplate.content.cloneNode(true);
+                    // Add a heading for each partner
+                    const heading = document.createElement('div');
+                    heading.className = "font-bold text-blue-800 mb-2";
+                    heading.textContent = `Body Corporate Partner (No DIN) ${i + 1}`;
+                    bodyCorporateWithoutDinContainer.appendChild(heading);
+                    bodyCorporateWithoutDinContainer.appendChild(clone);
+                }
+            }
+
+            if (bodyCorpNomNotValidDINInput && bodyCorporateWithoutDinContainer && bodyCorporateWithoutDinFormTemplate) {
+                bodyCorpNomNotValidDINInput.addEventListener('input', function () {
+                    let n = parseInt(this.value) || 0;
+                    if (n > 0) {
+                        renderBodyCorporateWithoutDinForms(n);
+                    } else {
+                        bodyCorporateWithoutDinContainer.innerHTML = '';
+                    }
+                });
+                // Initial render if value is already present
+                let n = parseInt(bodyCorpNomNotValidDINInput.value) || 0;
+                if (n > 0) {
+                    renderBodyCorporateWithoutDinForms(n);
+                }
+            }
+
+            function toggleNomineePresentAddressSectionNoDin(radio) {
+                const form = radio.closest('form');
+                const fields = form.querySelectorAll('.present-address-field');
+                if (radio.value === 'no') {
+                    fields.forEach(f => {
+                        f.removeAttribute('readonly');
+                        f.removeAttribute('disabled');
+                    });
+                } else {
+                    fields.forEach(f => {
+                        f.setAttribute('readonly', '');
+                        f.setAttribute('disabled', '');
+                    });
+                }
+            }
+
+            function displayFileNameForResolutionNoDin(input, spanId, cutBtnId, showPopup) {
+                const form = input.closest('form');
+                const span = form.querySelector('#' + spanId);
+                const cutBtn = form.querySelector('#' + cutBtnId);
+                if (input && input.files && input.files.length > 0) {
+                    span.textContent = input.files[0].name;
+                    if (cutBtn) cutBtn.classList.remove('hidden');
+                    if (showPopup && typeof showSuccessModal === 'function') {
+                        showSuccessModal();
+                    }
+                } else {
+                    span.textContent = '';
+                    if (cutBtn) cutBtn.classList.add('hidden');
+                }
+            }
+            function removeFileForResolutionNoDin(btn, spanId, cutBtnId, inputId) {
+                const form = btn.closest('form');
+                const input = form.querySelector('#' + inputId);
+                const span = form.querySelector('#' + spanId);
+                const cutBtn = form.querySelector('#' + cutBtnId);
+                if (input) {
+                    input.value = '';
+                    input.type = '';
+                    input.type = 'file';
+                }
+                if (span) span.textContent = '';
+                if (cutBtn) cutBtn.classList.add('hidden');
+            }
         </script>
 
 
 </body>
-
 </html>
