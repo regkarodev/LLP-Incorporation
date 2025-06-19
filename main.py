@@ -484,14 +484,7 @@ def main():
         print("Please check the error messages above.")
         print("="*50 + "\n")
     
-    # Ask user if they want to close the browser
-    keep_open = input("Do you want to keep the browser open? (y/n): ").lower().strip() == 'y'
-    if not keep_open and driver:
-        print("Closing browser...")
-        driver.quit()
-    else:
-        print("Keeping browser open. You can continue manually.")
-        print("The script will exit but the browser will remain open.")
+
 
 if __name__ == "__main__":
     main()

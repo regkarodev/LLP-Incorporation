@@ -642,6 +642,8 @@ def run_llp_form_sequence(webdriver_instance=None):
         time.sleep(1)
         click_button(driver, '#guideContainer-rootPanel-panel_1029056258-mca_button_814968004___widget')
 
+        time.sleep(2)
+
 
 
 
@@ -655,9 +657,9 @@ def run_llp_form_sequence(webdriver_instance=None):
         return False
 
 
-        # Wait for Enter key to exit and close browser
-        input("Press Enter to exit and close the browser...")
-        sys.exit(0)
+    # Wait for Enter key to exit and close browser
+    input("Press Enter to exit and close the browser...")
+    sys.exit(0)
 
 
 # Execute if script is run directly
