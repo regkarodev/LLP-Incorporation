@@ -204,7 +204,7 @@ def perform_login(driver=None, close_after_login=False):
                 )
                 if user_field.is_displayed() and user_field.is_enabled():
                     user_field.clear()
-                    user_field.send_keys("registerkaro.info72@gmail.com")
+                    user_field.send_keys("shagun@registerkaro.in")
                     print("User ID entered successfully")
                     break
             except:
@@ -220,7 +220,7 @@ def perform_login(driver=None, close_after_login=False):
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='password']"))
             )
             password_field.clear()
-            password_field.send_keys("ABCD@12")
+            password_field.send_keys("Plushie0w0!")
             print("Password entered successfully")
         except Exception as e:
             raise Exception(f"Could not find or interact with password field: {e}")
@@ -484,6 +484,18 @@ def main():
         print("Please check the error messages above.")
         print("="*50 + "\n")
     
+    # Prompt user to close or keep browser open
+    if 'driver' in locals() and driver:
+        user_input = input("Press Enter to close the browser, or type anything and press Enter to keep it open: ")
+        if user_input.strip() == "":
+            print("Closing browser...")
+            try:
+                driver.quit()
+                print("Browser closed.")
+            except Exception as e:
+                print(f"Error closing browser: {e}")
+        else:
+            print("Keeping browser open. You can continue manually.")
 
 
 if __name__ == "__main__":

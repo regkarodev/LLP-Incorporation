@@ -146,10 +146,6 @@
                                             <select name="areaLocality" required
                                                 class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select Area/Locality</option>
-                                                <option value="Area1">Area1</option>
-                                                <option value="Area2">Area2</option>
-                                                <option value="Area3">Area3</option>
-                                                <option value="Other">Other</option>
                                             </select>
                     </div>
                                         <div>
@@ -329,7 +325,7 @@
                                                 <td class="px-4 py-3 font-medium">*Individuals Having valid DIN/DPIN
                                                 </td>
                                                 <td class="px-4 py-3"><input type="text"
-                                                        class="w-full rounded bg-blue-50 px-3 py-2"
+                                                        class="w-full rounded bg-white border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                         placeholder="Enter Here" name="indivValidDIN" required></td>
                                             </tr>
                                             <tr class="border-b">
@@ -337,7 +333,7 @@
                                                 <td class="px-4 py-3 font-medium">*Individuals Not having valid DIN/DPIN
                                                 </td>
                                                 <td class="px-4 py-3"><input type="text"
-                                                        class="w-full rounded bg-blue-50 px-3 py-2"
+                                                        class="w-full rounded bg-white border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                         placeholder="Enter Here" name="indivNotValidDIN" required></td>
                                             </tr>
                                             <tr class="border-b">
@@ -345,7 +341,7 @@
                                                 <td class="px-4 py-3 font-medium">*Body corporates and their nominees
                                                     Having valid DIN/DPIN</td>
                                                 <td class="px-4 py-3"><input type="text"
-                                                        class="w-full rounded bg-blue-50 px-3 py-2"
+                                                        class="w-full rounded bg-white border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                         placeholder="Enter Here" name="bodyCorpNomValidDIN" required>
                                                 </td>
                                             </tr>
@@ -354,7 +350,7 @@
                                                 <td class="px-4 py-3 font-medium">*Body corporates and their nominee not
                                                     having valid DIN/DPIN</td>
                                                 <td class="px-4 py-3"><input type="text"
-                                                        class="w-full rounded bg-blue-50 px-3 py-2"
+                                                        class="w-full rounded bg-white border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                         placeholder="Enter Here" name="bodyCorpNomNotValidDIN" required>
                                                 </td>
                                             </tr>
@@ -706,8 +702,10 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (State)</label>
-                                            <select name="birthState" required class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth
+                                                (State)</label>
+                                            <select name="birthState" required
+                                                class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select State</option>
                                                 <option value="State1">State1</option>
                                                 <option value="State2">State2</option>
@@ -716,8 +714,10 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (District)</label>
-                                            <select name="birthDistrict" required class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth
+                                                (District)</label>
+                                            <select name="birthDistrict" required
+                                                class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select District</option>
                                                 <option value="District1">District1</option>
                                                 <option value="District2">District2</option>
@@ -839,8 +839,6 @@
                                             <select name="areaLocalityNoDin"
                                                 class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select here</option>
-                                                <option value="Area1">Area1</option>
-                                                <option value="Area2">Area2</option>
                                             </select>
                                         </div>
                                         <div>
@@ -1132,8 +1130,6 @@
                                                 class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                 name="areaLocalityCorp" required>
                                                 <option value="">Select here</option>
-                                                <option value="Area1">Area1</option>
-                                                <option value="Area2">Area2</option>
                                             </select>
                                         </div>
                                     
@@ -1273,10 +1269,17 @@
                                                 behalf</label>
                                             <div class="flex items-center justify-between">
                                                 <div class="flex-1 flex items-center space-x-4">
-                                                    <input type="file" class="hidden" name="resolutionCorp" />
-                                                    <label
+                                                    <input type="file" class="hidden" id="resolutionCorpInput"
+                                                        name="resolutionCorp"
+                                                        onchange="displayFileName('resolutionCorpInput', 'resolutionCorpName', 'resolutionCorpCut')" />
+                                                    <label for="resolutionCorpInput"
                                                         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
                                                         file</label>
+                                                    <span id="resolutionCorpName"
+                                                        class="ml-2 text-gray-700 truncate max-w-xs"></span>
+                                                    <button id="resolutionCorpCut" type="button"
+                                                        onclick="removeFile('resolutionCorpInput', 'resolutionCorpName', 'resolutionCorpCut')"
+                                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1384,8 +1387,6 @@
                                                 class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                                                 name="areaLocalityCorpNoDin" required>
                                                 <option value="">Select here</option>
-                                                <option value="Area1">Area1</option>
-                                                <option value="Area2">Area2</option>
                                             </select>
                                         </div>
                                         
@@ -1600,8 +1601,10 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (State)</label>
-                                            <select name="nomineeBirthStateNoDin" required class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth
+                                                (State)</label>
+                                            <select name="nomineeBirthStateNoDin" required
+                                                class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select State</option>
                                                 <option value="State1">State1</option>
                                                 <option value="State2">State2</option>
@@ -1610,8 +1613,10 @@
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth (District)</label>
-                                            <select name="nomineeBirthDistrictNoDin" required class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <label class="block font-medium text-gray-700 mb-1">Place of Birth
+                                                (District)</label>
+                                            <select name="nomineeBirthDistrictNoDin" required
+                                                class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select District</option>
                                                 <option value="District1">District1</option>
                                                 <option value="District2">District2</option>
@@ -1732,11 +1737,8 @@
                                             <select name="nomineeAreaLocalityNoDin"
                                                 class="w-full rounded border-gray-300 shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                                                 <option value="">Select here</option>
-                                                <option value="Area1">Area1</option>
-                                                <option value="Area2">Area2</option>
                                             </select>
                                         </div>
-                                        
                                         <div>
                                             <label class="block font-medium text-gray-700 mb-1">Jurisdiction of Police
                                                 Station</label>
@@ -1918,10 +1920,17 @@
                                             <div class="flex items-center justify-between">
                                                 <div class="flex-1 flex items-center space-x-4">
                                                     <input type="file" class="hidden"
-                                                        name="nomineeProofIdentityNoDin" />
-                                                    <label
+                                                        id="nomineeProofIdentityNoDinInput"
+                                                        name="nomineeProofIdentityNoDin"
+                                                        onchange="displayFileName('nomineeProofIdentityNoDinInput', 'nomineeProofIdentityNoDinName', 'nomineeProofIdentityNoDinCut')">
+                                                    <label for="nomineeProofIdentityNoDinInput"
                                                         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
                                                         file</label>
+                                                    <span id="nomineeProofIdentityNoDinName"
+                                                        class="ml-2 text-gray-700 truncate max-w-xs"></span>
+                                                    <button id="nomineeProofIdentityNoDinCut" type="button"
+                                                        onclick="removeFile('nomineeProofIdentityNoDinInput', 'nomineeProofIdentityNoDinName', 'nomineeProofIdentityNoDinCut')"
+                                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1931,10 +1940,17 @@
                                             <div class="flex items-center justify-between">
                                                 <div class="flex-1 flex items-center space-x-4">
                                                     <input type="file" class="hidden"
-                                                        name="nomineeResidentialProofNoDin" />
-                                                    <label
+                                                        id="nomineeResidentialProofNoDinInput"
+                                                        name="nomineeResidentialProofNoDin"
+                                                        onchange="displayFileName('nomineeResidentialProofNoDinInput', 'nomineeResidentialProofNoDinName', 'nomineeResidentialProofNoDinCut')">
+                                                    <label for="nomineeResidentialProofNoDinInput"
                                                         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded cursor-pointer transition ml-auto">Choose
                                                         file</label>
+                                                    <span id="nomineeResidentialProofNoDinName"
+                                                        class="ml-2 text-gray-700 truncate max-w-xs"></span>
+                                                    <button id="nomineeResidentialProofNoDinCut" type="button"
+                                                        onclick="removeFile('nomineeResidentialProofNoDinInput', 'nomineeResidentialProofNoDinName', 'nomineeResidentialProofNoDinCut')"
+                                                        class="ml-1 text-gray-400 hover:text-red-600 text-xl font-bold focus:outline-none hidden">&times;</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -2176,9 +2192,11 @@
                                         class="block rounded-lg border border-blue-200 shadow-sm px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150 ease-in-out bg-white text-gray-700 w-full"
                                         name="sourceOfIncome" required>
                                         <option value="" disabled selected>Select here</option>
-                                        <option value="Salary">Salary</option>
-                                        <option value="Business/Profession">Business/Profession</option>
-                                        <option value="Other">Other</option>
+                                        <option value="Salary">Capital Gain</option>
+                                        <option value="Business/Profession">Income from Business/Profession</option>
+                                        <option value="Other">Income from house property</option>
+                                        <option value="Other">Income from other source</option>
+                                        <option value="Other">No Income</option>
                                     </select>
                                 </div>
                             </div>
@@ -2293,7 +2311,7 @@
                                     <div>
                                         <label class="block font-medium text-gray-700 mb-1">Name</label>
                                         <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2"
-                                            placeholder="Enter Name" />
+                                            name="professionalName" placeholder="Enter Name" />
                                     </div>
                                     <div class="flex items-center space-x-4 mt-6">
                                         <label class="inline-flex items-center">
@@ -2310,7 +2328,7 @@
                                     <div>
                                         <label class="block font-medium text-gray-700 mb-1">of</label>
                                         <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2"
-                                            placeholder="Enter Name" />
+                                            name="professionalFatherName" placeholder="Enter Name" />
                                     </div>
                                 </div>
                                 <div class="mb-2">
@@ -2344,12 +2362,13 @@
                                             the limited liability partnership and my membership number or certificate of
                                             practice number with</label>
                                         <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2"
-                                            placeholder="Enter Name" />
+                                            name="professionalMembershipBody" placeholder="Enter Name" />
                                     </div>
                                     <div>
                                         <label class="block font-medium text-gray-700 mb-1">(Name of regulatory body)
                                             is</label>
                                         <input type="text" class="w-full rounded border-gray-300 shadow-sm px-3 py-2"
+                                            name="professionalMembershipNumber"
                                             placeholder="Enter Membership or Practice no" />
                                     </div>
                                 </div>
@@ -2368,7 +2387,120 @@
 
             <!-- Add script for PAN/TAN accordion input focus and validation -->
     <script>
-                // Auto move focus for PAN/TAN blocks
+                // Load area codes data
+                let areaCodesData = null;
+
+                // Function to load area codes from JSON file
+                async function loadAreaCodes() {
+                    try {
+                        const response = await fetch('area_code.json');
+                        areaCodesData = await response.json();
+                        console.log('Area codes loaded successfully');
+                    } catch (error) {
+                        console.error('Error loading area codes:', error);
+                    }
+                }
+
+                // Function to populate area/locality dropdown based on pincode
+                function populateAreaLocality(pincodeInput, areaSelect) {
+                    if (!areaCodesData || !pincodeInput || !areaSelect) return;
+
+                    const pincode = pincodeInput.value.trim();
+                    if (pincode.length === 6) {
+                        const areas = areaCodesData[pincode];
+                        if (areas && areas.length > 0) {
+                            // Clear existing options except the first one
+                            areaSelect.innerHTML = '<option value="">Select Area/Locality</option>';
+
+                            // Add new options
+                            areas.forEach(area => {
+                                const option = document.createElement('option');
+                                option.value = area;
+                                option.textContent = area;
+                                areaSelect.appendChild(option);
+                            });
+
+                            console.log(`Populated ${areas.length} areas for pincode ${pincode}`);
+                        } else {
+                            // Reset to default if pincode not found
+                            areaSelect.innerHTML = '<option value="">Select Area/Locality</option>';
+                            console.log(`No areas found for pincode ${pincode}`);
+                        }
+                    }
+                }
+
+                // Function to setup pincode-area listeners for a specific form section
+                function setupPincodeAreaListeners(pincodeSelector, areaSelector) {
+                    const pincodeInput = document.querySelector(pincodeSelector);
+                    const areaSelect = document.querySelector(areaSelector);
+
+                    if (pincodeInput && areaSelect) {
+                        pincodeInput.addEventListener('input', function () {
+                            populateAreaLocality(this, areaSelect);
+                        });
+
+                        // Also trigger on blur for better UX
+                        pincodeInput.addEventListener('blur', function () {
+                            populateAreaLocality(this, areaSelect);
+                        });
+                    }
+                }
+
+                // Function to setup all pincode-area pairs
+                function setupAllPincodeAreaListeners() {
+                    // Main address
+                    setupPincodeAreaListeners('[name="pincode"]', '[name="areaLocality"]');
+
+                    // Partners without DIN - Permanent address
+                    setupPincodeAreaListeners('[name="pincodeNoDin"]', '[name="areaLocalityNoDin"]');
+
+                    // Partners without DIN - Present address
+                    setupPincodeAreaListeners('[name="presentPincode"]', '[name="presentAreaLocality"]');
+
+                    // Corporate bodies with DIN
+                    setupPincodeAreaListeners('[name="pincodeCorp"]', '[name="areaLocalityCorp"]');
+
+                    // Corporate bodies without DIN
+                    setupPincodeAreaListeners('[name="pincodeCorpNoDin"]', '[name="areaLocalityCorpNoDin"]');
+
+                    // Nominee without DIN - Permanent address
+                    setupPincodeAreaListeners('[name="nomineePincodeNoDin"]', '[name="nomineeAreaLocalityNoDin"]');
+
+                    // Nominee without DIN - Present address
+                    setupPincodeAreaListeners('[name="presentPincodeCorpNoDin"]', '[name="presentAreaLocalityCorpNoDin"]');
+                }
+
+                // Initialize when DOM is loaded
+                document.addEventListener('DOMContentLoaded', async function () {
+                    await loadAreaCodes();
+                    setupAllPincodeAreaListeners();
+                });
+
+                // Also setup listeners for dynamically added forms
+                function setupDynamicFormListeners(containerId) {
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        // Setup listeners for any new forms added to this container
+                        const observer = new MutationObserver(function (mutations) {
+                            mutations.forEach(function (mutation) {
+                                if (mutation.type === 'childList') {
+                                    // Re-setup listeners for the entire container
+                                    setupAllPincodeAreaListeners();
+                                }
+                            });
+                        });
+
+                        observer.observe(container, { childList: true, subtree: true });
+                    }
+                }
+
+                // Setup observers for dynamic form containers
+                document.addEventListener('DOMContentLoaded', function () {
+                    setupDynamicFormListeners('noDinPartnersContainer');
+                    setupDynamicFormListeners('bodyCorporateWithDinContainer');
+                    setupDynamicFormListeners('bodyCorporateWithoutDinContainer');
+                });
+
                 function autoTabInputs(className) {
                     const inputs = document.querySelectorAll('.' + className);
                     inputs.forEach((input, idx) => {
@@ -3174,19 +3306,365 @@
             }
             // Attach listeners for dynamically rendered forms
             // For individual no DIN/DPIN
-            window.addEventListener('input', function(e) {
+            window.addEventListener('input', function (e) {
                 if (e.target && e.target.closest('form') && e.target.closest('form').oninput && e.target.closest('form').oninput.toString().includes('handleNoDinFormInput')) {
                     handleNoDinFormInput(e);
                 }
             });
             // For body corporate nominee no DIN/DPIN
-            window.addEventListener('input', function(e) {
+            window.addEventListener('input', function (e) {
                 if (e.target && e.target.closest('form') && e.target.closest('form').oninput && e.target.closest('form').oninput.toString().includes('handleCorpNoDinFormInput')) {
                     handleCorpNoDinFormInput(e);
                 }
             });
         </script>
 
+        <script>
+        async function collectFormDataForLLP() {
+            // 1. Collect all fields exactly as per backend structure
+            const fields = {
+                "Service Request Number": document.querySelector('[name="serviceRequestNumber"]')?.value || "",
+                "Address Line I": document.querySelector('[name="addressLine1"]')?.value || "",
+                "Address Line II": document.querySelector('[name="addressLine2"]')?.value || "",
+                "PIN CODE": document.querySelector('[name="pincode"]')?.value || "",
+                "Area/Locality1": document.querySelector('[name="areaLocality"]')?.value || "",
+                "Longitude": document.querySelector('[name="longitude"]')?.value || "",
+                "Latitude": document.querySelector('[name="latitude"]')?.value || "",
+                "Jurisdiction of Police Station": document.querySelector('[name="jurisdictionPolice"]')?.value || "",
+                "Phone (with STD/ISD code)": document.querySelector('[name="phone"]')?.value || "",
+                "Mobile No": document.querySelector('[name="mobileNo"]')?.value || "",
+                "Fax": document.querySelector('[name="fax"]')?.value || "",
+                "Email ID": document.querySelector('[name="emailId"]')?.value || "",
+                "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
+                "Individuals Having valid DIN/DPIN": document.querySelector('[name="indivValidDIN"]')?.value || "",
+                "Individuals Not having valid DIN/DPIN": document.querySelector('[name="indivNotValidDIN"]')?.value || "",
+                "Body corporates and their nominees Having valid DIN/DPIN": document.querySelector('[name="bodyCorpNomValidDIN"]')?.value || "",
+                "Body corporates and their nominee not having valid DIN/DPIN": document.querySelector('[name="bodyCorpNomNotValidDIN"]')?.value || "",
+                "Individuals Having valid DIN/DPIN1": "0",
+                "Individuals Not having valid DIN/DPIN1": "0",
+                "Body corporates and their nominees Having valid DIN/DPIN1": "0",
+                "Body corporates and their nominee not having valid DIN/DPIN1": "0",
+                "PAN Area code": document.querySelector('[name="panArea1"]')?.value || "",
+                "PAN Area code1": document.querySelector('[name="panArea2"]')?.value || "",
+                "PAN Area code2": document.querySelector('[name="panArea3"]')?.value || "",
+                "PAN AO type": document.querySelector('[name="panAoType1"]')?.value || "",
+                "PAN AO type1": document.querySelector('[name="panAoType2"]')?.value || "",
+                "PAN Range code": document.querySelector('[name="panRange1"]')?.value || "",
+                "PAN Range code1": document.querySelector('[name="panRange2"]')?.value || "",
+                "PAN Range code2": document.querySelector('[name="panRange3"]')?.value || "",
+                "PAN AO No.": document.querySelector('[name="panAoNo1"]')?.value || "",
+                "PAN AO No1": document.querySelector('[name="panAoNo2"]')?.value || "",
+                "PAN AO No2": document.querySelector('[name="panAoNo3"]')?.value || "",
+                "PAN AO No3": document.querySelector('[name="panAoNo4"]')?.value || "",
+
+                "TAN Area code1": document.querySelector('[name="tanArea1"]')?.value || "",
+                "TAN Area code2": document.querySelector('[name="tanArea2"]')?.value || "",
+                "TAN Area code3": document.querySelector('[name="tanArea3"]')?.value || "",
+                "TAN AO type1": document.querySelector('[name="tanAoType1"]')?.value || "",
+                "TAN AO type2": document.querySelector('[name="tanAoType2"]')?.value || "",
+                "TAN Range code": document.querySelector('[name="tanRange1"]')?.value || "",
+                "TAN Range code1": document.querySelector('[name="tanRange2"]')?.value || "",
+                "TAN Range code2": document.querySelector('[name="tanRange3"]')?.value || "",
+                "TAN AO No": document.querySelector('[name="tanAoNo1"]')?.value || "",
+                "TAN AO No1": document.querySelector('[name="tanAoNo2"]')?.value || "",
+                "TAN AO No2": document.querySelector('[name="tanAoNo3"]')?.value || "",
+                "TAN AO No3": document.querySelector('[name="tanAoNo4"]')?.value || "",
+
+                "Income Source": document.querySelector('[name="sourceOfIncome"]')?.value || "",
+                "DIN/DPIN/PAN of designated partner": document.querySelector('[name="dinDpinPan"]')?.value || "",
+                "Enter Name": document.querySelector('[name="professionalName"]')?.value || "",
+                "Enter Father's Name": document.querySelector('[name="professionalFatherName"]')?.value || "",
+                "partnership and my membership number": document.querySelector('[name="professionalMembershipNumber"]')?.value || ""
+            };
+
+            // 2. File paths - exactly as per backend structure
+            const file_paths = {
+                "first_file": document.querySelector('[name="proofOfOffice"]')?.files?.[0]?.name || "",
+                "second_file": document.querySelector('[name="utilityBill"]')?.files?.[0]?.name || "",
+                "third_file": document.querySelector('[name="optionalAttachments"]')?.files?.[0]?.name || "",
+                "fourth_file": document.querySelector('[name="subscribersSheet"]')?.files?.[0]?.name || ""
+            };
+
+            // 3. Dynamic form index - hardcoded with default values
+            const dynamic_form_index = {
+                "individuals_having_valid_din_dpin": "2",
+                "individuals_not_having_valid_din_dpin": "3",
+                "body_corporates_and_their_nominees_having_valid_din_dpin": "5",
+                "body_corporates_and_their_nominee_not_having_valid_din_dpin": "7"
+            };
+
+            // 4. Designated partners array - exactly as per backend structure
+            const designated_partners = [];
+            document.querySelectorAll('#dinPartnersContainer form').forEach(form => {
+                designated_partners.push({
+                    "Designated partner identification number (DIN/DPIN)": form.querySelector('[name="dinDpin"]')?.value || "",
+                    "Form of contribution": form.querySelector('[name="formOfContribution"]')?.value || "",
+                    "If 'Other than cash' selected, please specify": form.querySelector('[name="otherThanCashSpecify"]')?.value || "",
+                    "Monetary value of contribution (in INR) (in figures)": form.querySelector('[name="contributionInr"]')?.value || "",
+                    "Number of LLP(s) in which he/ she is a partner": form.querySelector('[name="numLlps"]')?.value || "",
+                    "Number of company(s) in which he/ she is a director": form.querySelector('[name="numCompanies"]')?.value || ""
+                });
+            });
+
+            // 5. Partners without DIN array - exactly as per backend structure
+            const partners_without_din = [];
+            document.querySelectorAll('#noDinPartnersContainer form').forEach(form => {
+                partners_without_din.push({
+                    "First Name": form.querySelector('[name="firstName"]')?.value || "",
+                    "Middle Name": form.querySelector('[name="middleName"]')?.value || "",
+                    "Surname": form.querySelector('[name="surname"]')?.value || "",
+                    "Father's First Name": form.querySelector('[name="fatherFirstName"]')?.value || "",
+                    "Father's Middle Name": form.querySelector('[name="fatherMiddleName"]')?.value || "",
+                    "Father's Surname": form.querySelector('[name="fatherSurname"]')?.value || "",
+                    "Gender": form.querySelector('[name="gender"]')?.value || "",
+                    "Date of Birth": form.querySelector('[name="dob"]')?.value || "",
+                    "Nationality": form.querySelector('[name="nationality"]')?.value || "",
+                    "Whether resident of India": {
+                        "Yes": form.querySelector('[name="residentIndiaNoDin"][value="yes"]')?.checked || false,
+                        "No": form.querySelector('[name="residentIndiaNoDin"][value="no"]')?.checked || false
+                    },
+                    "Income-tax PAN/Passport number": {
+                        "PAN": form.querySelector('[name="idType"][value="pan"]')?.checked || false,
+                        "Passport number": form.querySelector('[name="idType"][value="passport"]')?.checked || false
+                    },
+                    "Income-tax PAN/Passport number details": form.querySelector('[name="idNumber"]')?.value || "",
+                    "Place of Birth (State)": form.querySelector('[name="birthState"]')?.value || "",
+                    "Place of Birth (District)": form.querySelector('[name="birthDistrict"]')?.value || "",
+                    "Whether citizen of India": {
+                        "Yes": form.querySelector('[name="citizenIndia"][value="yes"]')?.checked || false,
+                        "No": form.querySelector('[name="citizenIndia"][value="no"]')?.checked || false
+                    },
+                    "Occupation type": form.querySelector('[name="occupationTypeNoDin"]')?.value || "",
+                    "Area of Occupation": form.querySelector('[name="areaOfOccupationNoDin"]')?.value || "",
+                    "Educational qualification": form.querySelector('[name="educationNoDin"]')?.value || "",
+                    "Mobile No.": form.querySelector('[name="mobileNoNoDin"]')?.value || "",
+                    "Email ID": form.querySelector('[name="emailNoDin"]')?.value || "",
+                    "Permanent Address Line I": form.querySelector('[name="addressLine1NoDin"]')?.value || "",
+                    "Permanent Address Line II": form.querySelector('[name="addressLine2NoDin"]')?.value || "",
+                    "Permanent Country": form.querySelector('[name="countryNoDin"]')?.value || "",
+                    "Permanent Pin code": form.querySelector('[name="pincodeNoDin"]')?.value || "",
+                    "Permanent Area/Locality": form.querySelector('[name="areaLocalityNoDin"]')?.value || "",
+                    "Permanent Police Station": form.querySelector('[name="jurisdictionPoliceNoDin"]')?.value || "",
+                    "Permanent Phone": form.querySelector('[name="phoneNoDin"]')?.value || "",
+                    "Whether present residential address same as permanent": {
+                        "Yes": form.querySelector('[name="sameAsPermanent"][value="yes"]')?.checked || false,
+                        "No": form.querySelector('[name="sameAsPermanent"][value="no"]')?.checked || false
+                    },
+                    "Present Address Line I": form.querySelector('[name="presentAddressLine1"]')?.value || "",
+                    "Present Address Line II": form.querySelector('[name="presentAddressLine2"]')?.value || "",
+                    "Present Country": form.querySelector('[name="presentCountry"]')?.value || "",
+                    "Present Pin code": form.querySelector('[name="presentPincode"]')?.value || "",
+                    "Present Area/Locality": form.querySelector('[name="presentAreaLocality"]')?.value || "",
+                    "Present Phone": form.querySelector('[name="presentPhone"]')?.value || "",
+                    "Present Jurisdiction": form.querySelector('[name="presentJurisdictionPolice"]')?.value || "",
+                    "Duration Years": form.querySelector('[name="durationYears"]')?.value || "",
+                    "Duration Months": form.querySelector('[name="durationMonths"]')?.value || "",
+                    "Identity Proof": form.querySelector('[name="proofIdentityNoDin"]')?.value || "",
+                    "Residential Proof": form.querySelector('[name="residentialProofNoDin"]')?.value || "",
+                    "Identity Proof No.": form.querySelector('[name="identityProofNo"]')?.value || "",
+                    "Residential Proof No.": form.querySelector('[name="residentialProofNo"]')?.value || "",
+                    "Proof of identity": form.querySelector('[name="proofIdentityNoDin"]')?.value || "",
+                    "Residential proof": form.querySelector('[name="residentialProofNoDin"]')?.value || "",
+                    "Form of contribution": form.querySelector('[name="formOfContributionNoDin"]')?.value || "",
+                    "Monetary value": form.querySelector('[name="contributionInrNoDin"]')?.value || "",
+                    "Number of LLPs": form.querySelector('[name="numLlpsNoDin"]')?.value || "",
+                    "Number of companies": form.querySelector('[name="numCompaniesNoDin"]')?.value || ""
+                });
+            });
+
+            // 6. Bodies corporate with DIN array - exactly as per backend structure
+            const bodies_corporate_with_din = [];
+            document.querySelectorAll('#bodyCorporateWithDinContainer form').forEach(form => {
+                bodies_corporate_with_din.push({
+                    "Type of body corporate": form.querySelector('[name="typeOfBodyCorporate"]')?.value || "",
+                    "CIN/FCRN": form.querySelector('[name="corporateIdNumber"]')?.value || "",
+                    "PAN": form.querySelector('[name="pan"]')?.value || "",
+                    "Name of the body corporate": form.querySelector('[name="nameOfBodyCorporate"]')?.value || "",
+                    "Address Line I": form.querySelector('[name="addressLine1Corp"]')?.value || "",
+                    "Address Line II": form.querySelector('[name="addressLine2Corp"]')?.value || "",
+                    "Country": form.querySelector('[name="countryCorp"]')?.value || "",
+                    "Pin code": form.querySelector('[name="pincodeCorp"]')?.value || "",
+                    "Area/ Locality": form.querySelector('[name="areaLocalityCorp"]')?.value || "",
+                    "Jurisdiction of Police Station": form.querySelector('[name="jurisdictionPoliceCorp"]')?.value || "",
+                    "Phone (with STD/ISD code)": form.querySelector('[name="phoneCorp"]')?.value || "",
+                    "Mobile No": form.querySelector('[name="mobileNoCorp"]')?.value || "",
+                    "Fax": form.querySelector('[name="faxCorp"]')?.value || "",
+                    "Email ID": form.querySelector('[name="emailCorp"]')?.value || "",
+                    "Form of contribution": form.querySelector('[name="formOfContributionCorp"]')?.value || "",
+                    "Monetary value of contribution (in INR) (in figures)": form.querySelector('[name="contributionInrCorp"]')?.value || "",
+                    "Number of LLP(s) in which it is a partner": form.querySelector('[name="numLlpsCorp"]')?.value || "",
+                    "Number of company(s) in which it is a director": form.querySelector('[name="numCompaniesCorp"]')?.value || "",
+                    "DIN/DPIN": form.querySelector('[name="nomineeDinDpin"]')?.value || "",
+                    "Name": form.querySelector('[name="nomineeName"]')?.value || "",
+                    "Whether resident of India": {
+                        "Yes": form.querySelector('[name="nomineeResidentIndia"][value="yes"]')?.checked || false,
+                        "No": form.querySelector('[name="nomineeResidentIndia"][value="no"]')?.checked || false
+                    },
+                    "Designation and Authority in body corporate": form.querySelector('[name="designationAuthorityCorp"]')?.value || "",
+                    "Copy of resolution": form.querySelector('[name="resolutionCorp"]')?.value || ""
+                });
+            });
+
+            // 7. Bodies corporate nominee no DIN array - exactly as per backend structure
+            const bodies_corporate_nominee_no_din = [];
+            document.querySelectorAll('#bodyCorporateWithoutDinContainer form').forEach(form => {
+                bodies_corporate_nominee_no_din.push({
+                    corporate_details: {
+                        type: form.querySelector('[name="typeOfBodyCorporateNoDin"]')?.value || "",
+                        registration_number: form.querySelector('[name="corporateIdNumberNoDin"]')?.value || "",
+                        pan: form.querySelector('[name="panNoDin"]')?.value || "",
+                        name: form.querySelector('[name="nameOfBodyCorporateNoDin"]')?.value || "",
+                        address: {
+                            line1: form.querySelector('[name="addressLine1CorpNoDin"]')?.value || "",
+                            line2: form.querySelector('[name="addressLine2CorpNoDin"]')?.value || "",
+                            country: form.querySelector('[name="countryCorpNoDin"]')?.value || "",
+                            pincode: form.querySelector('[name="pincodeCorpNoDin"]')?.value || "",
+                            area: form.querySelector('[name="areaLocalityCorpNoDin"]')?.value || "",
+                            jurisdiction: form.querySelector('[name="jurisdictionPoliceCorpNoDin"]')?.value || ""
+                        },
+                        contact: {
+                            phone: form.querySelector('[name="phoneCorpNoDin"]')?.value || "",
+                            mobile: form.querySelector('[name="mobileNoCorpNoDin"]')?.value || "",
+                            fax: form.querySelector('[name="faxCorpNoDin"]')?.value || "",
+                            email: form.querySelector('[name="emailCorpNoDin"]')?.value || ""
+                        },
+                        conversion: {
+                            shares_held: form.querySelector('[name="sharesHeld"]')?.value || "",
+                            share_value: form.querySelector('[name="shareValue"]')?.value || ""
+                        }
+                    },
+                    contribution: {
+                        form: form.querySelector('[name="formOfContributionCorpNoDin"]')?.value || "",
+                        other_specify: form.querySelector('[name="otherThanCashSpecifyCorpNoDin"]')?.value || "",
+                        value_figures: form.querySelector('[name="contributionInrCorpNoDin"]')?.value || "",
+                        llp_count: form.querySelector('[name="numLlpsCorpNoDin"]')?.value || "",
+                        company_count: form.querySelector('[name="numCompaniesCorpNoDin"]')?.value || ""
+                    },
+                    nominee: {
+                        first_name: form.querySelector('[name="nomineeFirstNameNoDin"]')?.value || "",
+                        middle_name: form.querySelector('[name="nomineeMiddleNameNoDin"]')?.value || "",
+                        surname: form.querySelector('[name="nomineeSurnameNoDin"]')?.value || "",
+                        father_first: form.querySelector('[name="nomineeFatherFirstNameNoDin"]')?.value || "",
+                        father_middle: form.querySelector('[name="nomineeFatherMiddleNameNoDin"]')?.value || "",
+                        father_surname: form.querySelector('[name="nomineeFatherSurnameNoDin"]')?.value || "",
+                        gender: form.querySelector('[name="nomineeGenderNoDin"]')?.value || "",
+                        dob: form.querySelector('[name="nomineeDobNoDin"]')?.value || "",
+                        nationality: form.querySelector('[name="nomineeNationalityNoDin"]')?.value || "",
+                        resident: form.querySelector('[name="nomineeResidentIndiaNoDin"]')?.value || "",
+                        "PAN/Passport number": form.querySelector('[name="nomineeIdTypeNoDin"]')?.value || "",
+                        "pan/passport": form.querySelector('[name="nomineeIdDetailsNoDin"]')?.value || "",
+                        birth_state: form.querySelector('[name="nomineeBirthStateNoDin"]')?.value || "",
+                        birth_district: form.querySelector('[name="nomineeBirthDistrictNoDin"]')?.value || "",
+                        citizen: form.querySelector('[name="nomineeCitizenIndiaNoDin"]')?.value || "",
+                        occupation_type: form.querySelector('[name="nomineeOccupationTypeNoDin"]')?.value || "",
+                        occupation_other: form.querySelector('[name="nomineeDescOthersNoDin"]')?.value || "",
+                        "Area of Occupation": form.querySelector('[name="areaOfOccupationNoDin"]')?.value || "",
+                        "If 'Others' selected, please specify": form.querySelector('[name="areaOthersSpecifyNoDin"]')?.value || "",
+                        education: form.querySelector('[name="nomineeEducationNoDin"]')?.value || "",
+                        education_other: form.querySelector('[name="nomineeOthersSpecifyNoDin"]')?.value || "",
+                        mobile: form.querySelector('[name="nomineeMobileNoNoDin"]')?.value || "",
+                        email: form.querySelector('[name="nomineeEmailNoDin"]')?.value || ""
+                    },
+                    permanent_address: {
+                        line1: form.querySelector('[name="nomineeAddressLine1NoDin"]')?.value || "",
+                        line2: form.querySelector('[name="nomineeAddressLine2NoDin"]')?.value || "",
+                        country: form.querySelector('[name="nomineeCountryNoDin"]')?.value || "",
+                        pincode: form.querySelector('[name="nomineePincodeNoDin"]')?.value || "",
+                        area: form.querySelector('[name="nomineeAreaLocalityNoDin"]')?.value || "",
+                        jurisdiction: form.querySelector('[name="nomineeJurisdictionPoliceNoDin"]')?.value || "",
+                        phone: form.querySelector('[name="nomineePhoneNoDin"]')?.value || ""
+                    },
+                    present_same: {
+                        Yes: form.querySelector('[name="nomineeSameAsPermanentNoDin"][value="yes"]')?.checked || false,
+                        No: form.querySelector('[name="nomineeSameAsPermanentNoDin"][value="no"]')?.checked || false
+                    },
+                    present_address: {
+                        line1: form.querySelector('[name="presentAddressLine1CorpNoDin"]')?.value || "",
+                        line2: form.querySelector('[name="presentAddressLine2CorpNoDin"]')?.value || "",
+                        country: form.querySelector('[name="presentCountryCorpNoDin"]')?.value || "",
+                        pincode: form.querySelector('[name="presentPincodeCorpNoDin"]')?.value || "",
+                        area: form.querySelector('[name="presentAreaLocalityCorpNoDin"]')?.value || "",
+                        jurisdiction: form.querySelector('[name="presentJurisdictionPoliceCorpNoDin"]')?.value || "",
+                        phone: form.querySelector('[name="presentPhoneCorpNoDin"]')?.value || ""
+                    },
+                    stay_duration: {
+                        years: form.querySelector('[name="presentStayYearsCorpNoDin"]')?.value || "",
+                        months: form.querySelector('[name="presentStayMonthsCorpNoDin"]')?.value || ""
+                    },
+                    identity_proof: {
+                        type: form.querySelector('[name="nomineeIdentityProofNoDin"]')?.value || "",
+                        number: form.querySelector('[name="nomineeIdentityProofNoNoDin"]')?.value || ""
+                    },
+                    residential_proof: {
+                        type: form.querySelector('[name="nomineeResidentialProofNoDin"]')?.value || "",
+                        number: form.querySelector('[name="nomineeResidentialProofNoNoDin"]')?.value || ""
+                    },
+                    uploads: {
+                        identity_proof_path: form.querySelector('[name="nomineeProofIdentityNoDin"]')?.files?.[0]?.name || "",
+                        residential_proof_path: form.querySelector('[name="nomineeResidentialProofNoDin"]')?.files?.[0]?.name || "",
+                        resolution_copy_path: form.querySelector('[name="resolutionCorpNoDin"]')?.files?.[0]?.name || ""
+                    }
+                });
+            });
+
+            // Compose the final config_data object - exactly as per backend structure
+            const config_data = {
+                firefox_profile_path: "C:\\Users\\Admin\\Downloads\\clone\\LLP_incorporation\\firefox_profile",
+                fillip_url: "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
+                user_email: "registerkaro.info72@gmail.com",
+                user_password: "ABCD@12",
+                form_data: {
+                    file_paths,
+                    fields,
+                dynamic_form_index,
+                designated_partners,
+                partners_without_din,
+                bodies_corporate_with_din,
+                bodies_corporate_nominee_no_din
+                }
+            };
+
+            return config_data;
+        }
+
+        // Attach to your main submit button
+        const saveBtn = document.querySelector('button[type="button"].bg-blue-600, button[type="submit"].bg-blue-600');
+        if (saveBtn) {
+                saveBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
+                
+                try {
+                    const config_data = await collectFormDataForLLP();
+                    console.log('Sending config_data to API:', config_data);
+                    
+                    const response = await fetch('http://127.0.0.1:5000/api/automate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ config_data })
+                    });
+
+                    console.log('API Response status:', response.status);
+                    console.log('API Response headers:', response.headers);
+
+                    const data = await response.json();
+                    console.log('API Response data:', data);
+                    
+                    if (data.status === "success") {
+                        alert("Automation started! Task ID: " + data.task_id);
+                        // You can start polling for status here
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    alert("Network error: " + err.message);
+                }
+            });
+        }
+        </script>
 
 </body>
 

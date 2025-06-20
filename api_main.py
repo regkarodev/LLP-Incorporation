@@ -1,6 +1,7 @@
 # api_main.py
 from flask import Flask, request, jsonify
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
 import json
 from automation_worker import AutomationWorker
 import threading
@@ -20,6 +21,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app, origins=['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:5500', 'http://127.0.0.1:5500', 'file://', '*'])
 
 # Swagger configuration
 SWAGGER_URL = '/api/docs'
@@ -146,7 +150,7 @@ swagger_config = {
                                                         "partnership and my membership number": {"type": "string"}
                                                     }
                                                 },
-                                                "dynamic_form_index": {
+                                        "dynamic_form_index": {
                                                     "type": "object",
                                                     "properties": {
                                                         "individuals_having_valid_din_dpin": {"type": "string"},
@@ -155,7 +159,7 @@ swagger_config = {
                                                         "body_corporates_and_their_nominee_not_having_valid_din_dpin": {"type": "string"}
                                                     }
                                                 },
-                                                "designated_partners": {
+                                        "designated_partners": {
                                                     "type": "array",
                                                     "items": {
                                                         "type": "object",

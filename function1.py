@@ -25,8 +25,6 @@ def scroll_into_view(driver, element):
         print(f"Error scrolling element into view: {str(e)}")
         return False
 
-
-
 def click_element(driver, *, xpath=None, id=None, css_selector=None, class_name=None, name=None):
     try:
         if xpath is not None and id is not None and css_selector is not None and class_name is not None and name is not None:
@@ -105,11 +103,9 @@ def send_text(driver, *, xpath=None, id=None, css_selector=None, class_name=None
     except:
         pass
 
-
 def log_terminal_output(message, level="info"):
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] [{level.upper()}] {message}")
-
 
 def set_date_field(driver, date_field_id, your_date):
     """
@@ -234,7 +230,6 @@ def click_true_option(driver, parent_key, options_dict, section_heading=None):
     except Exception as e:
         print(f"Error in click_true_option: {e}")
         return False
-
 
 def upload_proof_of_identity(driver, file_path, partner_position=1):
     """
