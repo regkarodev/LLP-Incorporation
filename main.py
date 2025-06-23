@@ -18,6 +18,10 @@ import automate1
 import logging
 
 
+with open("config_data.json", "r") as f:
+    config = json.load(f)
+
+
 # Get the absolute path to the directory containing this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Path to the .env file
@@ -204,7 +208,7 @@ def perform_login(driver=None, close_after_login=False):
                 )
                 if user_field.is_displayed() and user_field.is_enabled():
                     user_field.clear()
-                    user_field.send_keys("shagun@registerkaro.in")
+                    user_field.send_keys(config["user_email"])
                     print("User ID entered successfully")
                     break
             except:
@@ -220,7 +224,7 @@ def perform_login(driver=None, close_after_login=False):
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='password']"))
             )
             password_field.clear()
-            password_field.send_keys("Plushie0w0!")
+            password_field.send_keys(config["user_password"])
             print("Password entered successfully")
         except Exception as e:
             raise Exception(f"Could not find or interact with password field: {e}")

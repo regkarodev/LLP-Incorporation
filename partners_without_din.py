@@ -12,7 +12,7 @@ import platform
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from pynput.keyboard import Controller, Key
-
+import win32gui, win32con
 
 def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
     """
@@ -52,51 +52,67 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -128,9 +144,9 @@ def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5)
                 EC.element_to_be_clickable((By.XPATH, fallback_xpath))
             )
 
-        # Scroll and click the button
+        # Scroll and click
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
-        time.sleep(1)
+        time.sleep(2)
         try:
             attach_button.click()
         except:
@@ -139,58 +155,67 @@ def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5)
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path using keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
         time.sleep(2)
-
-        # Optional success dialog handling
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'ok-button') or @id='okSuccessModalBtn']"))
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Re-fetch parent_div again if needed
-        parent_div = WebDriverWait(driver, timeout + 3).until(
-            EC.presence_of_element_located((By.XPATH, parent_div))
-        )
-
-        # Confirm upload success by checking file item list
+        # Check uploaded file list
         try:
-            file_list = WebDriverWait(parent_div, timeout + 5).until(
-                lambda d: d.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-            )
+            file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] Upload list found but no file item.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found or empty: {e}")
-            return False
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -220,11 +245,18 @@ def handle_partners_without_din(driver, config_data):
         print(f"[INFO] Processing {num_partners} partners without DIN/DPIN")
         
         # Get partners data from config
-        partners_data = config_data.get('partners_without_din', [])
+        partners_data = config_data.get('form_data', {}).get('partners_without_din', [])
         if not partners_data:
             print("[WARNING] No partner data found in config")
+            print(f"[DEBUG] Available keys in config_data: {list(config_data.keys())}")
+            if 'form_data' in config_data:
+                print(f"[DEBUG] Available keys in form_data: {list(config_data['form_data'].keys())}")
             return
 
+        print(f"[DEBUG] Found {len(partners_data)} partners in config data")
+        if partners_data:
+            print(f"[DEBUG] First partner data keys: {list(partners_data[0].keys())}")
+            print(f"[DEBUG] Sample partner data: {partners_data[0]}")
 
         # Get number of partners having valid DIN/DPIN
         num_partners_str = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN', '').strip()
@@ -645,7 +677,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Occupation type ---
+            # --- Occupation type ---
             time.sleep(1.5)
             try:
                             occupation_type = partner.get('Occupation type', '').strip()
@@ -1377,6 +1409,7 @@ def handle_partners_without_din(driver, config_data):
 
 
                     # --- (iv) Identity Proof ---
+
             time.sleep(0.5)
             try:
                         identity_proof_value = partner.get('Identity Proof', '').strip()
@@ -1407,6 +1440,7 @@ def handle_partners_without_din(driver, config_data):
 
 
                     # (v) Residential Proof    
+            time.sleep(0.5)
             try:
                         residential_proof_value = partner.get('Residential Proof', '').strip()
 

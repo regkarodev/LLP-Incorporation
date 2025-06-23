@@ -13,6 +13,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from pynput.keyboard import Controller, Key
 
+import win32gui, win32con
 
 
 def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
@@ -53,51 +54,67 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(5)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -139,51 +156,67 @@ def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5)
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -225,51 +258,67 @@ def handle_dynamic_resolution_upload(driver, parent_div, file_path, i, timeout=5
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -297,7 +346,7 @@ def handle_bodies_corporate_without_din(driver, config_data):
         print(f"[INFO] Processing {num_bodies} Body corporates and their nominees not Having valid DIN/DPIN")
 
         # Get bodies corporate data from config with better validation
-        bodies_data = config_data.get('bodies_corporate_nominee_no_din', [])
+        bodies_data = config_data.get('form_data', {}).get('bodies_corporate_nominee_no_din', [])
         if not bodies_data:
             print("[WARNING] No bodies corporate data found in config")
             print("[DEBUG] Available keys in config_data:", list(config_data.keys()))
@@ -2232,54 +2281,51 @@ def handle_bodies_corporate_without_din(driver, config_data):
             
 
             # --- Whether present residential address same as permanent ---
+            
             time.sleep(0.5)
             try:
-                same_address_data = body.get('present_same', {})
-                label = next((k for k, v in same_address_data.items() if v.lower() == 'true'), None) if isinstance(same_address_data, dict) else None
+                                same_address_data = body.get('present_same', {})
+                                label = next((k for k, v in same_address_data.items() if v.lower() == 'true'), None) if isinstance(same_address_data, dict) else None
 
-                if label:
-                    # ✅ Updated static XPath
-                    radio_container_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[22]/div/div/div/div[1]/div/div[12]/div/div/div[2]"
-                    
-                    radio_container = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH, radio_container_xpath_base))
-                    )
-                    
-                    yes_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='Yes']"
-                    no_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='No']"
+                                if label:
+                                    radio_container_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[22]/div/div/div/div[1]/div/div[12]/div/div/div[2]"
+                                    radio_container = WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.XPATH, radio_container_xpath_base))
+                                    )
+                                    yes_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='Yes']"
+                                    no_radio_xpath = f"{radio_container_xpath_base}//input[@type='radio' and @aria-label='No']"
 
-                    if label.lower() == 'yes':
-                        try:
-                            yes_radio = WebDriverWait(driver, 5).until(
-                                EC.element_to_be_clickable((By.XPATH, yes_radio_xpath))
-                            )
-                            yes_radio.click()
-                            print(f"[✓] Partner {position}: Selected 'Yes' for Whether present address same as permanent (i={i}).")
-                            fields_filled_count += 1
-                        except Exception as e:
-                            print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether present address same as permanent (i={i}): {e}")
-                            fields_failed_count += 1
-                    elif label.lower() == 'no':
-                        try:
-                            no_radio = WebDriverWait(driver, 5).until(
-                                EC.element_to_be_clickable((By.XPATH, no_radio_xpath))
-                            )
-                            no_radio.click()
-                            print(f"[✓] Partner {position}: Selected 'No' for Whether present address same as permanent (i={i}).")
-                            fields_filled_count += 1
-                        except Exception as e:
-                            print(f"[✗] Partner {position}: Error clicking 'No' for Whether present address same as permanent (i={i}): {e}")
-                        fields_failed_count += 1
-                else:
-                        print(f"[INFO] Partner {position}: Invalid value for 'Whether present address same as permanent': {label}")
-                
+                                    if label.lower() == 'yes':
+                                        try:
+                                            yes_radio = WebDriverWait(driver, 5).until(
+                                                EC.element_to_be_clickable((By.XPATH, yes_radio_xpath))
+                                            )
+                                            driver.execute_script("arguments[0].click();", yes_radio)
+                                            print(f"[✓] Partner {position}: Selected 'Yes' for Whether present address same as permanent (i={i}).")
+                                            fields_filled_count += 1
+                                        except Exception as e:
+                                            print(f"[✗] Partner {position}: Error clicking 'Yes' for Whether present address same as permanent (i={i}): {e}")
+                                    elif label.lower() == 'no':
+                                        try:
+                                            no_radio = WebDriverWait(driver, 5).until(
+                                                EC.element_to_be_clickable((By.XPATH, no_radio_xpath))
+                                            )
+                                            driver.execute_script("arguments[0].click();", no_radio)
+                                            print(f"[✓] Partner {position}: Selected 'No' for Whether present address same as permanent (i={i}).")
+                                            # fields_filled_count += 1 # Increment will happen in the subsequent address fields
+                                        except Exception as e:
+                                            print(f"[✗] Partner {position}: Error clicking 'No' for Whether present address same as permanent (i={i}): {e}")
+                                    else:
+                                        print(f"[INFO] Partner {position}: Invalid value for 'Whether present address same as permanent': {label}")
+                                else:
+                                    print(f"[INFO] Partner {position}: 'Whether present address same as permanent' not found in data.")
             except TimeoutException:
-                print(f"[✗] Partner {position}: Timeout finding 'Whether present address same as permanent' container.")
+                                print(f"[✗] Partner {position}: Timeout finding 'Whether present address same as permanent' container.")
             except NoSuchElementException:
-                print(f"[✗] Partner {position}: Could not find 'Whether present address same as permanent' label/container.")
+                                print(f"[✗] Partner {position}: Could not find 'Whether present address same as permanent' label/container.")
             except Exception as e:
-                print(f"[ERROR] Exception in 'Whether present address same as permanent': {e}")
-                fields_failed_count += 1
+                                print(f"[ERROR] Exception in 'Whether present address same as permanent': {e}")
+                                fields_failed_count += 1
 
             
             # --- Present Address ---

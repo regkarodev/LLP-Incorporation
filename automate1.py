@@ -100,7 +100,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Registrar of Companies
         time.sleep(2)
-        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
+        click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
 
         # Service Request Number
         send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Service Request Number'])
@@ -570,6 +570,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         )
         
 
+        # Final form section - add error handling for elements that may not be present
         # Final form section - add error handling for elements that may not be present
         time.sleep(1)
         #*DIN/DPIN/PAN of designated partner

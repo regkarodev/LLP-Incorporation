@@ -1,13 +1,13 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException, WebDriverException, ElementClickInterceptedException
+from selenium.common.exceptions import TimeoutException
 import time
 import os
-import json
 from pynput.keyboard import Controller, Key
+import win32gui
+import win32con
 
 def handle_file_upload(driver, parent_div_id, file_path, timeout=20):
     """Helper function to handle file uploads using keyboard input"""
@@ -25,85 +25,81 @@ def handle_file_upload(driver, parent_div_id, file_path, timeout=20):
             # Fallback to XPath if provided and if this is a bank proof upload
             id_proof_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[5]/div/div/div[2]/div[1]/input[1]"
             address_proof_xpath = "/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[9]/div/div/div[2]/div[1]/input[1]"
-            if "cop_72059460" in parent_div_id:
-                button_xpath = id_proof_xpath
-            else:
-                button_xpath = address_proof_xpath
+            button_xpath = id_proof_xpath if "cop_72059460" in parent_div_id else address_proof_xpath
             attach_button = WebDriverWait(driver, timeout).until(
                 EC.presence_of_element_located((By.XPATH, button_xpath))
             )
-        
-        # Scroll to and click the Attach button
+
+        # Scroll and click
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
         time.sleep(2)
-        
-        # Try multiple click methods
         try:
             attach_button.click()
         except:
             try:
                 driver.execute_script("arguments[0].click();", attach_button)
             except:
-                actions = ActionChains(driver)
-                actions.move_to_element(attach_button).click().perform()
-        
-        # Wait for the file dialog to be ready (short delay to ensure dialog opens)
+                ActionChains(driver).move_to_element(attach_button).click().perform()
+
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Initialize keyboard controller
+        # Type file path using pynput
         keyboard = Controller()
-
-        # Ensure browser window is in focus
-        driver.switch_to.window(driver.current_window_handle)
         normalized_path = os.path.normpath(file_path)
-        print(f"[DEBUG] Normalized path for typing: {normalized_path}")
-
-        # Type the file path character by character with a small delay to ensure stability
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            # Add a slightly longer delay for critical characters like ':' to ensure dialog captures it
-            if char in [":", "\\"]:
-                time.sleep(0.1)
-            else:
-                time.sleep(0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        # Wait briefly to ensure typing is complete
-        time.sleep(1)
-
-        # Press Enter to submit the dialog
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Handle the "Document Added Successfully!" dialog with shorter wait time
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print(f"[AGILE PRO] Clicked OK on success dialog")
+            print("[AGILE PRO] Clicked OK on success dialog")
             time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found, assuming upload completed without dialog")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Failed to interact with success dialog: {str(e)}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Verify upload success by checking the file list
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print(f"[AGILE PRO] File upload verified: File appears in the uploaded list")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print(f"[WARNING] File upload may not have completed: No files found in the upload list")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] No file list found, unable to verify upload via UI: {str(e)}")
-            return True  # Assume success if no file list is found
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] File upload failed for {parent_div_id}: {str(e)}")
+        print(f"[ERROR] File upload failed for {parent_div_id}: {e}")
         return False
-    
-

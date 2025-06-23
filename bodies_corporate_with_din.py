@@ -1,5 +1,6 @@
 import time
 import os
+import json
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,14 +9,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from function1 import scroll_into_view, send_text, click_element, click_button
 from selenium.webdriver.common.action_chains import ActionChains
-import json
 from pynput.keyboard import Controller, Key
-
-def validate_file_paths(file_paths):
-    """Validate that all file paths exist."""
-    for file_path in file_paths:
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
+import win32gui, win32con
 
 
 def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
@@ -56,53 +51,68 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
-
 
 
 def handle_bodies_corporate_with_din(driver, config_data):
@@ -116,10 +126,19 @@ def handle_bodies_corporate_with_din(driver, config_data):
     try:
         # Get the number of bodies corporate from config with better error handling
         try:
-            num_bodies = int(config_data['form_data']['fields'].get('Body corporates and their nominees Having valid DIN/DPIN', 0))
+            num_bodies_raw = config_data['form_data']['fields'].get('Body corporates and their nominees Having valid DIN/DPIN', '')
+            print(f"[DEBUG] Raw value for bodies corporate with DIN: '{num_bodies_raw}'")
+            
+            # Handle empty string, None, or invalid values
+            if not num_bodies_raw or num_bodies_raw == '' or num_bodies_raw == '0':
+                print("[INFO] No bodies corporate with DIN/DPIN specified (value is empty or 0)")
+                return
+            
+            num_bodies = int(num_bodies_raw)
             print(f"[DEBUG] Number of bodies corporate found: {num_bodies}")
         except (ValueError, TypeError) as e:
             print(f"[ERROR] Invalid value for 'Bodies Corporate having valid DIN/DPIN': {e}")
+            print(f"[DEBUG] Value was: '{num_bodies_raw}'")
             return
 
         if num_bodies == 0:
@@ -129,10 +148,12 @@ def handle_bodies_corporate_with_din(driver, config_data):
         print(f"[INFO] Processing {num_bodies} Body corporates and their nominees Having valid DIN/DPIN")
 
         # Get bodies corporate data from config with better validation
-        bodies_data = config_data.get('bodies_corporate_with_din', [])
+        bodies_data = config_data.get('form_data', {}).get('bodies_corporate_with_din', [])
         if not bodies_data:
             print("[WARNING] No bodies corporate data found in config")
             print("[DEBUG] Available keys in config_data:", list(config_data.keys()))
+            if 'form_data' in config_data:
+                print("[DEBUG] Available keys in form_data:", list(config_data['form_data'].keys()))
             return
 
         if not isinstance(bodies_data, list):
@@ -141,6 +162,11 @@ def handle_bodies_corporate_with_din(driver, config_data):
 
         print(f"[DEBUG] Found {len(bodies_data)} bodies corporate entries in config")
         
+        # Check if we have enough data entries for the specified number
+        if len(bodies_data) < num_bodies:
+            print(f"[WARNING] Specified {num_bodies} bodies corporate but only {len(bodies_data)} data entries found")
+            print("[INFO] Processing only available data entries")
+            num_bodies = len(bodies_data)
 
         # Safely extract DIN/DPIN values as strings, falling back to empty string if None
         num_din_raw = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN')
