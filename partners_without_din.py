@@ -12,7 +12,7 @@ import platform
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from pynput.keyboard import Controller, Key
-
+import win32gui, win32con
 
 def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
     """
@@ -52,54 +52,68 @@ def handle_dynamic_identity_upload(driver, parent_div, file_path, i, timeout=5):
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path via keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
-        time.sleep(1)
-
-        # Success dialog handling
+        time.sleep(2)
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Upload verification
+        # Check uploaded file list
         try:
             file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] No file found in upload list.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found: {e}")
-            return True  # assume success if not verifiable
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
-
-
 
 
 def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5):
@@ -128,9 +142,9 @@ def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5)
                 EC.element_to_be_clickable((By.XPATH, fallback_xpath))
             )
 
-        # Scroll and click the button
+        # Scroll and click
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", attach_button)
-        time.sleep(1)
+        time.sleep(2)
         try:
             attach_button.click()
         except:
@@ -139,58 +153,67 @@ def handle_dynamic_residency_upload(driver, parent_div, file_path, i, timeout=5)
             except:
                 ActionChains(driver).move_to_element(attach_button).click().perform()
 
+        # Short delay to wait for file dialog to open
         time.sleep(2)
+        
+        # Bring browser window to focus
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            print("[DEBUG] Browser window focused using Win32")
+        except Exception as e:
+            print(f"[WARNING] Could not focus browser window: {e}")
 
-        # Type file path using keyboard
-        normalized_path = os.path.normpath(file_path)
+        # Type file path using pynput
         keyboard = Controller()
-        driver.switch_to.window(driver.current_window_handle)
-
-        print(f"[DEBUG] Typing path: {normalized_path}")
+        normalized_path = os.path.normpath(file_path)
+        print(f"[DEBUG] Typing normalized path: {normalized_path}")
         for char in normalized_path:
-            keyboard.press(char)
-            keyboard.release(char)
-            time.sleep(0.1 if char in [":", "\\", "/"] else 0.05)
+            try:
+                keyboard.press(char)
+                keyboard.release(char)
+                if char in [":", "\\"]:
+                    time.sleep(0.15)
+                else:
+                    time.sleep(0.07)
+            except Exception as e:
+                print(f"[ERROR] Failed to type character {char}: {e}")
 
-        time.sleep(1)
+        # Press Enter to submit
+        time.sleep(2)
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
         time.sleep(2)
-
-        # Optional success dialog handling
+        
+        # Handle success popup
         try:
             ok_button = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'ok-button') or @id='okSuccessModalBtn']"))
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.ok-button, #okSuccessModalBtn"))
             )
             driver.execute_script("arguments[0].click();", ok_button)
-            print("[AGILE PRO] Clicked OK on upload success dialog.")
+            print("[AGILE PRO] Clicked OK on success dialog")
+            time.sleep(0.3)
         except TimeoutException:
-            print("[INFO] No success dialog found.")
+            print("[INFO] No success dialog found, assuming upload completed")
         except Exception as e:
-            print(f"[WARNING] Error closing upload dialog: {e}")
+            print(f"[WARNING] Failed to interact with success dialog: {e}")
 
-        # Re-fetch parent_div again if needed
-        parent_div = WebDriverWait(driver, timeout + 3).until(
-            EC.presence_of_element_located((By.XPATH, parent_div))
-        )
-
-        # Confirm upload success by checking file item list
+        # Check uploaded file list
         try:
-            file_list = WebDriverWait(parent_div, timeout + 5).until(
-                lambda d: d.find_element(By.XPATH, ".//ul[contains(@class, 'guide-fu-fileItemList')]")
-            )
+            file_list = parent_div.find_element(By.CSS_SELECTOR, "ul.guide-fu-fileItemList")
             if file_list.find_elements(By.TAG_NAME, "li"):
-                print("[AGILE PRO] File appears in upload list.")
+                print("[AGILE PRO] File upload verified in list")
                 return True
             else:
-                print("[WARNING] Upload list found but no file item.")
+                print("[WARNING] File upload may have failed: no file found in list")
                 return False
         except Exception as e:
-            print(f"[INFO] Upload list not found or empty: {e}")
-            return False
+            print(f"[INFO] No file list found for verification: {e}")
+            return True  # Optimistically assume success
 
     except Exception as e:
-        print(f"[ERROR] Upload failed for index={i}: {e}")
+        print(f"[ERROR] File upload failed for {parent_div}: {e}")
         return False
 
 
@@ -220,11 +243,18 @@ def handle_partners_without_din(driver, config_data):
         print(f"[INFO] Processing {num_partners} partners without DIN/DPIN")
         
         # Get partners data from config
-        partners_data = config_data.get('partners_without_din', [])
+        partners_data = config_data.get('form_data', {}).get('partners_without_din', [])
         if not partners_data:
             print("[WARNING] No partner data found in config")
+            print(f"[DEBUG] Available keys in config_data: {list(config_data.keys())}")
+            if 'form_data' in config_data:
+                print(f"[DEBUG] Available keys in form_data: {list(config_data['form_data'].keys())}")
             return
 
+        print(f"[DEBUG] Found {len(partners_data)} partners in config data")
+        if partners_data:
+            print(f"[DEBUG] First partner data keys: {list(partners_data[0].keys())}")
+            print(f"[DEBUG] Sample partner data: {partners_data[0]}")
 
         # Get number of partners having valid DIN/DPIN
         num_partners_str = config_data.get('form_data', {}).get('fields', {}).get('Individuals Having valid DIN/DPIN', '').strip()
@@ -508,7 +538,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Verify PAN Button ---
+            # --- Verify PAN Button ---
             time.sleep(1.5)
             try:
                         verify_pan_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[14]/div/div/div/div[1]/div/div[3]/div/div/div[1]"
@@ -524,13 +554,13 @@ def handle_partners_without_din(driver, config_data):
 
 
             # --- Place of Birth (State) ---
-            time.sleep(1.5)
+            time.sleep(2)
             try:
                         birth_state = partner.get('Place of Birth (State)', '').strip()
                         if birth_state:
                             dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[15]/div/div/div[2]/select"  # your full XPath here
 
-                            birth_state_element = WebDriverWait(driver, 10).until(
+                            birth_state_element = WebDriverWait(driver, 20).until(
                                 EC.presence_of_element_located((By.XPATH, dropdown_xpath))
                             )
 
@@ -645,7 +675,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Occupation type ---
+            # --- Occupation type ---
             time.sleep(1.5)
             try:
                             occupation_type = partner.get('Occupation type', '').strip()
@@ -665,12 +695,26 @@ def handle_partners_without_din(driver, config_data):
                                 if occupation_type.lower() == 'others':
                                     others_description = partner.get('Description of others', '').strip()
                                     if others_description:
+                                        # Fixed XPath - point to the container div, not the input
                                         others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[19]/div/div/div[2]"
-                                        others_xpath = f"{others_xpath_base}//input[@aria-label='Description of others']"
-                                        others_input = WebDriverWait(driver, 10).until(
-                                            EC.element_to_be_clickable((By.XPATH, others_xpath))
+                                        others_input_xpath = f"{others_xpath_base}//input[@aria-label='Description of others']"
+                                        
+                                        others_input = WebDriverWait(driver, 20).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_input_xpath))
                                         )
-                                        others_input.send_keys(others_description)
+                                        
+                                        # Scroll to the element
+                                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", others_input)
+                                        time.sleep(0.5)
+                                        
+                                        # Clear and fill using JavaScript
+                                        driver.execute_script("arguments[0].value = '';", others_input)
+                                        driver.execute_script("arguments[0].value = arguments[1];", others_input, others_description)
+                                        
+                                        # Dispatch events
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", others_input)
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", others_input)
+                                        
                                         print(f"[✓] Partner {position}: Filled 'Description of others': '{others_description}' (i={i}).")
                                         fields_filled_count += 1
                                     else:
@@ -690,7 +734,7 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # --- Area of Occupation ---
+            # --- Area of Occupation ---
             time.sleep(1.5)
             try:
                             area_of_occupation = partner.get("Area of Occupation", "").strip()
@@ -706,21 +750,6 @@ def handle_partners_without_din(driver, config_data):
                                 print(f"[✓] Partner {position}: Selected Area of Occupation: {area_of_occupation} (i={i}).")
                                 fields_filled_count += 1
 
-                                # If 'Others' selected for Area of Occupation, fill description
-                                if area_of_occupation.lower() == "others":
-                                    others_description = partner.get("If Others selected, please specify", "").strip()
-                                    if others_description:
-                                        others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[21]/div/div/div[2]"
-                                        others_input_xpath = f"{others_xpath_base}//input[@aria-label='If \'Others\' selected, please specify']"
-                                        others_input = WebDriverWait(driver, 10).until(
-                                            EC.element_to_be_clickable((By.XPATH, others_input_xpath))
-                                        )
-                                        others_input.send_keys(others_description)
-                                        print(f"[✓] Partner {position}: Filled 'If Others' selected, please specify: '{others_description}' (i={i}).")
-                                        fields_filled_count += 1
-                                    else:
-                                        print(f"[INFO] Partner {position}: No value to specify for 'Others' in Area of Occupation.")
-
                             else:
                                 print(f"[INFO] Partner {position}: No value provided for Area of Occupation.")
             except TimeoutException:
@@ -732,8 +761,59 @@ def handle_partners_without_din(driver, config_data):
                             fields_filled_count += 1
 
 
+            time.sleep(2)
+            try:
+                                # If 'Others' selected for Area of Occupation, fill description
+                                if area_of_occupation.lower() == "others":
+                                    others_description = partner.get("If Others selected, please specify", "").strip()
+                                    if others_description:
+                                        # Fixed XPath - point to the container div, not the input
+                                        others_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[21]/div/div/div[2]/input"
+                                        others_input_xpath = f"{others_xpath_base}//input[@aria-label='If \'Others\' selected, please specify']"
+                                        
+                                        others_input = WebDriverWait(driver, 20).until(
+                                            EC.element_to_be_clickable((By.XPATH, others_xpath_base))
+                                        )
+                                        
+                            # Scroll to the element
+                                        try:
+                                            if callable(globals().get('scroll_into_view')):
+                                                scroll_into_view(driver, others_input)
+                                            else:
+                                                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", others_input)
+                                        except Exception as e:
+                                            print(f"[WARNING] Partner {position}: Failed to scroll to input: {e}")
 
-                    # --- Educational qualification ---
+                                        # Clear and set value using JavaScript
+                                        driver.execute_script("arguments[0].value = '';", others_input)
+                                        driver.execute_script("arguments[0].value = arguments[1];", others_input, others_description)
+
+                                        # Dispatch input and change events
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", others_input)
+                                        driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", others_input)
+
+                                        # Fallback: Use send_keys for defensive entry
+                                        try:
+                                            others_input.clear()  # Clear via Selenium
+                                            others_input.send_keys(others_description)
+                                        except Exception as e:
+                                            print(f"[WARNING] Partner {position}: Failed to send keys: {e}")
+
+                                        print(f"[✓] Partner {position}: Filled 'If Others' selected, please specify: '{others_description}' (i={i}).")
+                                        fields_filled_count += 1
+                                    else:
+                                        print(f"[INFO] Partner {position}: No value to specify for 'Others' in Area of Occupation.")
+            except TimeoutException:
+                print(f"[✗] Partner {position}: Timeout finding 'If Others' selected, please specify input.")
+                fields_failed_count += 1
+            except NoSuchElementException:
+                print(f"[✗] Partner {position}: Could not find 'If Others' selected, please specify input.")
+                fields_failed_count += 1
+            except Exception as e:
+                print(f"[✗] Partner {position}: Error filling 'If Others' selected, please specify: {e}")
+                fields_failed_count += 1
+
+            # --- Educational qualification ---
             time.sleep(1.5)
             try:
                             educational_qualification = partner.get('Educational qualification', '').strip()
@@ -776,36 +856,67 @@ def handle_partners_without_din(driver, config_data):
 
 
 
-                    # Contact Details
+            # Contact Details
             time.sleep(1.5)
             try:
-                            mobile_value = partner.get('Mobile No.', '').strip()
-                            if mobile_value:
-                                mobile_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[24]/div/div/div[2]"
-                                mobile_xpath = f"{mobile_xpath_base}//input[@aria-label='Mobile No.']"
-                                mobile_input = WebDriverWait(driver, 10).until(
-                                    EC.presence_of_element_located((By.XPATH, mobile_xpath))
-                                )
-                                mobile_input.clear()
-                                mobile_input.send_keys(mobile_value)
-                                print(f"[SUCCESS] Partner {position}: Entered Mobile No.: {mobile_value} (i={i}).")
-                                fields_filled_count += 1
-                            else:
-                                print(f"[INFO] Partner {position}: No Mobile No. provided in data.")
+                mobile_value = partner.get('Mobile No.', '')
+                if mobile_value:
+                    # Define the common base XPath for the partner's section
+                    partner_section_base_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]"
+                    
+                    # More specific XPath directly to the input field
+                    mobile_input_xpath = f"{partner_section_base_xpath}/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[24]/div/div/div[2]/input"
+
+                    print(f"Mobile Input XPath: {mobile_input_xpath}")
+                    
+                    mobile_input = WebDriverWait(driver, 10).until(
+                        EC.element_to_be_clickable((By.XPATH, mobile_input_xpath)) # Wait for the actual input to be clickable
+                    )
+
+                    # Ensure element is interactable by removing readonly/disabled attributes and making it visible
+                    driver.execute_script("arguments[0].removeAttribute('readonly');", mobile_input)
+                    driver.execute_script("arguments[0].removeAttribute('disabled');", mobile_input)
+                    driver.execute_script("arguments[0].style.display = 'block';", mobile_input)
+                    driver.execute_script("arguments[0].style.visibility = 'visible';", mobile_input)
+
+                    # Scroll into view
+                    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", mobile_input)
+                    time.sleep(0.5)
+
+                    try:
+                        mobile_input.clear()
+                        mobile_input.send_keys(mobile_value)
+                        print(f"[SUCCESS] Partner {position}: Entered Mobile No. via Selenium: {mobile_value} (i={i}).")
+                    except Exception as selenium_error:
+                        print(f"[WARNING] Partner {position}: Selenium clear/send_keys failed, attempting with JavaScript: {selenium_error}")
+                        # Fallback to JavaScript if direct Selenium interaction fails
+                        driver.execute_script("arguments[0].value = '';", mobile_input)
+                        driver.execute_script("arguments[0].value = arguments[1];", mobile_input, mobile_value)
+                        # Dispatch events to trigger any form validation/dynamic behavior
+                        driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", mobile_input)
+                        driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", mobile_input)
+                        print(f"[SUCCESS] Partner {position}: Entered Mobile No. via JavaScript: {mobile_value} (i={i}).")
+
+                    fields_filled_count += 1
+                else:
+                    print(f"[INFO] Partner {position}: No Mobile No. provided in data.")
             except TimeoutException:
-                            print(f"[✗] Partner {position}: Timeout finding Mobile No. input.")
+                print(f"[✗] Partner {position}: Timeout finding Mobile No. input or element not clickable.")
             except NoSuchElementException:
-                            print(f"[✗] Partner {position}: Could not find Mobile No. input.")
+                print(f"[✗] Partner {position}: Could not find Mobile No. input.")
             except Exception as e:
-                            print(f"[✗] Partner {position}: Failed to enter Mobile No.: {e}")
-                            fields_failed_count += 1
+                print(f"[✗] Partner {position}: Failed to enter Mobile No.: {e}")
+                fields_failed_count += 1
 
 
 
-                        # --- Email ID ---
+
+
+
+            # --- Email ID ---
             time.sleep(1.5)
             try:
-                            email_value = partner.get('Email ID', '').strip()
+                            email_value = partner.get('Email ID', '')
                             if email_value:
                                 email_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[5]/div/div/div/div[1]/div/div[25]/div/div/div[2]"
                                 email_xpath = f"{email_xpath_base}//input[@aria-label='Email ID']"
@@ -852,7 +963,7 @@ def handle_partners_without_din(driver, config_data):
                             fields_failed_count += 1
 
 
-                    # --- Permanent Address - Address Line II ---
+            # --- Permanent Address - Address Line II ---
             time.sleep(0.5)
             try:
                             perm_address2 = partner.get('Permanent Address Line II', '').strip()
@@ -1006,7 +1117,7 @@ def handle_partners_without_din(driver, config_data):
                                 fields_failed_count += 1
 
 
-                            # --- Permanent Phone ---
+            # --- Permanent Phone ---
             time.sleep(0.5)
             try:
                                 phone_value = partner.get('Permanent Phone', '').strip()
@@ -1117,7 +1228,7 @@ def handle_partners_without_din(driver, config_data):
                                 print(f"[!] Body Corporate {position}: 'Address Line I' is empty or missing in input data. Skipping.")
                                 
 
-                            # --- Address Line II ---
+                        # --- Address Line II ---
                         address2_value = partner.get('Present Address Line II', '')
                         if address2_value:
                                 address2_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[11]/div/div/div/div[1]/div/div[2]/div/div/div[2]/input"
@@ -1376,7 +1487,8 @@ def handle_partners_without_din(driver, config_data):
                     
 
 
-                    # --- (iv) Identity Proof ---
+            # --- (iv) Identity Proof ---
+
             time.sleep(0.5)
             try:
                         identity_proof_value = partner.get('Identity Proof', '').strip()
@@ -1385,7 +1497,7 @@ def handle_partners_without_din(driver, config_data):
                             dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[1]/div/div/div[2]/select"
 
                             # Wait for the dropdown to be present
-                            dropdown_element = WebDriverWait(driver, 10).until(
+                            dropdown_element = WebDriverWait(driver, 15).until(
                                 EC.presence_of_element_located((By.XPATH, dropdown_xpath))
                             )
 
@@ -1407,6 +1519,7 @@ def handle_partners_without_din(driver, config_data):
 
 
                     # (v) Residential Proof    
+            time.sleep(0.5)
             try:
                         residential_proof_value = partner.get('Residential Proof', '').strip()
 
@@ -1414,7 +1527,7 @@ def handle_partners_without_din(driver, config_data):
                             dropdown_xpath = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[13]/div/div/div/div[1]/div/div[2]/div/div/div[2]/select"
 
                             # Wait for dropdown
-                            dropdown_element = WebDriverWait(driver, 10).until(
+                            dropdown_element = WebDriverWait(driver, 15).until(
                                 EC.presence_of_element_located((By.XPATH, dropdown_xpath))
                             )
 

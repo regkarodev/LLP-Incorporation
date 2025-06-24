@@ -18,6 +18,10 @@ import automate1
 import logging
 
 
+with open("config_data.json", "r") as f:
+    config = json.load(f)
+
+
 # Get the absolute path to the directory containing this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Path to the .env file
@@ -204,7 +208,7 @@ def perform_login(driver=None, close_after_login=False):
                 )
                 if user_field.is_displayed() and user_field.is_enabled():
                     user_field.clear()
-                    user_field.send_keys("registerkaro.info72@gmail.com")
+                    user_field.send_keys(config["user_email"])
                     print("User ID entered successfully")
                     break
             except:
@@ -220,7 +224,7 @@ def perform_login(driver=None, close_after_login=False):
                 EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='password']"))
             )
             password_field.clear()
-            password_field.send_keys("ABCD@12")
+            password_field.send_keys(config["user_password"])
             print("Password entered successfully")
         except Exception as e:
             raise Exception(f"Could not find or interact with password field: {e}")
@@ -484,14 +488,19 @@ def main():
         print("Please check the error messages above.")
         print("="*50 + "\n")
     
-    # Ask user if they want to close the browser
-    keep_open = input("Do you want to keep the browser open? (y/n): ").lower().strip() == 'y'
-    if not keep_open and driver:
-        print("Closing browser...")
-        driver.quit()
-    else:
-        print("Keeping browser open. You can continue manually.")
-        print("The script will exit but the browser will remain open.")
+    # Prompt user to close or keep browser open
+    if 'driver' in locals() and driver:
+        user_input = input("Press Enter to close the browser, or type anything and press Enter to keep it open: ")
+        if user_input.strip() == "":
+            print("Closing browser...")
+            try:
+                driver.quit()
+                print("Browser closed.")
+            except Exception as e:
+                print(f"Error closing browser: {e}")
+        else:
+            print("Keeping browser open. You can continue manually.")
+
 
 if __name__ == "__main__":
     main()

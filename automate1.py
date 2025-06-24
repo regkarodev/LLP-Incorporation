@@ -100,13 +100,14 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Registrar of Companies
         time.sleep(2)
-        click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
-
+        click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
+        
         # Service Request Number
+        time.sleep(2)
         send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Service Request Number'])
 
         # Type of incorporation
-        time.sleep(2)
+        time.sleep(1)
         click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton_1069538009__-1_widget')
 
 
@@ -175,7 +176,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Upload files using JavaScript override for attachments
         time.sleep(2)
-        file_path = config_data['form_data']['file_paths']['first_file']
+        file_path = config_data['form_data']['file_paths']['Proof of Office']
 
         # Locator for the hidden input type="file" element
         file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh__"
@@ -204,7 +205,7 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         # ---  *Copy of the utility bills (not older than two months) ---
         time.sleep(2)
-        file_path = config_data['form_data']['file_paths']['second_file']
+        file_path = config_data['form_data']['file_paths']['Copy of the utility bills']
 
         # Locator for the hidden input type="file" element
         file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh_376676005__"
@@ -571,6 +572,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         
 
         # Final form section - add error handling for elements that may not be present
+        # Final form section - add error handling for elements that may not be present
         time.sleep(1)
         #*DIN/DPIN/PAN of designated partner
         send_text(driver,css_selector='#guideContainer-rootPanel-panel-panel_1696210624-panel_1548670294-panel-guidetextbox_1527295062___widget', keys=config_data['form_data']['fields']['DIN/DPIN/PAN of designated partner'])
@@ -642,6 +644,8 @@ def run_llp_form_sequence(webdriver_instance=None):
         time.sleep(1)
         click_button(driver, '#guideContainer-rootPanel-panel_1029056258-mca_button_814968004___widget')
 
+        time.sleep(2)
+
 
 
 
@@ -655,9 +659,9 @@ def run_llp_form_sequence(webdriver_instance=None):
         return False
 
 
-        # Wait for Enter key to exit and close browser
-        input("Press Enter to exit and close the browser...")
-        sys.exit(0)
+    # Wait for Enter key to exit and close browser
+    input("Press Enter to exit and close the browser...")
+    sys.exit(0)
 
 
 # Execute if script is run directly

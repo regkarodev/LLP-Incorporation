@@ -1,199 +1,144 @@
 # automation_worker.py
+
 import os
-import time
 import json
+import time
 import logging
-import tempfile
-import shutil
-import base64
-import zipfile
-import main
-import automate1
 
 from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
 
-# Setup basic logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler()
-    ]
-)
+# Import the necessary modules it will call
+import main
+import automate1 
+
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
 class AutomationWorker:
+    """
+    A class to orchestrate the automation process by delegating tasks.
+    It initializes the browser and then calls other scripts to perform login and form-filling.
+    """
     def __init__(self):
+        """Initializes the worker's state."""
         self.driver = None
         self.config_data = None
-        self.temp_profile_dir = None
-        self.wait_timeout = 30  # Default wait timeout in seconds
 
     def initialize_browser(self, firefox_profile_path):
-        """Initialize the Firefox browser with the specified profile"""
+        """
+        Initializes a Firefox browser instance using a direct profile path.
+        """
         try:
-            options = FirefoxOptions()
+            logger.info(f"Initializing browser with profile: {firefox_profile_path}")
+            
+            if not isinstance(firefox_profile_path, str) or not os.path.exists(firefox_profile_path):
+                logger.error(f"Invalid or non-existent profile path: '{firefox_profile_path}'.")
+                return False
+
+            options = Options()
             options.add_argument("--start-maximized")
+            options.add_argument("-profile")
+            options.add_argument(firefox_profile_path)
             
-            # Handle both string path and base64 encoded profile data
-            if isinstance(firefox_profile_path, str):
-                if os.path.exists(firefox_profile_path):
-                    logger.info(f"Using existing profile at: {firefox_profile_path}")
-                    options.profile = FirefoxProfile(firefox_profile_path)
-                else:
-                    try:
-                        logger.info("Processing base64 encoded profile data")
-                        profile_data = base64.b64decode(firefox_profile_path)
-                        self.temp_profile_dir = tempfile.mkdtemp()
-                        
-                        # Save the decoded data to a temporary file
-                        profile_file = os.path.join(self.temp_profile_dir, 'profile.zip')
-                        with open(profile_file, 'wb') as f:
-                            f.write(profile_data)
-                        
-                        # Extract the profile
-                        with zipfile.ZipFile(profile_file, 'r') as zip_ref:
-                            zip_ref.extractall(self.temp_profile_dir)
-                        
-                        # Use the extracted profile
-                        options.profile = FirefoxProfile(self.temp_profile_dir)
-                        logger.info(f"Created temporary profile at: {self.temp_profile_dir}")
-                    except Exception as e:
-                        logger.error(f"Failed to process profile data: {str(e)}")
-                        return False
+            logger.info("Installing/updating geckodriver...")
+            service = Service(GeckoDriverManager().install())
             
-            self.driver = webdriver.Firefox(
-                service=FirefoxService(GeckoDriverManager().install()),
-                options=options
-            )
-            logger.info("Browser initialized successfully")
+            self.driver = webdriver.Firefox(service=service, options=options)
+            logger.info("Browser initialized successfully.")
             return True
         except Exception as e:
-            logger.error(f"Failed to initialize browser: {str(e)}")
+            logger.error(f"Failed to initialize browser: {e}", exc_info=True)
             return False
 
-    def load_config(self, config_json):
-        """Load configuration from JSON string"""
+    def load_config(self, config_json_str):
+        """
+        Loads configuration from a JSON string.
+        This corrected version assumes the string is the config object itself,
+        not a wrapper object.
+        """
         try:
-            self.config_data = json.loads(config_json)
-            logger.info("Configuration loaded successfully")
+            # **THE FIX**: Directly parse the incoming string as the config data.
+            self.config_data = json.loads(config_json_str)
+            
+            # Validate that the necessary keys exist in the loaded config.
+            if "form_data" not in self.config_data:
+                 raise ValueError("Loaded config is missing the 'form_data' key.")
+            logger.info("Configuration loaded successfully.")
             return True
-        except Exception as e:
-            logger.error(f"Failed to load config: {str(e)}")
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Failed to load or validate config: {e}")
             return False
 
     def save_config_to_file(self):
-        """Save the current config to config_data.json"""
+        """
+        Saves the received configuration to 'config_data.json' so that
+        the external main.py script can read it.
+        """
         try:
             with open("config_data.json", "w") as f:
-                json.dump(self.config_data, f, indent=2)
-            logger.info("Configuration saved to config_data.json")
+                # We save the content of self.config_data, not the whole object
+                json.dump(self.config_data, f, indent=4)
+            logger.info("Configuration saved to config_data.json for main.py to use.")
             return True
         except Exception as e:
-            logger.error(f"Failed to save config: {str(e)}")
+            logger.error(f"Failed to save config to file: {e}", exc_info=True)
             return False
 
     def execute_automation(self):
-        """Execute the automation sequence"""
+        """
+        Executes the automation by calling external scripts for login and form-filling.
+        """
         try:
             if not self.driver or not self.config_data:
-                return {
-                    "status": "error",
-                    "message": "Browser or config not initialized",
-                    "details": {}
-                }
+                return {"status": "error", "message": "Browser or config not initialized."}
 
-            # Save config to file for main.py to use
+            # Step 1: Save the config to a file for main.py to access
             if not self.save_config_to_file():
-                return {
-                    "status": "error",
-                    "message": "Failed to save config file",
-                    "details": {}
-                }
+                return {"status": "error", "message": "Could not write config file for sub-process."}
 
-            # Execute main.py workflow which handles login and automation
-            logger.info("Starting main workflow...")
-            # Pass the existing driver to main.py
-            main.perform_login(driver=self.driver, close_after_login=False)
+            # Step 2: Delegate login to main.py's perform_login function
+            logger.info("Delegating login task to main.perform_login...")
+            driver, login_success = main.perform_login(driver=self.driver, close_after_login=False)
+
+            if not login_success:
+                logger.error("main.py reported a login failure.")
+                return {"status": "error", "message": "Login failed as per main.py execution."}
             
-            # After login, run the automation sequence
-            if self.driver:
-                # Initialize automate1 with our driver
-                automate1.setup_driver(self.driver)
-                success = automate1.run_llp_form_sequence(self.driver)
-                
-                if success:
-                    logger.info("Automation completed successfully")
-                    return {
-                        "status": "success",
-                        "message": "Automation completed successfully",
-                        "details": {
-                            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
-                        }
-                    }
-                else:
-                    logger.error("Automation failed during form sequence execution")
-                    return {
-                        "status": "error",
-                        "message": "Automation failed during form sequence execution",
-                        "details": {
-                            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
-                        }
-                    }
+            # Update driver instance, as main.py might have changed it
+            self.driver = driver
+            logger.info("Login successful. Navigating to the Fillip form URL.")
+
+            # Step 3: Navigate to the form and execute the form-filling sequence
+            # fillip_url = self.config_data.get("fillip_url")
+            # self.driver.get(fillip_url)
+            
+            logger.info("Handing off to automate1.py to fill the form.")
+            automate1.setup_driver(self.driver)
+            form_data = self.config_data.get("form_data", {})
+
+            success = automate1.run_llp_form_sequence()
+            
+            if success:
+                logger.info("Automation sequence completed successfully.")
+                return {"status": "success", "message": "LLP form automation completed."}
             else:
-                return {
-                    "status": "error",
-                    "message": "Browser session lost after login",
-                    "details": {}
-                }
+                logger.error("The form filling sequence in automate1.py reported an error.")
+                return {"status": "error", "message": "An error occurred during form filling."}
 
         except Exception as e:
-            logger.error(f"Unexpected error during automation: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Unexpected error: {str(e)}",
-                "details": {}
-            }
+            logger.critical(f"A critical error occurred during automation execution: {e}", exc_info=True)
+            return {"status": "error", "message": f"Critical error: {e}"}
 
     def cleanup(self):
-        """Clean up resources by quitting the browser and removing temporary files."""
+        """Closes the browser."""
         if self.driver:
             try:
-                logger.info("Quitting browser...")
                 self.driver.quit()
-                self.driver = None
-                logger.info("Browser quit successfully")
+                logger.info("Browser closed successfully.")
             except Exception as e:
-                logger.error(f"Error during browser cleanup: {str(e)}")
-        
-        # Clean up temporary profile directory if it exists
-        if self.temp_profile_dir and os.path.exists(self.temp_profile_dir):
-            try:
-                shutil.rmtree(self.temp_profile_dir)
-                logger.info("Temporary profile directory cleaned up successfully")
-            except Exception as e:
-                logger.error(f"Error cleaning up temporary profile directory: {str(e)}")
+                logger.error(f"Error during browser cleanup: {e}")
+        self.driver = None
 
-if __name__ == "__main__":
-    worker = AutomationWorker()
-    try:
-        # Load configuration
-        with open("config_data.json", "r") as f:
-            config = json.load(f)
-        
-        # Initialize browser
-        if worker.initialize_browser(config.get("firefox_profile_path")):
-            # Load config
-            worker.load_config(json.dumps(config))
-            
-            # Execute automation
-            result = worker.execute_automation()
-            print(f"Automation result: {result}")
-    except Exception as e:
-        logger.error(f"Error in main execution: {str(e)}")
-    finally:
-        worker.cleanup()

@@ -1,4 +1,5 @@
 flask
+flask-cors
 selenium
 python-dotenv
 webdriver-manager

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLP Incorporation Automation</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'EB Garamond', serif;
+            background-color: #121212;
+            color: #E0E0E0;
+        }
+
+        .header-title {
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Custom scrollbar for a more thematic feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f1f1f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        
+        /* Profile button styling */
+        .profile-btn {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .profile-btn:hover {
+            background-color: #333;
+            border-color: #666;
+        }
+        .profile-btn.active {
+            background-color: #333;
+            border-color: #c0392b;
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.6);
+        }
+        
+        /* JSON Text Area */
+        #jsonData {
+            background-color: #1e1e1e;
+            border: 1px solid #444;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+
+        /* Modal styling */
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.75);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="w-full bg-black bg-opacity-50 py-4 shadow-lg">
+        <h1 class="text-center text-3xl font-bold text-gray-200 tracking-wider underline decoration-1 underline-offset-8 header-title">
+            LLP Incorporation Automation
+        </h1>
+    </header>
+
+    <main class="flex-grow flex flex-col md:flex-row p-4 md:p-6 gap-6">
+
+        <aside class="w-full md:w-1/3 lg:w-1/4 flex flex-col gap-4">
+            <div class="flex-grow bg-black bg-opacity-30 p-4 rounded-lg shadow-inner space-y-3 overflow-y-auto">
+                <h2 class="text-xl font-bold text-gray-300 border-b border-gray-700 pb-2 mb-3">User Profiles</h2>
+                <div id="profiles-list" class="space-y-3">
+                    </div>
+            </div>
+            <div class="space-y-3">
+                 <button id="add-user-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Add More Users
+                </button>
+                 <button id="start-automation-btn" class="w-full bg-cream-100 text-black font-bold py-4 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105" style="background-color: #F5F5DC;">
+                    Start Automation
+                </button>
+            </div>
+        </aside>
+
+        <section class="w-full md:w-2/3 lg:w-3/4 flex flex-col bg-black bg-opacity-30 p-4 rounded-lg shadow-inner">
+            <h2 id="data-entry-title" class="text-xl font-bold text-gray-300 border-b border-gray-700 pb-2 mb-3">Data for Profile 1</h2>
+            <textarea id="jsonData" class="w-full flex-grow rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Paste user's JSON data here..."></textarea>
+            <button id="add-data-btn" class="w-full mt-4 bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                Update Data for Selected Profile
+            </button>
+        </section>
+
+    </main>
+
+    <div id="feedbackModal" class="fixed inset-0 z-50 items-center justify-center modal-backdrop hidden">
+        <div id="modal-content" class="bg-gray-800 border border-gray-600 rounded-lg shadow-2xl p-6 w-full max-w-md text-center">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-message" class="text-gray-300 mb-6"></p>
+            <button id="modal-close-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-lg">Close</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- STATE MANAGEMENT ---
+            const state = {
+                profiles: [],
+                activeProfileId: null,
+            };
+            
+            // --- DOM ELEMENTS ---
+            const profilesListEl = document.getElementById('profiles-list');
+            const dataEntryTitleEl = document.getElementById('data-entry-title');
+            const jsonDataEl = document.getElementById('jsonData');
+            const addUserBtn = document.getElementById('add-user-btn');
+            const addDataBtn = document.getElementById('add-data-btn');
+            const startAutomationBtn = document.getElementById('start-automation-btn');
+            const feedbackModal = document.getElementById('feedbackModal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            // --- UPDATED INITIAL DATA (from your provided JSON) ---
+            const initialProfileData = {
+              "config_data": {
+                "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\coyayv9e.default",
+                "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
+                "user_email": "registerkaro.info72@gmail.com",
+                "user_password": "ABCD@12",
+                "form_data": {
+                  "file_paths": {
+                    "Proof of Office": "",
+                    "Copy of the utility bills": "",
+                    "third_file": "",
+                    "fourth_file": ""
+                  },
+                  "fields": {
+                    "Service Request Number": "",
+                    "Address Line I": "",
+                    "Address Line II": "",
+                    "PIN CODE": "",
+                    "Area/Locality1": "",
+                    "Longitude": "",
+                    "Latitude": "",
+                    "Jurisdiction of Police Station": "",
+                    "Phone (with STD/ISD code)": "",
+                    "Mobile No": "",
+                    "Fax": "",
+                    "Email ID": "",
+                    "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
+                    "Individuals Having valid DIN/DPIN": "0",
+                    "Individuals Not having valid DIN/DPIN": "0",
+                    "Body corporates and their nominees Having valid DIN/DPIN": "0",
+                    "Body corporates and their nominee not having valid DIN/DPIN": "0",
+                    "Individuals Having valid DIN/DPIN1": "0",
+                    "Individuals Not having valid DIN/DPIN1": "0",
+                    "Body corporates and their nominees Having valid DIN/DPIN1": "0",
+                    "Body corporates and their nominee not having valid DIN/DPIN1": "0",
+                    "PAN Area code": "N",
+                    "PAN Area code1": "W",
+                    "PAN Area code2": "R",
+                    "PAN AO type": "W",
+                    "PAN AO type1": "",
+                    "PAN Range code": "",
+                    "PAN Range code1": "",
+                    "PAN Range code2": "",
+                    "PAN AO No.": "3",
+                    "PAN AO No1": "",
+                    "PAN AO No2": "",
+                    "PAN AO No3": "",
+                    "TAN Area code1": "N",
+                    "TAN Area code2": "W",
+                    "TAN Area code3": "R",
+                    "TAN AO type1": "W",
+                    "TAN AO type2": "T",
+                    "TAN Range code": "",
+                    "TAN Range code1": "",
+                    "TAN Range code2": "",
+                    "TAN AO No": "",
+                    "TAN AO No1": "",
+                    "TAN AO No2": "",
+                    "TAN AO No3": "",
+                    "Income Source": "",
+                    "DIN/DPIN/PAN of designated partner": "",
+                    "Enter Name": "",
+                    "Enter Father's Name": "",
+                    "partnership and my membership number": ""
+                  },
+                  "dynamic_form_index": {
+                    "individuals_having_valid_din_dpin": "2",
+                    "individuals_not_having_valid_din_dpin": "3",
+                    "body_corporates_and_their_nominees_having_valid_din_dpin": "5",
+                    "body_corporates_and_their_nominee_not_having_valid_din_dpin": "7"
+                  },
+                  "designated_partners": [
+                    {
+                      "Designated partner identification number (DIN/DPIN)": "",
+                      "Form of contribution": "",
+                      "If 'Other than cash' selected, please specify": "",
+                      "Monetary value of contribution (in INR) (in figures)": "",
+                      "Number of LLP(s) in which he/ she is a partner": "",
+                      "Number of company(s) in which he/ she is a director": ""
+                    }
+                  ],
+                  "partners_without_din": [
+                    {
+                      "First Name": "",
+                      "Middle Name": "",
+                      "Surname": "",
+                      "Father's First Name": "",
+                      "Father's Middle Name": "",
+                      "Father's Surname": "",
+                      "Gender": "",
+                      "Date of Birth": "",
+                      "Nationality": "",
+                      "Whether resident of India": {
+                        "Yes": "true"                  // In left side write the option that you want to select
+                      },
+                      "Income-tax PAN/Passport number": {
+                        "PAN": "true"                 // In left side write the option that you want to select
+                      },
+                      "Income-tax PAN/Passport number details": "",
+                      "Place of Birth (State)": "",
+                      "Place of Birth (District)": "",
+                      "Whether citizen of India": {
+                        "Yes": "true"                   // In left side write the option that you want to select    
+                      },
+                      "Occupation type": "",
+                      "Description of others": "",
+                      "Area of Occupation": "",
+                      "If Others selected, please specify": "",
+                      "Educational qualification": "",
+                      "Educational qualification others": "",
+                      "Mobile No.": "+91",
+                      "Email ID": "",
+                      "Permanent Address Line I": "",
+                      "Permanent Address Line II": "",
+                      "Permanent Country": "",
+                      "Permanent Pin code": "",
+                      "Permanent Area/Locality": "",
+                      "Permanent Police Station": "",
+                      "Permanent Phone": "91",
+                      "Whether present residential address same as permanent": {
+                        "Yes": "true"                   // In left side write the option that you want to select
+                      },
+                      "Present Address Line I": "",
+                      "Present Address Line II": "",
+                      "Present Country": "",
+                      "Present Pin code": "",
+                      "Present Area/Locality": "",
+                      "Present Phone": "",
+                      "Present Jurisdiction": "",
+                      "Duration Years": "",
+                      "Duration Months": "",
+                      "Identity Proof": "",
+                      "Residential Proof": "",
+                      "Identity Proof No.": "",
+                      "Residential Proof No.": "",
+                      "Proof of identity": "",
+                      "Residential proof": "",
+                      "Form of contribution": "",
+                      "Monetary value": "",
+                      "Number of LLPs": "",
+                      "Number of companies": ""
+                    }
+                  ],
+                  "bodies_corporate_with_din": [
+                    {
+                      "Type of body corporate": "",
+                      "CIN/FCRN": "",
+                      "PAN": "",
+                      "Name of the body corporate": "",
+                      "Address Line I": "",
+                      "Address Line II": "",
+                      "Country": "",
+                      "Pin code": "",
+                      "Area/ Locality": "",
+                      "Jurisdiction of Police Station": "",
+                      "Phone (with STD/ISD code)": "91",
+                      "Mobile No": "",
+                      "Fax": "",
+                      "Email ID": "",
+                      "Form of contribution": "Cash",
+                      "Monetary value of contribution (in INR) (in figures)": "0",
+                      "Number of LLP(s) in which it is a partner": "0",
+                      "Number of company(s) in which it is a director": "0",
+                      "DIN/DPIN": "",
+                      "Name": "",
+                      "Whether resident of India": "Yes",         // Write the value which you want to click
+                      "Designation and Authority in body corporate": "",
+                      "Copy of resolution": ""
+                    }
+                  ],
+                  "bodies_corporate_nominee_no_din": [
+                    {
+                      "corporate_details": {
+                        "type": "",
+                        "registration_number": "",
+                        "pan": "",
+                        "name": "",
+                        "address": {
+                          "line1": "",
+                          "line2": "",
+                          "country": "India",
+                          "pincode": "",
+                          "area": "",
+                          "jurisdiction": ""
+                        },
+                        "contact": {
+                          "phone": "91",
+                          "mobile": "",
+                          "fax": "",
+                          "email": ""
+                        },
+                        "conversion": {
+                          "shares_held": "0",
+                          "share_value": "0"
+                        }
+                      },
+                      "contribution": {
+                        "form": "Cash",
+                        "other_specify": "",
+                        "value_figures": "-",
+                        "llp_count": "0",
+                        "company_count": "0"
+                      },
+                      "nominee": {
+                        "first_name": "",
+                        "middle_name": "",
+                        "surname": "",
+                        "father_first": "",
+                        "father_middle": "",
+                        "father_surname": "",
+                        "gender": "",
+                        "dob": "",
+                        "nationality": "India",
+                        "resident": "Yes",        // Write the value which you want to click
+                        "PAN/Passport number": "PAN",  // Write the value which you want to click
+                        "pan/passport": "",
+                        "birth_state": "",
+                        "birth_district": "",
+                        "citizen": "Yes",
+                        "occupation_type": "",
+                        "occupation_other": "",
+                        "Area of Occupation": "",
+                        "If 'Others' selected, please specify": "",
+                        "education": "",
+                        "education_other": "",
+                        "mobile": "+91",
+                        "email": ""
+                      },
+                      "permanent_address": {
+                        "line1": "",
+                        "line2": "",
+                        "country": "India",
+                        "pincode": "",
+                        "area": "",
+                        "jurisdiction": "",
+                        "phone": "+91"
+                      },
+                      "present_same": { 
+                        "No": "true"
+                      },
+                      "present_address": {
+                        "line1": "",
+                        "line2": "",
+                        "country": "India",
+                        "pincode": "",
+                        "area": "",
+                        "jurisdiction": "",
+                        "phone": "91"
+                      },
+                      "stay_duration": {
+                        "years": "0",
+                        "months": "6"
+                      },
+                      "identity_proof": {
+                        "type": "",
+                        "number": ""
+                      },
+                      "residential_proof": {
+                        "type": "",
+                        "number": ""
+                      },
+                      "uploads": {
+                        "identity_proof_path": "",
+                        "residential_proof_path": "",
+                        "resolution_copy_path": ""
+                      }
+                    }
+                  ]
+                }
+              }
+            };
+            
+            // --- CORE FUNCTIONS ---
+
+            function showModal(title, message, isError = false) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalTitle.className = `text-2xl font-bold mb-4 ${isError ? 'text-red-500' : 'text-green-500'}`;
+                feedbackModal.classList.add('flex');
+                feedbackModal.classList.remove('hidden');
+            }
+
+            function closeModal() {
+                 feedbackModal.classList.add('hidden');
+                 feedbackModal.classList.remove('flex');
+            }
+
+            function renderProfiles() {
+                profilesListEl.innerHTML = '';
+                if (state.profiles.length === 0) {
+                     profilesListEl.innerHTML = `<p class="text-center text-gray-500">No profiles yet. Add one!</p>`;
+                     return;
+                }
+                state.profiles.forEach(profile => {
+                    const button = document.createElement('button');
+                    button.textContent = `User Profile ${profile.id}`;
+                    button.className = 'w-full text-left p-4 rounded-lg profile-btn';
+                    if (profile.id === state.activeProfileId) {
+                        button.classList.add('active');
+                    }
+                    button.addEventListener('click', () => {
+                        setActiveProfile(profile.id);
+                    });
+                    profilesListEl.appendChild(button);
+                });
+            }
+
+            function setActiveProfile(id) {
+                state.activeProfileId = id;
+                const activeProfile = state.profiles.find(p => p.id === id);
+                if (activeProfile) {
+                    dataEntryTitleEl.textContent = `Data for User Profile ${id}`;
+                    jsonDataEl.value = JSON.stringify(activeProfile.data, null, 4); // Pretty print JSON
+                }
+                renderProfiles(); // Re-render to update active class
+            }
+
+            function addNewProfile() {
+                const newId = state.profiles.length > 0 ? Math.max(...state.profiles.map(p => p.id)) + 1 : 1;
+                state.profiles.push({
+                    id: newId,
+                    data: JSON.parse(JSON.stringify(initialProfileData)) // Create a deep copy
+                });
+                setActiveProfile(newId);
+            }
+            
+            function updateProfileData() {
+                if (!state.activeProfileId) {
+                    showModal("Error", "No profile selected. Please add or select a profile first.", true);
+                    return;
+                }
+                
+                try {
+                    const newData = JSON.parse(jsonDataEl.value);
+                    const profileIndex = state.profiles.findIndex(p => p.id === state.activeProfileId);
+                    if (profileIndex !== -1) {
+                        state.profiles[profileIndex].data = newData;
+                        showModal("Success", `Data for User Profile ${state.activeProfileId} has been updated.`);
+                    }
+                } catch (error) {
+                    showModal("Invalid JSON", "The data in the text area is not valid JSON. Please correct it.", true);
+                    console.error("JSON Parse Error:", error);
+                }
+            }
+
+            async function startAutomation() {
+                if (!state.activeProfileId) {
+                    showModal("Error", "Please select a profile to start automation.", true);
+                    return;
+                }
+                
+                const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+                if (!activeProfile || !activeProfile.data) {
+                    showModal("Error", "Selected profile has no data.", true);
+                    return;
+                }
+                
+                console.log("Starting automation for Profile:", state.activeProfileId);
+                console.log("Data being sent:", activeProfile.data);
+                
+                showModal("Processing...", "Sending data to automation server. Please wait.");
+
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/api/automate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(activeProfile.data) // Send the entire profile data object
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showModal("Success!", `Automation started successfully. Task ID: ${result.task_id}`);
+                    } else {
+                        showModal("API Error", `Server responded with an error: ${result.message}`, true);
+                    }
+
+                } catch (error) {
+                    console.error("Fetch API Error:", error);
+                    showModal("Connection Error", "Could not connect to the automation server. Please ensure it is running.", true);
+                }
+            }
+
+
+            // --- EVENT LISTENERS ---
+            addUserBtn.addEventListener('click', addNewProfile);
+            addDataBtn.addEventListener('click', updateProfileData);
+            startAutomationBtn.addEventListener('click', startAutomation);
+            modalCloseBtn.addEventListener('click', closeModal);
+            feedbackModal.addEventListener('click', (e) => {
+                if(e.target === feedbackModal) closeModal();
+            });
+
+            // --- INITIALIZATION ---
+            addNewProfile(); // Start with one profile by default
+
+        });
+    </script>
+</body>
+</html>
