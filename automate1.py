@@ -101,12 +101,13 @@ def run_llp_form_sequence(webdriver_instance=None):
         # Registrar of Companies
         time.sleep(2)
         click_element(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton__-1_widget')
-
+        
         # Service Request Number
+        time.sleep(2)
         send_text(driver, css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guidetextbox_copy___widget', keys=config_data['form_data']['fields']['Service Request Number'])
 
         # Type of incorporation
-        time.sleep(2)
+        time.sleep(1)
         click_element(driver,css_selector='#guideContainer-rootPanel-panel-panel-panel-panel_copy_copy-panel1626772568950-guideradiobutton_1069538009__-1_widget')
 
 
@@ -175,7 +176,7 @@ def run_llp_form_sequence(webdriver_instance=None):
         
         # Upload files using JavaScript override for attachments
         time.sleep(2)
-        file_path = config_data['form_data']['file_paths']['first_file']
+        file_path = config_data['form_data']['file_paths']['Proof of Office']
 
         # Locator for the hidden input type="file" element
         file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh__"
@@ -204,7 +205,7 @@ def run_llp_form_sequence(webdriver_instance=None):
 
         # ---  *Copy of the utility bills (not older than two months) ---
         time.sleep(2)
-        file_path = config_data['form_data']['file_paths']['second_file']
+        file_path = config_data['form_data']['file_paths']['Copy of the utility bills']
 
         # Locator for the hidden input type="file" element
         file_input_element_id = "guideContainer-rootPanel-panel-panel_1815470267-panel_1379931518_cop-panel-panel_copy-fileuploadwithplaceh_376676005__"

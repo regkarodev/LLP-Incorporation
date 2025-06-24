@@ -1,65 +1,65 @@
 {
     "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\coyayv9e.default",
     "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
-    "user_email": "registerkaro.info72@gmail.com",
-    "user_password": "ABCD@12",
+    "user_email": "registerkaro.info83@gmail.com",
+    "user_password": "SLPL@123",
     "form_data": {
         "file_paths": {
-            "first_file": "C:/Users/Admin/Downloads/dummypdf.pdf",
-            "second_file": "C:/Users/Admin/Downloads/dummypdf.pdf",
-            "third_file": "C:/Users/Admin/Downloads/dummypdf.pdf",
-            "fourth_file": "C:/Users/Admin/Downloads/dummypdf.pdf"
+            "Proof of Office": "C:\\Users\\Admin\\Downloads\\image.png",
+            "Copy of the utility bills": "C:\\Users\\Admin\\Downloads\\company address.jpg",
+            "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+            "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
         },
         "fields": {
-            "Service Request Number": "M30041928",
-            "Address Line I": "3rd",
-            "Address Line II": "Street No 3",
-            "PIN CODE": "122016",
-            "Area/Locality1": "Industrial Complex Dhundahera",
-            "Longitude": "28.8881",
-            "Latitude": "36.9999",
-            "Jurisdiction of Police Station": "Gurugram",
+            "Service Request Number": "M29984192",
+            "Address Line I": "NO.31, 1ST CRS, 2ND MN",
+            "Address Line II": "MANJUNATHA L/O SEGEHALLI",
+            "PIN CODE": "560049",
+            "Area/Locality1": "Mundur",
+            "Longitude": "77.71",
+            "Latitude": "13.02",
+            "Jurisdiction of Police Station": "Avalahalli Police Station",
             "Phone (with STD/ISD code)": "91",
-            "Mobile No": "9354886960",
-            "Fax": "1101234567",
-            "Email ID": "shagun@registerkaro.in",
+            "Mobile No": "9900309000",
+            "Fax": "",
+            "Email ID": "vanaja@ojasamirai.com",
             "Name of the office of Registrar": "Registrar of Companies, National Capital Territory of Delhi and Haryana",
             "Individuals Having valid DIN/DPIN": "0",
-            "Individuals Not having valid DIN/DPIN": "0",
+            "Individuals Not having valid DIN/DPIN": "2",
             "Body corporates and their nominees Having valid DIN/DPIN": "0",
-            "Body corporates and their nominee not having valid DIN/DPIN": "1",
+            "Body corporates and their nominee not having valid DIN/DPIN": "0",
             "Individuals Having valid DIN/DPIN1": "0",
             "Individuals Not having valid DIN/DPIN1": "0",
             "Body corporates and their nominees Having valid DIN/DPIN1": "0",
             "Body corporates and their nominee not having valid DIN/DPIN1": "0",
-            "PAN Area code": "N",
-            "PAN Area code1": "W",
+            "PAN Area code": "K",
+            "PAN Area code1": "A",
             "PAN Area code2": "R",
             "PAN AO type": "W",
             "PAN AO type1": "",
-            "PAN Range code": "5",
-            "PAN Range code1": "3",
-            "PAN Range code2": "",
+            "PAN Range code": "1",
+            "PAN Range code1": "2",
+            "PAN Range code2": "4",
             "PAN AO No.": "3",
             "PAN AO No1": "",
             "PAN AO No2": "",
             "PAN AO No3": "",
-            "TAN Area code1": "N",
-            "TAN Area code2": "W",
+            "TAN Area code1": "K",
+            "TAN Area code2": "A",
             "TAN Area code3": "R",
             "TAN AO type1": "W",
             "TAN AO type2": "T",
-            "TAN Range code": "7",
-            "TAN Range code1": "4",
-            "TAN Range code2": "",
-            "TAN AO No": "6",
+            "TAN Range code": "1",
+            "TAN Range code1": "8",
+            "TAN Range code2": "2",
+            "TAN AO No": "3",
             "TAN AO No1": "",
             "TAN AO No2": "",
             "TAN AO No3": "",
-            "Income Source": "Capital Gains",
-            "DIN/DPIN/PAN of designated partner": "10290759",
-            "Enter Name": "Ashish",
-            "Enter Father's Name": "Aashish",
+            "Income Source": "INCOME FROM BUSINESS/PROFESSION",
+            "DIN/DPIN/PAN of designated partner": "",
+            "Enter Name": "VANAJA ROOPESH TAYALOOR",
+            "Enter Father's Name": "MARUTHI KRISHNAYYA",
             "partnership and my membership number": "228798"
         },
         "dynamic_form_index": {
@@ -70,7 +70,7 @@
         },
         "designated_partners": [
             {
-                "Designated partner identification number (DIN/DPIN)": "10290759",
+                "Designated partner identification number (DIN/DPIN)": "",
                 "Form of contribution": "Cash",
                 "If 'Other than cash' selected, please specify": "",
                 "Monetary value of contribution (in INR) (in figures)": "1000000",
@@ -80,14 +80,14 @@
         ],
         "partners_without_din": [
             {
-                "First Name": "Ashish",
-                "Middle Name": "Singh",
-                "Surname": "Mehra",
-                "Father's First Name": "Chanchal",
-                "Father's Middle Name": "Singh",
-                "Father's Surname": "Mehra",
-                "Gender": "male",
-                "Date of Birth": "19/06/2001",
+                "First Name": "VANAJA",
+                "Middle Name": "ROOPESH",
+                "Surname": "TAYALOOR",
+                "Father's First Name": "MARUTHI",
+                "Father's Middle Name": "",
+                "Father's Surname": "KRISHNAYYA",
+                "Gender": "Female",
+                "Date of Birth": "24/01/1978",
                 "Nationality": "India",
                 "Whether resident of India": {
                     "Yes": "true"
@@ -95,23 +95,26 @@
                 "Income-tax PAN/Passport number": {
                     "PAN": "true"
                 },
-                "Income-tax PAN/Passport number details": "GVBPM4605P",
+                "Income-tax PAN/Passport number details": "AGBPT9753A",
                 "Place of Birth (State)": "Delhi",
                 "Place of Birth (District)": "South West Delhi",
                 "Whether citizen of India": {
                     "Yes": "true"
                 },
                 "Occupation type": "Business",
-                "Area of Occupation": "Student",
+                "Description of others": "",
+                "Area of Occupation": "Others",
+                "If Others selected, please specify": "Self Employed",
                 "Educational qualification": "Bachelor's degree",
-                "Mobile No.": "+919354886960",
-                "Email ID": "ashish@registerkaro.com",
-                "Permanent Address Line I": "123 Main Street",
-                "Permanent Address Line II": "Apartment 4B",
+                "Educational qualification others": "",
+                "Mobile No.": "+919900309000",
+                "Email ID": "vanaja.roopesh@gmail.com",
+                "Permanent Address Line I": "NO.31, 1ST CRS, 2ND MN",
+                "Permanent Address Line II": "MANJUNATHA L/O SEGEHALLI",
                 "Permanent Country": "India",
-                "Permanent Pin code": "400001",
-                "Permanent Area/Locality": "Bazargate",
-                "Permanent Police Station": "Andheri Police Station",
+                "Permanent Pin code": "560049",
+                "Permanent Area/Locality": "Mundur",
+                "Permanent Police Station": "KR PURAM",
                 "Permanent Phone": "91",
                 "Whether present residential address same as permanent": {
                     "Yes": "true"
@@ -127,14 +130,75 @@
                 "Duration Months": "",
                 "Identity Proof": "Aadhaar",
                 "Residential Proof": "Electricity Bill",
-                "Identity Proof No.": "826851933417",
-                "Residential Proof No.": "QUT030055A0AA",
-                "Proof of identity": "C:/Users/Admin/Downloads/dummypdf.pdf",
-                "Residential proof": "C:/Users/Admin/Downloads/dummypdf.pdf",
+                "Identity Proof No.": "646745569974",
+                "Residential Proof No.": "608025",
+                "Proof of identity": "C:\\Users\\Admin\\Downloads\\adhaar.jpg",
+                "Residential proof": "C:\\Users\\Admin\\Downloads\\address 1.jpg",
                 "Form of contribution": "Cash",
-                "Monetary value": "100000",
-                "Number of LLPs": "5",
-                "Number of companies": "4"
+                "Monetary value": "1000",
+                "Number of LLPs": "0",
+                "Number of companies": "0"
+            },
+            {
+                "First Name": "MANGALA",
+                "Middle Name": "",
+                "Surname": "SHIREESHA",
+                "Father's First Name": "BAJANTHRI",
+                "Father's Middle Name": "MURALI",
+                "Father's Surname": "BABU",
+                "Gender": "Female",
+                "Date of Birth": "20/01/2003",
+                "Nationality": "India",
+                "Whether resident of India": {
+                    "Yes": "true"
+                },
+                "Income-tax PAN/Passport number": {
+                    "PAN": "true"
+                },
+                "Income-tax PAN/Passport number details": "SFJPS2848N",
+                "Place of Birth (State)": "Andhra Pradesh",
+                "Place of Birth (District)": "CHITTOOR",
+                "Whether citizen of India": {
+                    "Yes": "true"
+                },
+                "Occupation type": "Business",
+                "Description of others": "",
+                "Area of Occupation": "Others",
+                "If Others selected, please specify": "Self Employed",
+                "Educational qualification": "Bachelor's degree",
+                "Educational qualification others": "",
+                "Mobile No.": "",
+                "Email ID": "shireeshadeepthi1820@gmail.com",
+                "Permanent Address Line I": "7-14A BAJANTHRI STREET",
+                "Permanent Address Line II": "PALAMANER",
+                "Permanent Country": "India",
+                "Permanent Pin code": "517408",
+                "Permanent Area/Locality": "CHITTOOR",
+                "Permanent Police Station": "CHITTOOR Police Station",
+                "Permanent Phone": "91",
+                "Whether present residential address same as permanent": {
+                    "Yes": "true"
+                },
+                "Present Address Line I": "",
+                "Present Address Line II": "",
+                "Present Country": "",
+                "Present Pin code": "",
+                "Present Area/Locality": "",
+                "Phone": "",
+                "Present Jurisdiction": "",
+                "Mobile": "",
+                "Duration Years": "",
+                "Duration Months": "",
+                "Identity Proof": "Aadhaar",
+                "Residential Proof": "Bank Statement",
+                "Identity Proof No.": "362790574322",
+                "Residential Proof No.": "833942988",
+                "Proof of identity": "C:\\Users\\Admin\\Downloads\\Shireesha adhaar.jpg",
+                "Residential proof": "C:\\Users\\Admin\\Downloads\\address 2.pdf",
+                "Form of contribution": "Cash",
+                "Monetary value": "10000",
+                "Number of LLPs": "0",
+                "Number of companies": "0"
             }
         ],
         "bodies_corporate_with_din": [
@@ -161,7 +225,7 @@
                 "Name": "Ashish",
                 "Whether resident of India": "Yes",
                 "Designation and Authority in body corporate": "Director",
-                "Copy of resolution": "C:/Users/Admin/Downloads/dummypdf.pdf"
+                "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
             }
         ],
         "bodies_corporate_nominee_no_din": [
@@ -191,8 +255,8 @@
                     }
                 },
                 "contribution": {
-                    "form": "Other than cash",
-                    "other_specify": "Property transfer",
+                    "form": "Cash",
+                    "other_specify": "",
                     "value_figures": "1000000",
                     "llp_count": 1,
                     "company_count": 2
@@ -219,7 +283,7 @@
                     "If 'Others' selected, please specify": "",
                     "education": "Bachelor's Degree",
                     "education_other": "",
-                    "mobile": "9876543210",
+                    "mobile": "+919876543210",
                     "email": "ashishmehra@registerkaro.in"
                 },
                 "permanent_address": {
@@ -229,7 +293,7 @@
                     "pincode": "110092",
                     "area": "New Delhi",
                     "jurisdiction": "Preet Vihar PS",
-                    "phone": "9354886960"
+                    "phone": "+919354886960"
                 },
                 "present_same": {
                     "No": "true"
@@ -256,9 +320,9 @@
                     "number": "EB123456789"
                 },
                 "uploads": {
-                    "identity_proof_path": "C:/Users/Admin/Downloads/dummypdf.pdf",
-                    "residential_proof_path": "C:/Users/Admin/Downloads/dummypdf.pdf",
-                    "resolution_copy_path": "C:/Users/Admin/Downloads/dummypdf.pdf"
+                    "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+                    "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
+                    "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
                 }
             }
         ]
