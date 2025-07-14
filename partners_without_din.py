@@ -869,7 +869,7 @@ def handle_partners_without_din(driver, config_data):
 
                     print(f"Mobile Input XPath: {mobile_input_xpath}")
                     
-                    mobile_input = WebDriverWait(driver, 10).until(
+                    mobile_input = WebDriverWait(driver, 15).until(
                         EC.element_to_be_clickable((By.XPATH, mobile_input_xpath)) # Wait for the actual input to be clickable
                     )
 
@@ -1049,7 +1049,7 @@ def handle_partners_without_din(driver, config_data):
                                 dropdown_xpath_base = f"/html/body/div[2]/div/div/div/div/div/form/div[4]/div/div[2]/div/div/div[1]/div/div[6]/div/div/div/div[1]/div/div[4]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[2]/div/div/div/div[1]/div/div[19]/div/div/div/div[1]/div/div[3]/div/div/div/div[1]/div/div[{i}]/div/div/div/div[1]/div/div[8]/div/div/div/div[1]/div/div[5]/div/div/div[2]"
                                 area_xpath = f"{dropdown_xpath_base}//select[@aria-label='Area/ Locality']"
 
-                                area_select_elem = WebDriverWait(driver, 10).until(
+                                area_select_elem = WebDriverWait(driver, 20).until(
                                     EC.presence_of_element_located((By.XPATH, area_xpath))
                                 )
                                 # Click to open the dropdown (if necessary)

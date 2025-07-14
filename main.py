@@ -90,6 +90,14 @@ def initialize_browser(firefox_profile_path):
     """
     print(f"Initializing browser with profile: {firefox_profile_path}")
     firefox_options = Options()
+    
+    # Disable autofill and password saving to prevent interference
+    firefox_options.set_preference("signon.autofillForms", False)
+    firefox_options.set_preference("signon.rememberSignons", False)
+    firefox_options.set_preference("browser.formfill.enable", False)
+    firefox_options.set_preference("extensions.formautofill.addresses.enabled", False)
+    firefox_options.set_preference("extensions.formautofill.creditCards.enabled", False)
+    
     if os.path.exists(firefox_profile_path):
         print(f"Using existing Firefox profile: {firefox_profile_path}")
         firefox_options.add_argument('-profile')
@@ -129,6 +137,10 @@ def perform_login(driver=None, close_after_login=False):
         # Load profile path from config_data.json
         with open("config_data.json", "r") as f:
             config = json.load(f)
+        
+        # Debug: Print the email that will be used for login
+        print(f"\n[DEBUG] Email from config_data.json: {config.get('user_email', 'NOT FOUND')}")
+        print(f"[DEBUG] Password length from config_data.json: {len(config.get('user_password', ''))}")
         
         # Initialize browser if needed
         if own_driver:
@@ -207,9 +219,30 @@ def perform_login(driver=None, close_after_login=False):
                     EC.presence_of_element_located((By.XPATH, selector))
                 )
                 if user_field.is_displayed() and user_field.is_enabled():
+                    # Force clear any autofilled values using multiple methods
                     user_field.clear()
+                    driver.execute_script("arguments[0].value = '';", user_field)
+                    driver.execute_script("arguments[0].setAttribute('value', '');", user_field)
+                    
+                    # Wait a moment and clear again to ensure it's empty
+                    time.sleep(0.5)
+                    user_field.clear()
+                    
+                    # Now enter the email from config
                     user_field.send_keys(config["user_email"])
-                    print("User ID entered successfully")
+                    
+                    # Verify what was actually entered
+                    entered_value = user_field.get_attribute("value")
+                    print(f"User ID entered: {entered_value}")
+                    print(f"Expected from config: {config['user_email']}")
+                    
+                    if entered_value != config["user_email"]:
+                        print("WARNING: Entered email doesn't match config! Trying again...")
+                        user_field.clear()
+                        driver.execute_script("arguments[0].value = '';", user_field)
+                        time.sleep(0.5)
+                        user_field.send_keys(config["user_email"])
+                    
                     break
             except:
                 continue

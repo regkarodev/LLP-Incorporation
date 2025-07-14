@@ -1,14 +1,14 @@
 {
-    "firefox_profile_path": "C:\\Users\\Admin\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\coyayv9e.default",
+    "firefox_profile_path": "C:/Users/Administrator/AppData/Roaming/Mozilla/Firefox/Profiles/0jjmtila.default",
     "fillip_url": "https://www.mca.gov.in/content/mca/global/en/mca/llp-e-filling/Fillip.html",
-    "user_email": "registerkaro.info83@gmail.com",
-    "user_password": "SLPL@123",
+    "user_email": "ashishmehra@registerkaro.com",
+    "user_password": "Techkaro@123",
     "form_data": {
         "file_paths": {
-            "Proof of Office": "C:\\Users\\Admin\\Downloads\\image.png",
-            "Copy of the utility bills": "C:\\Users\\Admin\\Downloads\\company address.jpg",
-            "third_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-            "fourth_file": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+            "Proof of Office": "C:/Users/Administrator/Downloads/dummy.pdf",
+            "Copy of the utility bills": "C:/Users/Administrator/Downloads/dummy.pdf",
+            "third_file": "C:/Users/Administrator/Downloads/dummy.pdf",
+            "fourth_file": "C:/Users/Administrator/Downloads/dummy.pdf"
         },
         "fields": {
             "Service Request Number": "M29984192",
@@ -32,15 +32,15 @@
             "Individuals Not having valid DIN/DPIN1": "0",
             "Body corporates and their nominees Having valid DIN/DPIN1": "0",
             "Body corporates and their nominee not having valid DIN/DPIN1": "0",
-            "PAN Area code": "K",
-            "PAN Area code1": "A",
-            "PAN Area code2": "R",
-            "PAN AO type": "W",
-            "PAN AO type1": "",
-            "PAN Range code": "1",
-            "PAN Range code1": "2",
-            "PAN Range code2": "4",
-            "PAN AO No.": "3",
+            "PAN Area code": "D",
+            "PAN Area code1": "L",
+            "PAN Area code2": "C",
+            "PAN AO type": "C",
+            "PAN AO type1": "A",
+            "PAN Range code": "5",
+            "PAN Range code1": "0",
+            "PAN Range code2": "2",
+            "PAN AO No.": "1",
             "PAN AO No1": "",
             "PAN AO No2": "",
             "PAN AO No3": "",
@@ -132,8 +132,8 @@
                 "Residential Proof": "Electricity Bill",
                 "Identity Proof No.": "646745569974",
                 "Residential Proof No.": "608025",
-                "Proof of identity": "C:\\Users\\Admin\\Downloads\\adhaar.jpg",
-                "Residential proof": "C:\\Users\\Admin\\Downloads\\address 1.jpg",
+                "Proof of identity": "C:/Users/Administrator/Downloads/dummy.pdf",
+                "Residential proof": "C:/Users/Administrator/Downloads/dummy.pdf",
                 "Form of contribution": "Cash",
                 "Monetary value": "1000",
                 "Number of LLPs": "0",
@@ -167,7 +167,7 @@
                 "If Others selected, please specify": "Self Employed",
                 "Educational qualification": "Bachelor's degree",
                 "Educational qualification others": "",
-                "Mobile No.": "",
+                "Mobile No.": "+919354886960",
                 "Email ID": "shireeshadeepthi1820@gmail.com",
                 "Permanent Address Line I": "7-14A BAJANTHRI STREET",
                 "Permanent Address Line II": "PALAMANER",
@@ -193,8 +193,8 @@
                 "Residential Proof": "Bank Statement",
                 "Identity Proof No.": "362790574322",
                 "Residential Proof No.": "833942988",
-                "Proof of identity": "C:\\Users\\Admin\\Downloads\\Shireesha adhaar.jpg",
-                "Residential proof": "C:\\Users\\Admin\\Downloads\\address 2.pdf",
+                "Proof of identity": "C:/Users/Administrator/Downloads/dummy.pdf",
+                "Residential proof": "C:/Users/Administrator/Downloads/dummy.pdf",
                 "Form of contribution": "Cash",
                 "Monetary value": "10000",
                 "Number of LLPs": "0",
@@ -225,7 +225,7 @@
                 "Name": "Ashish",
                 "Whether resident of India": "Yes",
                 "Designation and Authority in body corporate": "Director",
-                "Copy of resolution": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+                "Copy of resolution": "C:/Users/Administrator/Downloads/dummy.pdf"
             }
         ],
         "bodies_corporate_nominee_no_din": [
@@ -320,9 +320,9 @@
                     "number": "EB123456789"
                 },
                 "uploads": {
-                    "identity_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-                    "residential_proof_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf",
-                    "resolution_copy_path": "C:\\Users\\Admin\\Downloads\\dummypdf.pdf"
+                    "identity_proof_path": "C:/Users/Administrator/Downloads/dummy.pdf",
+                    "residential_proof_path": "C:/Users/Administrator/Downloads/dummy.pdf",
+                    "resolution_copy_path": "C:/Users/Administrator/Downloads/dummy.pdf"
                 }
             }
         ]
