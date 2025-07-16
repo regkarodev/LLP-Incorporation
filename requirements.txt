@@ -1,8 +1,41 @@
+# Web Framework and API
 flask==3.1.0
 flask-cors==5.0.0
+flask-swagger-ui==4.11.1
+
+# Browser Automation
 selenium==4.27.1
-python-dotenv==1.0.1
 webdriver-manager==4.0.2
-pynput==1.7.7
-requests==2.32.3
 playwright==1.49.1
+
+# Input/Output Automation
+pynput==1.7.7
+pywin32==308
+
+# HTTP Requests
+requests==2.32.3
+
+# Data Processing
+pandas==2.2.3
+pymongo==4.10.1
+
+# Environment and Configuration
+python-dotenv==1.0.1
+
+# Production Server (for deployment)
+gunicorn==21.2.0
+waitress==2.1.2
+
+# Standard Library Dependencies (already included in Python)
+# - asyncio
+# - base64  
+# - json
+# - logging
+# - os
+# - platform
+# - shutil
+# - sqlite3
+# - tempfile
+# - threading
+# - time
+# - traceback

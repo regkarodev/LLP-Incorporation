@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLP Incorporation Automation</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -496,25 +497,35 @@
                 }
                 
                 console.log("Starting automation for Profile:", state.activeProfileId);
-                console.log("Data being sent:", activeProfile.data);
+                console.log("Profile data:", activeProfile.data);
+                
+                // Wrap the profile data in the config_data structure expected by the API
+                const requestData = {
+                    config_data: activeProfile.data
+                };
+                
+                console.log("Request data being sent:", requestData);
                 
                 showModal("Processing...", "Sending data to automation server. Please wait.");
 
                 try {
-                    const response = await fetch('http://127.0.0.1:5000/api/automate', {
+                    
+                    const response = await fetch('http://65.0.202.146:8009/api/automate', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(activeProfile.data) // Send the entire profile data object
+                        body: JSON.stringify(requestData) // Send data in the format expected by the API
                     });
                     
                     const result = await response.json();
                     
                     if (response.ok) {
                         showModal("Success!", `Automation started successfully. Task ID: ${result.task_id}`);
+                        console.log("Automation started successfully:", result);
                     } else {
                         showModal("API Error", `Server responded with an error: ${result.message}`, true);
+                        console.error("API Error:", result);
                     }
 
                 } catch (error) {

@@ -84,6 +84,52 @@ def run_automation_task(task_id, config_json):
             worker.cleanup()
             logger.info(f"Browser for task {task_id} has been cleaned up.")
 
+@app.route('/', methods=['GET'])
+def home():
+    """
+    Root endpoint that provides API information and usage instructions.
+    """
+    return jsonify({
+        "message": "LLP Incorporation Automation API",
+        "version": "1.0.0",
+        "endpoints": {
+            "GET /ui": "Access the web interface",
+            "POST /api/automate": "Start automation process",
+            "GET /api/status/{task_id}": "Check automation status",
+            "GET /api/docs": "View API documentation"
+        },
+        "ui_access": "Visit /ui for the web interface",
+        "documentation": "Visit /api/docs for interactive API documentation",
+        "usage": "Send POST requests to /api/automate with JSON data"
+    })
+
+@app.route('/api', methods=['GET'])
+def api_info():
+    """
+    API info endpoint that provides endpoint details.
+    """
+    return jsonify({
+        "message": "LLP Incorporation Automation API",
+        "available_endpoints": {
+            "GET /ui": {
+                "description": "Access the web interface",
+                "example": "http://65.0.202.146:8009/ui"
+            },
+            "POST /api/automate": {
+                "description": "Start automation process",
+                "content_type": "application/json",
+                "example": "See /api/docs for detailed schema"
+            },
+            "GET /api/status/{task_id}": {
+                "description": "Check automation status",
+                "example": "/api/status/1734183206"
+            },
+            "GET /api/docs": {
+                "description": "Interactive API documentation"
+            }
+        }
+    })
+
 @app.route('/api/automate', methods=['POST'])
 def start_automation():
     """
@@ -132,10 +178,45 @@ def get_status(task_id):
             return jsonify({"status": "error", "message": "Task not found"}), 404
         return jsonify(task)
 
+@app.route('/ui')
+@app.route('/ui/')
+def serve_ui():
+    """
+    Serve the main UI interface.
+    """
+    from flask import send_from_directory
+    return send_from_directory('.', 'index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    """
+    Serve favicon to prevent 404 errors.
+    """
+    from flask import send_from_directory
+    import os
+    
+    # Try to serve favicon from static directory
+    favicon_path = os.path.join(app.root_path, 'static', 'favicon.ico')
+    if os.path.exists(favicon_path):
+        return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
+    else:
+        # Return a simple response to prevent 404
+        return '', 204  # No Content response
+
 if __name__ == '__main__':
     # Ensure the static directory exists for swagger.json
     if not os.path.exists('static'):
         os.makedirs('static')
-    # Note: For production, use a proper WSGI server like Gunicorn or Waitress instead of app.run()
-    logger.info("Starting Flask API server on http://127.0.0.1:5000")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    
+    # Environment-based configuration
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', '8009'))
+    
+    if debug_mode:
+        logger.info(f"Starting Flask API server in DEBUG mode on http://{host}:{port}")
+    else:
+        logger.info(f"Starting Flask API server in PRODUCTION mode on http://{host}:{port}")
+        logger.info("Note: For production, use a proper WSGI server like Gunicorn or Waitress instead of app.run()")
+    
+    app.run(host=host, port=port, debug=debug_mode)

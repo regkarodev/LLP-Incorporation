@@ -123,7 +123,7 @@ The web interface (`index.html`) provides a user-friendly way to:
 ### API Configuration
 Update the API endpoint in `index.html` if needed:
 ```javascript
-const response = await fetch('http://127.0.0.1:5000/api/automate', {
+const response = await fetch('http://65.0.202.146:8009/api/automate', {
     method: 'POST',
     headers: {
         'Accept': 'application/json'
@@ -144,7 +144,7 @@ const response = await fetch('http://127.0.0.1:5000/api/automate', {
 ```bash
 python api_main.py
 ```
-The API server will start and listen for automation requests on `http://127.0.0.1:5000`.
+The API server will start and listen for automation requests on `http://65.0.202.146:8009`.
 
 ### Direct Automation
 ```bash

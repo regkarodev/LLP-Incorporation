@@ -93,6 +93,7 @@ def initialize_browser(firefox_profile_path):
     
     # Disable autofill and password saving to prevent interference
     firefox_options.set_preference("signon.autofillForms", False)
+    
     firefox_options.set_preference("signon.rememberSignons", False)
     firefox_options.set_preference("browser.formfill.enable", False)
     firefox_options.set_preference("extensions.formautofill.addresses.enabled", False)
